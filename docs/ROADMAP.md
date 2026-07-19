@@ -4,6 +4,8 @@ This roadmap describes product development, not the educational competency roadm
 
 ## Phase 0 — Foundation
 
+**Status: Completed.**
+
 Goal: establish project rules and repository structure.
 
 Deliverables:
@@ -18,6 +20,8 @@ Deliverables:
 
 ## Phase 1 — Content model
 
+**Status: Completed.**
+
 Goal: define a stable machine-readable representation of topics.
 
 Deliverables:
@@ -29,6 +33,8 @@ Deliverables:
 - validation rules.
 
 ## Phase 2 — Competency import
+
+**Status: Current; not completed.**
 
 Goal: transform source competency matrices into an approved learning graph.
 
@@ -121,4 +127,4 @@ Possible deliverables:
 
 ## Current phase
 
-**Phase 0 — Foundation**
+**Phase 2 — Competency import**

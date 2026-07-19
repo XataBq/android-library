@@ -28,9 +28,10 @@ The repository will gradually contain:
 
 1. Read `docs/PROJECT_VISION.md`.
 2. Read `docs/PROJECT_PRINCIPLES.md`.
-3. Read `docs/ARCHITECTURE.md`.
-4. Read `docs/DEVELOPMENT_WORKFLOW.md`.
-5. Read `docs/CONTENT_MODEL.md` before authoring educational content.
-6. Run `python scripts/validate_content.py` after adding or changing topic content.
-7. Read `docs/CONTENT_VALIDATION.md` for validator rules and diagnostics.
-8. Read `AGENTS.md` before using an AI coding agent.
+3. Read `docs/PROJECT_STATE.md` for the current phase, completed capabilities, and next work.
+4. Read `docs/ARCHITECTURE.md`.
+5. Read `docs/DEVELOPMENT_WORKFLOW.md`.
+6. Read `docs/CONTENT_MODEL.md` before authoring educational content.
+7. Run `python scripts/validate_content.py` after adding or changing topic content.
+8. Read `docs/CONTENT_VALIDATION.md` for validator rules and diagnostics.
+9. Read `AGENTS.md` before using an AI coding agent.
