@@ -1,0 +1,17 @@
+id: validation-fixture-source
+title: Invented competency source fixture
+source_type: personal-analysis
+language: en
+source_version: 1
+status: draft
+repository_usage: owned
+provenance:
+  citation: Invented fixture created for schema validation
+  version_label: fixture-1
+scope:
+  roles:
+    - Example role
+  declared_levels:
+    - Example level
+  platforms: []
+  technologies: []

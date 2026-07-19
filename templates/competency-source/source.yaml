@@ -1,0 +1,16 @@
+# Template metadata only. Replace every placeholder before review.
+id: replace-this-source
+title: Replace this source title
+source_type: other
+language: en
+source_version: 1
+status: draft
+repository_usage: owned
+provenance:
+  citation: Replace with a concise identification of the owner-created source
+  version_label: Replace with the source's own version label
+scope:
+  roles: []
+  declared_levels: []
+  platforms: []
+  technologies: []

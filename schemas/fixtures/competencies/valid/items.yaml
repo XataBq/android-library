@@ -1,0 +1,14 @@
+source_id: validation-fixture-source
+source_version: 1
+items:
+  - id: first-invented-statement
+    statement: Demonstrate one invented source statement.
+    locator:
+      type: section
+      value: Fixture section one
+    declared_level: Example level
+  - id: second-invented-statement
+    statement: Demonstrate another invented source statement.
+    locator:
+      type: item
+      value: Fixture item two

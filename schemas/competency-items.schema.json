@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/competency-items.schema.json",
+  "title": "Extracted competency source items",
+  "description": "Faithful source statements and their locations before normalization.",
+  "type": "object",
+  "required": ["source_id", "source_version", "items"],
+  "properties": {
+    "source_id": { "$ref": "#/$defs/sourceId" },
+    "source_version": {
+      "description": "The source version from which these items were extracted.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "description": "A non-empty collection of source-local statements.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "description": "A string containing at least one non-whitespace character.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "description": "A lowercase kebab-case identifier.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "sourceId": {
+      "description": "The stable identifier of the source being extracted.",
+      "$ref": "#/$defs/kebabCase"
+    },
+    "itemId": {
+      "description": "A stable identifier unique within one source.",
+      "$ref": "#/$defs/kebabCase"
+    },
+    "locator": {
+      "description": "A precise human-readable location within the represented source.",
+      "type": "object",
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "enum": ["page", "section", "heading", "row", "cell", "item", "timestamp", "other"]
+        },
+        "value": { "$ref": "#/$defs/nonEmptyString" },
+        "details": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    },
+    "item": {
+      "description": "One faithful source statement before normalization or relationship design.",
+      "type": "object",
+      "required": ["id", "statement", "locator"],
+      "properties": {
+        "id": { "$ref": "#/$defs/itemId" },
+        "statement": {
+          "description": "The original requirement or a faithful transcription.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "locator": { "$ref": "#/$defs/locator" },
+        "context": {
+          "description": "Unique hierarchy labels preserved from the source.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "declared_level": {
+          "description": "A level label exactly as declared by the source.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "transcription_notes": {
+          "description": "Extraction caveats without normalization decisions.",
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

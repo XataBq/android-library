@@ -1,0 +1,6 @@
+# Intentionally invalid: every item requires a locator.
+source_id: missing-locator-fixture
+source_version: 1
+items:
+  - id: missing-locator-item
+    statement: Invented statement without a locator.

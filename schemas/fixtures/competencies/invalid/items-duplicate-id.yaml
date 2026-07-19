@@ -1,0 +1,14 @@
+# Intentionally invalid: item IDs must be unique within a source.
+source_id: duplicate-item-fixture
+source_version: 1
+items:
+  - id: repeated-item
+    statement: First invented statement.
+    locator:
+      type: row
+      value: Row one
+  - id: repeated-item
+    statement: Second invented statement.
+    locator:
+      type: row
+      value: Row two

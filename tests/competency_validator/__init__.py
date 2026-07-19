@@ -1,0 +1,1 @@
+"""Competency source validator tests."""

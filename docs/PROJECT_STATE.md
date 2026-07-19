@@ -20,7 +20,9 @@ The repository currently provides:
 - a repository-local content validator;
 - separate schema and repository-wide semantic validation;
 - prerequisite dependency-cycle detection;
-- unit tests for validator behavior.
+- unit tests for validator behavior;
+- a provenance-preserving competency source model and templates;
+- competency source schemas, fixtures, and repository-local validation.
 
 ## Completed tasks
 
@@ -30,9 +32,8 @@ The repository currently provides:
 
 ## Current focus
 
-The current focus is to:
+The next operational step is importing the first approved competency source. The broader Phase 2 focus remains to:
 
-- define how source competencies are represented;
 - import the first competency source;
 - normalize duplicate and overlapping requirements;
 - build an approved prerequisite graph;

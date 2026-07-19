@@ -31,7 +31,9 @@ The repository will gradually contain:
 3. Read `docs/PROJECT_STATE.md` for the current phase, completed capabilities, and next work.
 4. Read `docs/ARCHITECTURE.md`.
 5. Read `docs/DEVELOPMENT_WORKFLOW.md`.
-6. Read `docs/CONTENT_MODEL.md` before authoring educational content.
-7. Run `python scripts/validate_content.py` after adding or changing topic content.
-8. Read `docs/CONTENT_VALIDATION.md` for validator rules and diagnostics.
-9. Read `AGENTS.md` before using an AI coding agent.
+6. Read `docs/COMPETENCY_SOURCE_MODEL.md` before recording competency sources.
+7. Run `python -B scripts/validate_competencies.py` after adding or changing competency sources.
+8. Read `docs/CONTENT_MODEL.md` before authoring educational content.
+9. Run `python scripts/validate_content.py` after adding or changing topic content.
+10. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and diagnostics.
+11. Read `AGENTS.md` before using an AI coding agent.

@@ -1,0 +1,10 @@
+# Intentionally invalid: repository_usage must use the controlled enum.
+id: invalid-usage-fixture
+title: Invalid repository usage fixture
+source_type: other
+language: en
+source_version: 1
+status: draft
+repository_usage: unrestricted
+provenance:
+  citation: Invented invalid usage fixture

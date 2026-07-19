@@ -1,0 +1,18 @@
+# Template items only. Preserve source wording and replace every placeholder.
+source_id: replace-this-source
+source_version: 1
+items:
+  - id: replace-this-first-item
+    statement: Replace with the first faithful source statement.
+    locator:
+      type: heading
+      value: Replace with the source heading
+    context:
+      - Replace with a source hierarchy label
+    declared_level: Replace with the source-declared level
+  - id: replace-this-second-item
+    statement: Replace with the second faithful source statement.
+    locator:
+      type: row
+      value: Replace with a sheet name and row
+    transcription_notes: Replace with an extraction caveat or remove this field.
