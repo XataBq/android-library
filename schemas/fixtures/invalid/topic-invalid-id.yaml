@@ -1,0 +1,14 @@
+# Intentionally invalid: topic IDs must use lowercase kebab-case.
+id: Invalid_Topic_ID
+title: Invalid ID fixture
+track: tools
+section: content-validation
+difficulty: foundation
+status: draft
+estimated_minutes: 5
+content_version: 1
+prerequisites: []
+learning_outcomes:
+  - Identify an invalid topic ID.
+tags: []
+references: []

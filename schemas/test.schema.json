@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/test.schema.json",
+  "title": "Android Library topic test",
+  "description": "Author-defined assessment questions for one educational topic.",
+  "type": "object",
+  "required": ["topic_id", "content_version", "passing_score_percent", "questions"],
+  "properties": {
+    "topic_id": {
+      "$ref": "#/$defs/topicId"
+    },
+    "content_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "passing_score_percent": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/singleChoiceQuestion" },
+          { "$ref": "#/$defs/multipleChoiceQuestion" },
+          { "$ref": "#/$defs/trueFalseQuestion" },
+          { "$ref": "#/$defs/freeTextQuestion" },
+          { "$ref": "#/$defs/codeAnalysisQuestion" }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "description": "A string containing at least one non-whitespace character.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "description": "A lowercase kebab-case identifier or label.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "topicId": {
+      "description": "The path-independent stable ID of the topic being assessed.",
+      "$ref": "#/$defs/kebabCase"
+    },
+    "questionId": {
+      "description": "A stable question identifier unique within its topic.",
+      "$ref": "#/$defs/kebabCase"
+    },
+    "questionDifficulty": {
+      "description": "The intended knowledge level of an assessment question.",
+      "enum": ["foundation", "junior", "middle", "advanced"]
+    },
+    "points": {
+      "description": "A positive number of points assigned to an assessment item.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "option": {
+      "description": "A selectable answer option with a stable local identifier.",
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/kebabCase"
+        },
+        "text": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": false
+    },
+    "options": {
+      "description": "The answer options available for a choice question.",
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/option"
+      }
+    },
+    "rubricItem": {
+      "description": "One criterion and its point value in an answer rubric.",
+      "type": "object",
+      "required": ["criterion", "points"],
+      "properties": {
+        "criterion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "points": {
+          "$ref": "#/$defs/points"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rubric": {
+      "description": "Criteria used to evaluate a constructed answer.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/rubricItem"
+      }
+    },
+    "singleChoiceQuestion": {
+      "description": "A question with exactly one declared correct option.",
+      "type": "object",
+      "required": ["id", "type", "prompt", "difficulty", "points", "explanation", "options", "correct_option_id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/questionId" },
+        "type": { "const": "single-choice" },
+        "prompt": { "$ref": "#/$defs/nonEmptyString" },
+        "difficulty": { "$ref": "#/$defs/questionDifficulty" },
+        "points": { "$ref": "#/$defs/points" },
+        "explanation": { "$ref": "#/$defs/nonEmptyString" },
+        "options": { "$ref": "#/$defs/options" },
+        "correct_option_id": { "$ref": "#/$defs/kebabCase" }
+      },
+      "additionalProperties": false
+    },
+    "multipleChoiceQuestion": {
+      "description": "A question with one or more declared correct options.",
+      "type": "object",
+      "required": ["id", "type", "prompt", "difficulty", "points", "explanation", "options", "correct_option_ids"],
+      "properties": {
+        "id": { "$ref": "#/$defs/questionId" },
+        "type": { "const": "multiple-choice" },
+        "prompt": { "$ref": "#/$defs/nonEmptyString" },
+        "difficulty": { "$ref": "#/$defs/questionDifficulty" },
+        "points": { "$ref": "#/$defs/points" },
+        "explanation": { "$ref": "#/$defs/nonEmptyString" },
+        "options": { "$ref": "#/$defs/options" },
+        "correct_option_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/kebabCase" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "trueFalseQuestion": {
+      "description": "A question answered with a boolean value.",
+      "type": "object",
+      "required": ["id", "type", "prompt", "difficulty", "points", "explanation", "correct_answer"],
+      "properties": {
+        "id": { "$ref": "#/$defs/questionId" },
+        "type": { "const": "true-false" },
+        "prompt": { "$ref": "#/$defs/nonEmptyString" },
+        "difficulty": { "$ref": "#/$defs/questionDifficulty" },
+        "points": { "$ref": "#/$defs/points" },
+        "explanation": { "$ref": "#/$defs/nonEmptyString" },
+        "correct_answer": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "freeTextQuestion": {
+      "description": "A written-response question evaluated against a rubric.",
+      "type": "object",
+      "required": ["id", "type", "prompt", "difficulty", "points", "explanation", "rubric"],
+      "properties": {
+        "id": { "$ref": "#/$defs/questionId" },
+        "type": { "const": "free-text" },
+        "prompt": { "$ref": "#/$defs/nonEmptyString" },
+        "difficulty": { "$ref": "#/$defs/questionDifficulty" },
+        "points": { "$ref": "#/$defs/points" },
+        "explanation": { "$ref": "#/$defs/nonEmptyString" },
+        "rubric": { "$ref": "#/$defs/rubric" },
+        "sample_answer": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    },
+    "codeAnalysisQuestion": {
+      "description": "A code-reading question evaluated against a rubric.",
+      "type": "object",
+      "required": ["id", "type", "prompt", "difficulty", "points", "explanation", "language", "code", "rubric"],
+      "properties": {
+        "id": { "$ref": "#/$defs/questionId" },
+        "type": { "const": "code-analysis" },
+        "prompt": { "$ref": "#/$defs/nonEmptyString" },
+        "difficulty": { "$ref": "#/$defs/questionDifficulty" },
+        "points": { "$ref": "#/$defs/points" },
+        "explanation": { "$ref": "#/$defs/nonEmptyString" },
+        "language": { "enum": ["java", "kotlin", "xml", "gradle-kotlin", "bash", "sql"] },
+        "code": { "$ref": "#/$defs/nonEmptyString" },
+        "rubric": { "$ref": "#/$defs/rubric" },
+        "sample_answer": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/topic.schema.json",
+  "title": "Android Library topic metadata",
+  "description": "Author-defined metadata for one educational topic package.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "track",
+    "section",
+    "difficulty",
+    "status",
+    "estimated_minutes",
+    "content_version",
+    "prerequisites",
+    "learning_outcomes",
+    "tags",
+    "references"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/topicId"
+    },
+    "title": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "track": {
+      "$ref": "#/$defs/track"
+    },
+    "section": {
+      "$ref": "#/$defs/kebabCase"
+    },
+    "difficulty": {
+      "$ref": "#/$defs/topicDifficulty"
+    },
+    "status": {
+      "description": "Publication state of the shared content, not learner progress.",
+      "enum": ["draft", "review", "published", "deprecated"]
+    },
+    "estimated_minutes": {
+      "description": "Expected active study time in minutes.",
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 600
+    },
+    "content_version": {
+      "description": "Integer version of the published educational meaning.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "prerequisites": {
+      "description": "Stable IDs of topics that should be learned first.",
+      "$ref": "#/$defs/topicIdArray"
+    },
+    "learning_outcomes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/kebabCase"
+      }
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "summary": {
+      "description": "A concise description of the topic.",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "android_connections": {
+      "$ref": "#/$defs/nonEmptyStringArray"
+    },
+    "jvm_connections": {
+      "$ref": "#/$defs/nonEmptyStringArray"
+    },
+    "related_topics": {
+      "description": "Stable IDs of related topics that are not prerequisites.",
+      "$ref": "#/$defs/topicIdArray"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "description": "A string containing at least one non-whitespace character.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "description": "A lowercase kebab-case identifier or label.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "topicId": {
+      "description": "A globally unique, path-independent, stable topic identifier.",
+      "$ref": "#/$defs/kebabCase"
+    },
+    "track": {
+      "description": "The controlled subject area to which a topic belongs.",
+      "enum": [
+        "computer-science",
+        "java",
+        "kotlin",
+        "jvm",
+        "algorithms",
+        "concurrency",
+        "coroutines",
+        "networking",
+        "databases",
+        "architecture",
+        "testing",
+        "security",
+        "android",
+        "system-design",
+        "tools"
+      ]
+    },
+    "topicDifficulty": {
+      "description": "The intended knowledge level of an educational topic.",
+      "enum": ["foundation", "junior", "middle", "advanced"]
+    },
+    "topicIdArray": {
+      "description": "A collection of unique stable topic identifiers.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/topicId"
+      }
+    },
+    "nonEmptyStringArray": {
+      "description": "A collection of unique, non-empty text values.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "reference": {
+      "description": "Source material supporting an educational topic.",
+      "type": "object",
+      "required": ["title", "url", "type"],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "type": {
+          "enum": [
+            "official-docs",
+            "specification",
+            "book",
+            "article",
+            "paper",
+            "video",
+            "course",
+            "repository"
+          ]
+        },
+        "author": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "accessed_on": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "notes": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

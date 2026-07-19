@@ -1,0 +1,62 @@
+topic_id: validation-fixture-topic
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: select-one-placeholder
+    type: single-choice
+    prompt: Select the expected placeholder option.
+    difficulty: foundation
+    points: 1
+    explanation: The expected option is identified by its stable option ID.
+    options:
+      - id: expected-option
+        text: Expected placeholder
+      - id: alternate-option
+        text: Alternate placeholder
+    correct_option_id: expected-option
+  - id: select-many-placeholders
+    type: multiple-choice
+    prompt: Select both expected placeholder options.
+    difficulty: junior
+    points: 2
+    explanation: Multiple-choice questions may identify more than one correct option.
+    options:
+      - id: expected-one
+        text: First expected placeholder
+      - id: expected-two
+        text: Second expected placeholder
+      - id: alternate-option
+        text: Alternate placeholder
+    correct_option_ids:
+      - expected-one
+      - expected-two
+  - id: evaluate-placeholder-statement
+    type: true-false
+    prompt: This file is a validation fixture rather than a published lesson.
+    difficulty: foundation
+    points: 1
+    explanation: Fixtures exercise the model without adding educational content.
+    correct_answer: true
+  - id: explain-placeholder-rule
+    type: free-text
+    prompt: State the purpose of this synthetic fixture.
+    difficulty: middle
+    points: 2
+    explanation: A rubric defines how an authored response should be assessed.
+    rubric:
+      - criterion: Identifies schema validation as the fixture purpose.
+        points: 2
+    sample_answer: It supplies synthetic data for schema validation.
+  - id: analyze-placeholder-code
+    type: code-analysis
+    prompt: Describe the value represented by the placeholder code.
+    difficulty: advanced
+    points: 2
+    explanation: Code-analysis questions provide source text and an authored rubric.
+    language: kotlin
+    code: |
+      val placeholder = true
+    rubric:
+      - criterion: Identifies that the placeholder value is true.
+        points: 2
+    sample_answer: The placeholder Boolean value is true.

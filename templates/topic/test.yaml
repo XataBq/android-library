@@ -1,0 +1,11 @@
+topic_id: replace-this-topic
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: replace-this-question
+    type: true-false
+    prompt: Replace with a true-or-false prompt.
+    difficulty: foundation
+    points: 1
+    explanation: Replace with the explanation shown after evaluation.
+    correct_answer: false

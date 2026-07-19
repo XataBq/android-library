@@ -1,0 +1,17 @@
+id: replace-this-topic
+title: Replace this topic title
+track: tools
+section: replace-this-section
+difficulty: foundation
+status: draft
+estimated_minutes: 5
+content_version: 1
+prerequisites: []
+learning_outcomes:
+  - Replace with an observable learning outcome.
+tags: []
+references:
+  - title: Replace with an authoritative source title
+    url: https://example.com/replace-this-reference
+    type: official-docs
+summary: Replace with a concise topic summary.

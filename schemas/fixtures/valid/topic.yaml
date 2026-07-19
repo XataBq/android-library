@@ -1,0 +1,24 @@
+id: validation-fixture-topic
+title: Validation fixture topic
+track: tools
+section: content-validation
+difficulty: foundation
+status: draft
+estimated_minutes: 10
+content_version: 1
+prerequisites:
+  - prerequisite-fixture-topic
+learning_outcomes:
+  - Identify the fields required by the topic schema.
+tags:
+  - validation-fixture
+references:
+  - title: JSON Schema specification
+    url: https://json-schema.org/draft/2020-12/json-schema-core
+    type: specification
+    accessed_on: "2026-07-19"
+summary: A synthetic fixture used only to validate the topic schema.
+android_connections: []
+jvm_connections: []
+related_topics:
+  - related-fixture-topic
