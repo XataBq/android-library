@@ -43,15 +43,13 @@ for a future learning graph.
 Implemented foundations:
 
 - source package and source-item model;
-- one external source package in `review`;
+- two external source packages in `review`;
 - proposed canonical competency model and registry validation;
-- one partially normalized canonical pilot in `review`.
+- one version 2 canonical set normalized across both sources in `review`;
+- a cross-source model review with an acceptance recommendation.
 
 Remaining Phase 2 milestones:
 
-- import a second independent source;
-- normalize it against the complete existing registry and record duplicates or
-  conflicts;
 - decide whether the canonical model can move from `PROPOSED` to `ACCEPTED`;
 - define a competency relation graph;
 - define the first learning sequence.

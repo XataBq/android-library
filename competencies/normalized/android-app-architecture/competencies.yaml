@@ -1,6 +1,6 @@
 schema_version: 1
 competency_set_id: android-app-architecture
-competency_set_version: 1
+competency_set_version: 2
 competencies:
   - id: explain-android-component-lifecycle-constraints
     title: Explain Android component lifecycle constraints
@@ -82,13 +82,23 @@ competencies:
   - id: explain-unidirectional-data-flow
     title: Explain unidirectional data flow
     outcome: >
-      Explain how application state flows toward the UI while events flow back
-      toward the source of truth that performs data changes.
+      Explain how application state flows toward the UI, UI actions or events
+      flow toward the state owner, and handling results are represented as
+      updated state.
     evidence:
       - source_id: android-developers-app-architecture
         source_version: 1
         item_ids:
           - use-unidirectional-data-flow
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - follow-udf-with-viewmodel-ui-state
+          - process-viewmodel-events-as-state-updates
+    normalization_notes: >
+      The second source specializes UDF through ViewModel state and UI actions.
+      The wording now expresses the shared state-and-event cycle without making
+      ViewModel the canonical identity or encoding recommendation strength.
 
   - id: explain-ui-layer-responsibilities
     title: Explain UI layer responsibilities
@@ -108,17 +118,25 @@ competencies:
   - id: design-data-layer-around-repositories
     title: Design a data layer around repositories
     outcome: >
-      Design a data layer that contains application business logic and exposes
-      application data through repositories organized by distinct data types.
+      Design a clearly defined data layer that contains application business
+      logic and exposes application data through repositories rather than
+      allowing other layers to access data sources directly.
     evidence:
       - source_id: android-developers-app-architecture
         source_version: 1
         item_ids:
           - include-ui-and-data-layers
           - organize-data-layer-around-repositories
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - define-data-layer-with-repositories
+          - expose-data-through-repositories
     normalization_notes: >
-      Merges the data-layer responsibility with the repository organization rule
-      because together they support one data-layer design capability.
+      The first source establishes layer responsibility and repository
+      organization. The second adds the direct-data-source boundary. The revised
+      wording preserves the same data-layer design identity while avoiding a
+      source-specific repository-count rule.
 
   - id: explain-repository-responsibilities
     title: Explain repository responsibilities
@@ -141,19 +159,172 @@ competencies:
         source_version: 1
         item_ids:
           - add-domain-layer-when-needed
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - use-domain-layer-in-big-apps
+    normalization_notes: >
+      Both sources make the layer conditional on complexity or reused logic.
+      The second source adds a big-app recommendation level and ViewModel
+      examples, but those source-level details do not change canonical identity.
 
   - id: explain-dependency-injection
     title: Explain dependency injection
     outcome: >
-      Explain how dependency-injection practices delegate object construction to
-      a dependency tree and can provide dependencies to Android framework classes.
+      Explain how dependency injection moves object construction out of
+      consumers so dependencies can be supplied through constructors or
+      framework-aware containers.
     evidence:
       - source_id: android-developers-app-architecture
         source_version: 1
         item_ids:
           - use-modern-architecture-techniques
           - prefer-dependency-injection-with-hilt
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - use-constructor-dependency-injection
     normalization_notes: >
-      Generalizes the Hilt-specific recommendation to dependency injection while
-      retaining supported construction and framework-container behavior. The
-      Hilt-specific compile-time verification claim is intentionally omitted.
+      Cross-source wording retains the general construction capability while
+      adding constructor injection from the second source. Hilt selection,
+      compile-time verification, and recommendation strength remain source-level
+      details rather than canonical identity.
+
+  - id: design-single-activity-navigation
+    title: Design single-activity navigation
+    outcome: >
+      Design an Android application in which one Activity hosts screens or
+      destinations and in-app navigation handles movement and deep links when
+      the application has multiple screens.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - use-single-activity-container
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - use-single-activity-with-navigation
+    normalization_notes: >
+      Both sources support the single-activity capability. Navigation 3 is a
+      source-specific implementation recommendation and is not part of the
+      stable canonical identity.
+
+  - id: use-coroutines-and-flows-across-layers
+    title: Use coroutines and flows across layers
+    outcome: >
+      Use Kotlin flows to receive application data across layer boundaries and
+      call suspend functions from ViewModels to perform actions.
+    evidence:
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - communicate-between-layers-with-coroutines-flows
+          - use-flows-and-suspend-functions-in-viewmodels
+    normalization_notes: >
+      The layer-level and ViewModel-level recommendations jointly define one
+      Kotlin-specific inter-layer communication capability without importing
+      guidance from linked coroutine publications.
+
+  - id: design-viewmodel-ui-state
+    title: Design ViewModel UI state
+    outcome: >
+      Design a ViewModel that obtains application data and exposes UI state
+      through StateFlow, selecting state properties, representation, and
+      construction strategy according to the data being presented.
+    evidence:
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - use-aac-viewmodels-when-beneficial
+          - expose-viewmodel-ui-state
+    normalization_notes: >
+      The two recommendations jointly support a ViewModel-specific state design
+      capability. It remains distinct from the broader explanation of UI-layer
+      responsibilities and preserves the source's conditional use of ViewModel.
+
+  - id: isolate-android-framework-dependencies
+    title: Isolate Android framework dependencies
+    outcome: >
+      Design classes outside Android app components, including ViewModels,
+      without retaining Activity, Context, Resources, or Application
+      dependencies, placing required platform access behind UI or data-layer
+      boundaries.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - isolate-android-framework-dependencies
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - keep-viewmodels-lifecycle-independent
+          - avoid-androidviewmodel
+    normalization_notes: >
+      The first source provides the general framework-isolation rule; the second
+      supplies the ViewModel-specific dependency boundary. This is distinct from
+      explaining lifecycle constraints on retaining application state.
+
+  - id: select-ui-state-holders-by-scope
+    title: Select UI state holders by scope
+    outcome: >
+      Select ViewModels for screen-level or explicitly scoped complex UI and
+      plain state-holder classes for reusable UI whose state should be hoisted
+      and controlled externally.
+    evidence:
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - scope-viewmodels-to-screens
+          - use-plain-state-holders-in-reusable-ui
+    normalization_notes: >
+      The paired recommendations define one selection boundary between
+      ViewModels and plain state holders. The competency applies that boundary
+      rather than duplicating the existing explanation of UI responsibilities.
+
+  - id: handle-compose-lifecycle-work
+    title: Handle lifecycle work in Compose UI
+    outcome: >
+      Handle UI state collection and other lifecycle-bound work in Compose with
+      lifecycle-aware effects or coroutine APIs instead of Activity lifecycle
+      callbacks.
+    evidence:
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - collect-ui-state-lifecycle-aware
+          - use-lifecycle-aware-compose-effects
+    normalization_notes: >
+      The two recommendations jointly support selecting lifecycle-aware Compose
+      mechanisms for state collection and other lifecycle work. Individual API
+      choices remain evidence detail rather than separate competencies.
+
+  - id: scope-dependencies-when-needed
+    title: Scope dependencies when needed
+    outcome: >
+      Scope a dependency to a container when mutable state must be shared or an
+      expensive, widely used instance should be reused.
+    evidence:
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - scope-shared-or-expensive-types
+    normalization_notes: >
+      Dependency scoping is independently assessable from explaining dependency
+      injection and is supported by explicit state-sharing and construction-cost
+      conditions.
+
+  - id: evaluate-layer-specific-models
+    title: Evaluate layer-specific models
+    outcome: >
+      Evaluate when a complex application benefits from mapping external or
+      persistence models to layer-specific representations that expose only the
+      data needed by their consumers.
+    evidence:
+      - source_id: android-developers-architecture-recommendations
+        source_version: 1
+        item_ids:
+          - separate-layer-models-in-complex-apps
+    normalization_notes: >
+      The outcome preserves the source's complex-app condition and optional
+      examples instead of turning one-model-per-layer into a universal rule.

@@ -6,9 +6,10 @@ A competency-driven learning platform and knowledge base for Android and softwar
 
 The project is in **Phase 2 — Competency import**. Two Android Developers source
 packages are implemented with `review` status. One canonical Android app
-architecture competency set is also implemented as a `review`-stage pilot based
-only on the first source. Cross-source normalization has not been performed;
-Task 008 is the next validation milestone.
+architecture competency set has been normalized across both sources as version
+2 and remains in `review`. Its cross-source review recommends accepting the
+model, but the canonical model remains `PROPOSED` pending human approval.
+Competency relations and the first learning sequence remain future work.
 
 The repository will gradually contain:
 

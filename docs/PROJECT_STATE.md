@@ -24,8 +24,8 @@ The repository currently provides:
 - a provenance-preserving competency source model and templates;
 - competency source schemas, fixtures, and repository-local validation;
 - two real competency source packages, each with review documentation;
-- canonical competency schemas, evidence-reference validation, and a small
-  Android app architecture pilot in review.
+- canonical competency schemas, evidence-reference validation, and a version 2
+  Android app architecture set normalized across both sources in review.
 
 ## Completed tasks
 
@@ -41,27 +41,26 @@ The repository currently provides:
 
 Two Android Developers source packages are implemented with `review` status:
 `android-developers-app-architecture` and
-`android-developers-architecture-recommendations`. Only the first source has a
-small canonical Android app architecture pilot, also in `review`. The canonical
-model remains `PROPOSED`, and cross-source normalization has not been performed.
-Phase 2 remains incomplete.
+`android-developers-architecture-recommendations`. Cross-source normalization
+has been performed against both packages. The resulting canonical Android app
+architecture package is version 2 and remains in `review`.
 
-Task 008 is the next validation milestone: normalize the second source against
-the complete existing canonical registry. This will test cross-source evidence
-reuse, duplicate review, and canonical wording before an architecture-status
-decision.
+The cross-source review recommends `ACCEPT`, but the canonical model remains
+`PROPOSED` until the human owner makes the architecture-status decision. Phase 2
+remains incomplete; competency relations and the first learning sequence are
+still future work.
 
 ## Next planned tasks
 
 The immediate planned sequence is:
 
-1. Perform Task 008 cross-source normalization against the existing canonical registry.
-2. Decide whether the canonical model can move from `PROPOSED` to `ACCEPTED`.
-3. Define competency relations and prerequisites.
-4. Define the first learning sequence.
-5. Map canonical competencies to authored educational topics.
-6. Generate the first content catalog.
-7. Create reviewed educational topics.
+1. Review the model acceptance recommendation and decide whether the canonical
+   model can move from `PROPOSED` to `ACCEPTED`.
+2. Define competency relations and prerequisites.
+3. Define the first learning sequence.
+4. Map canonical competencies to authored educational topics.
+5. Generate the first content catalog.
+6. Create reviewed educational topics.
 
 Exact task numbers for this work have not yet been approved.
 
