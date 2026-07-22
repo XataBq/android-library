@@ -1,0 +1,14 @@
+schema_version: 1
+mapping_id: fixture-wrong-topic-version
+mapping_version: 1
+language: en
+status: review
+competency_set:
+  id: fixture-competency-set
+  version: 1
+mappings:
+  - competency_id: explain-fixture-boundary
+    topics:
+      - topic_id: fixture-primary-topic
+        content_version: 2
+        coverage: primary

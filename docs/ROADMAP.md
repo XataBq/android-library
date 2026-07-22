@@ -49,7 +49,9 @@ Implemented foundations:
 - a cross-source model review and completed architecture acceptance decision;
 - canonical competency relation research, with production relations deferred;
 - a minimal ordered-stage learning-sequence model;
-- one Android app architecture foundations sequence in `review`.
+- one Android app architecture foundations sequence in `review`;
+- separate competency-to-topic mapping schema, validation, fixtures, and
+  authoring documentation, with no production mapping packages.
 
 Remaining Phase 2 milestones:
 
@@ -63,7 +65,8 @@ Goal: make the repository useful for real learning without an application.
 Deliverables:
 
 - first 10–15 reviewed topics;
-- mappings from canonical competencies to authored topics;
+- production mappings from canonical competencies to authored topics using the
+  implemented mapping contract;
 - catalog generation;
 - content validation;
 - internal link checking;

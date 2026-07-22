@@ -1,0 +1,8 @@
+schema_version: 1
+mapping_id: fixture-missing-mappings
+mapping_version: 1
+language: en
+status: review
+competency_set:
+  id: fixture-competency-set
+  version: 1

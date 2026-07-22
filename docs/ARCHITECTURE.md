@@ -6,7 +6,9 @@ The repository is currently in **Phase 2 — Competency import**. The repository
 foundation, educational topic contracts, source competency model, and first
 canonical competency model are implemented. Current work focuses on
 provenance-preserving source import, editorial canonicalization, and reviewed
-pedagogical sequences through canonical competencies.
+pedagogical sequences through canonical competencies. Separate
+competency-to-topic mapping infrastructure is implemented for future authored
+topics, without any production mapping packages.
 
 No production client architecture is considered final yet.
 
@@ -69,9 +71,9 @@ Evidence links
 Canonical competencies
         ├──────────────→ Authored learning sequences
         ├──────────────→ Future canonical relations (deferred)
-        └──────────────→ Future educational-topic mappings
+        └──────────────→ Competency-to-topic mappings
                                ↓
-                      Authored educational topics
+                      Future authored educational topics
 ```
 
 This is an editorial and architectural flow, not an automatic generation
@@ -83,10 +85,13 @@ capabilities independently of any one publication.
 Learning sequences are separate pedagogical data that reference a fixed
 canonical competency-set version. Their stage order is recommended only within
 the authored sequence and creates no canonical relation. Canonical competency
-relations remain deferred.
-Educational topics are separately authored learning material; they are not
-generated automatically from competencies. Learner progress is personal state
-and remains outside both competency and topic data.
+relations remain deferred. Competency-to-topic mapping packages are a separate
+implemented domain that owns versioned many-to-many relationships between
+canonical competencies and topics; no production mapping packages exist yet.
+Educational topics are separately authored learning material; none exist in
+production yet, and they are not generated automatically from competencies.
+Learner progress is personal state and remains outside competency, sequence,
+mapping, and topic data.
 
 ## Target high-level architecture
 
@@ -115,6 +120,7 @@ and remains outside both competency and topic data.
 android-library/
 ├── competencies/  Imported evidence, canonical competencies, and review reports
 ├── learning-sequences/  Authored pedagogical paths through canonical competencies
+├── competency-topic-mappings/  Versioned relationships from competencies to topics
 ├── content/       Authored educational topic packages
 ├── docs/          Project, workflow, and architecture documentation
 ├── schemas/       Machine-readable content and competency schemas
@@ -140,6 +146,11 @@ learning-sequences/
 └── reports/        Sequence implementation and review records
 ```
 
+The implemented competency-to-topic mapping area currently contains its model
+documentation and implementation reports. Future production packages will use
+`competency-topic-mappings/<mapping-id>/mapping.yaml`. No such package exists
+until production educational topics justify it.
+
 Potential `web/`, `android/`, `backend/`, `shared/`, `tools/`, and `.github/`
 areas remain future work. A future directory's presence would not authorize its
 implementation.
@@ -151,8 +162,11 @@ implementation.
 - Canonical competencies may reference versioned source evidence.
 - Learning sequences reference one exact canonical competency set and version;
   their order does not create canonical competency relations.
-- Educational topics may later map to canonical competencies, but this
-  architecture does not yet define that mapping.
+- Competency-to-topic mapping packages reference one exact canonical
+  competency-set version and exact topic content versions. The relationship is
+  not stored in either referenced domain and is independent from sequences.
+- Educational topics remain separately authored content and do not depend on a
+  mapping package for their identity or prerequisite semantics.
 - Competency data does not depend on clients or learner state.
 - Educational content does not depend on web, Android, backend, or database
   models.
@@ -164,8 +178,9 @@ implementation.
 Any future canonical competency relation graph would describe relationships
 between capabilities. Learning-sequence stage order is contextual pedagogical
 guidance. The existing topic prerequisite graph describes dependencies between
-authored learning materials. These are separate data models and must not be
-merged.
+authored learning materials. Competency-to-topic mappings describe content
+coverage and create none of those relations. These are separate data models and
+must not be merged.
 
 ## Educational topic package
 
@@ -191,7 +206,8 @@ repository architecture for stable, source-independent, evidence-backed
 competencies. Both source packages and the canonical competency set remain in
 `review`, as does learning sequence version 1. Architecture acceptance does not
 approve those editorial packages. Canonical relations and competency-to-topic
-mappings remain deferred.
+production mappings remain deferred; only the separate mapping infrastructure
+is implemented.
 
 ## Architecture decision records
 

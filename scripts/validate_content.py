@@ -130,7 +130,8 @@ def _load_schemas(
     return validators if len(validators) == 2 else None
 
 
-def _discover_packages(root: Path) -> list[Package]:
+def discover_topic_packages(root: Path) -> list[Package]:
+    """Discover canonical topic package directories in deterministic order."""
     content = root / "content"
     if not content.is_dir():
         return []
@@ -465,7 +466,7 @@ def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
     if verbose:
         result.verbose_messages.append("Loaded and meta-validated Draft 2020-12 schemas.")
     _validate_support_files(root, validators, result)
-    packages = _discover_packages(root)
+    packages = discover_topic_packages(root)
     result.package_count = len(packages)
     if verbose:
         result.verbose_messages.append(f"Discovered {len(packages)} topic package(s).")

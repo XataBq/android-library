@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/competency-topic-mapping.schema.json",
+  "title": "Competency-to-topic mapping package",
+  "description": "A versioned set of authored relationships from one canonical competency set to educational topic packages.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "mapping_id",
+    "mapping_version",
+    "language",
+    "status",
+    "competency_set",
+    "mappings"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "mapping_id": { "$ref": "#/$defs/kebabCase" },
+    "mapping_version": { "type": "integer", "minimum": 1 },
+    "language": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+    },
+    "status": { "enum": ["draft", "review", "approved", "deprecated"] },
+    "competency_set": { "$ref": "#/$defs/competencySetReference" },
+    "mappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/mappingEntry" }
+    },
+    "description": { "$ref": "#/$defs/nonEmptyString" },
+    "editorial_notes": { "$ref": "#/$defs/nonEmptyString" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "competencySetReference": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/kebabCase" },
+        "version": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "mappingEntry": {
+      "type": "object",
+      "required": ["competency_id", "topics"],
+      "properties": {
+        "competency_id": { "$ref": "#/$defs/kebabCase" },
+        "topics": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/topicReference" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "topicReference": {
+      "type": "object",
+      "required": ["topic_id", "content_version", "coverage"],
+      "properties": {
+        "topic_id": { "$ref": "#/$defs/kebabCase" },
+        "content_version": { "type": "integer", "minimum": 1 },
+        "coverage": { "enum": ["primary", "partial"] },
+        "rationale": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

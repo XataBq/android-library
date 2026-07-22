@@ -29,7 +29,9 @@ The repository currently provides:
   normalized across both sources in review;
 - a minimal ordered-stage learning-sequence schema, semantic reference
   validation, fixtures, tests, and authoring documentation;
-- the first Android app architecture foundations sequence in `review`.
+- the first Android app architecture foundations sequence in `review`;
+- a separate version 1 competency-to-topic mapping schema, cross-domain
+  reference validation, fixtures, tests, and authoring documentation.
 
 ## Completed tasks
 
@@ -60,6 +62,9 @@ change the editorial state of either source package or the canonical package;
 all remain in `review`. Canonical competency relations were researched and
 deferred. The minimal learning-sequence model is implemented, and
 `android-app-architecture-foundations` version 1 also remains in `review`.
+Competency-to-topic mapping infrastructure is implemented as a separate domain,
+but there are no production mapping packages because production educational
+topics have not yet been authored.
 
 ## Next planned tasks
 
@@ -67,11 +72,10 @@ The immediate planned sequence is:
 
 1. Review the first learning sequence as an editorial package without treating
    its stage order as canonical competency relations.
-2. Define a separately approved competency-to-topic mapping before using one.
-3. Map canonical competencies to authored educational topics without treating
-   topics as sequence nodes.
-4. Create the first reviewed educational topics.
-5. Generate the first content catalog when real content justifies it.
+2. Create the first reviewed educational topics.
+3. Author production competency-to-topic mappings against exact reviewed topic
+   and canonical package versions without treating topics as sequence nodes.
+4. Generate the first content catalog when real content justifies it.
 
 Exact task numbers for this work have not yet been approved.
 
@@ -84,7 +88,7 @@ The completed foundation and content tooling do not yet provide:
 - approved canonical competency packages;
 - approved or published learning-sequence packages;
 - canonical competency relations;
-- competency-to-topic mappings;
+- production competency-to-topic mapping packages;
 - a generated content catalog;
 - a web application;
 - an Android application;

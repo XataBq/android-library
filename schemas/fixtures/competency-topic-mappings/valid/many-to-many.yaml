@@ -1,0 +1,26 @@
+schema_version: 1
+mapping_id: fixture-many-to-many-mapping
+mapping_version: 1
+language: en
+status: review
+description: Fixture demonstrating multiple competencies and topic references.
+competency_set:
+  id: fixture-competency-set
+  version: 1
+mappings:
+  - competency_id: explain-fixture-boundary
+    topics:
+      - topic_id: fixture-primary-topic
+        content_version: 1
+        coverage: primary
+        rationale: The topic has this competency as a primary educational goal.
+      - topic_id: fixture-secondary-topic
+        content_version: 2
+        coverage: partial
+        rationale: The topic intentionally teaches only part of the competency.
+  - competency_id: apply-fixture-boundary
+    topics:
+      - topic_id: fixture-primary-topic
+        content_version: 1
+        coverage: partial
+editorial_notes: Fixture data only; this is not a production mapping.

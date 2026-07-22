@@ -1,4 +1,4 @@
-"""Validate repository competency and learning-sequence packages."""
+"""Validate repository competency, sequence, and topic-mapping packages."""
 
 from __future__ import annotations
 
@@ -13,6 +13,11 @@ from typing import Any, Iterable, Mapping
 import yaml
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
+
+try:
+    from scripts.validate_content import discover_topic_packages
+except ImportError:  # Direct execution places the scripts directory on sys.path.
+    from validate_content import discover_topic_packages
 
 
 class Code:
@@ -55,6 +60,17 @@ class Code:
     DUPLICATE_SEQUENCE_COMPETENCY = "DUPLICATE_SEQUENCE_COMPETENCY"
     EMPTY_SEQUENCE_STAGES = "EMPTY_SEQUENCE_STAGES"
     EMPTY_STAGE_COMPETENCIES = "EMPTY_STAGE_COMPETENCIES"
+    MAPPING_COMPETENCY_SET_MISSING = "MAPPING_COMPETENCY_SET_MISSING"
+    MAPPING_COMPETENCY_SET_VERSION_MISMATCH = (
+        "MAPPING_COMPETENCY_SET_VERSION_MISMATCH"
+    )
+    MAPPING_COMPETENCY_MISSING = "MAPPING_COMPETENCY_MISSING"
+    MAPPING_TOPIC_MISSING = "MAPPING_TOPIC_MISSING"
+    MAPPING_TOPIC_VERSION_MISMATCH = "MAPPING_TOPIC_VERSION_MISMATCH"
+    DUPLICATE_MAPPING_COMPETENCY = "DUPLICATE_MAPPING_COMPETENCY"
+    DUPLICATE_MAPPING_TOPIC_REFERENCE = "DUPLICATE_MAPPING_TOPIC_REFERENCE"
+    DUPLICATE_COMPETENCY_TOPIC_PAIR = "DUPLICATE_COMPETENCY_TOPIC_PAIR"
+    DUPLICATE_MAPPING_VERSION = "DUPLICATE_MAPPING_VERSION"
     INTERNAL = "INTERNAL"
 
 
@@ -95,6 +111,13 @@ class LearningSequencePackage:
     sequence: Any | None = None
 
 
+@dataclass
+class CompetencyTopicMappingPackage:
+    directory: Path
+    mapping_path: Path
+    mapping: Any | None = None
+
+
 @dataclass(frozen=True)
 class InvalidFixtureExpectation:
     schema_validator: str | None = None
@@ -112,6 +135,7 @@ class ValidationResult:
     package_count: int = 0
     canonical_package_count: int = 0
     sequence_package_count: int = 0
+    mapping_package_count: int = 0
     template_count: int = 0
     fixture_count: int = 0
     configuration_error: bool = False
@@ -161,6 +185,7 @@ def _load_schemas(
         "canonical_set": "canonical-competency-set.schema.json",
         "canonical_competencies": "canonical-competencies.schema.json",
         "learning_sequence": "learning-sequence.schema.json",
+        "competency_topic_mapping": "competency-topic-mapping.schema.json",
     }
     for kind, filename in schema_names.items():
         path = root / "schemas" / filename
@@ -377,6 +402,7 @@ def _validate_support_files(
     )
     _validate_canonical_fixtures(root, validators, result)
     _validate_learning_sequence_fixtures(root, validators, result)
+    _validate_competency_topic_mapping_fixtures(root, validators, result)
 
 
 def _validate_canonical_fixtures(
@@ -554,6 +580,138 @@ def _validate_learning_sequence_fixtures(
             )
 
 
+def _validate_competency_topic_mapping_fixtures(
+    root: Path,
+    validators: Mapping[str, Draft202012Validator],
+    result: ValidationResult,
+) -> None:
+    fixture_root = root / "schemas/fixtures/competency-topic-mappings"
+    valid_filenames = ("minimal.yaml", "many-to-many.yaml")
+    invalid_expectations = {
+        "missing-required-field.yaml": (("required",), ()),
+        "unsupported-schema-version.yaml": (("const",), ("schema_version",)),
+        "invalid-coverage.yaml": (
+            ("enum",),
+            ("mappings", 0, "topics", 0, "coverage"),
+        ),
+        "unexpected-property.yaml": (
+            ("additionalProperties",),
+            ("mappings", 0, "topics", 0),
+        ),
+        "malformed-root.yaml": (("type",), ()),
+    }
+    semantic_expectations = {
+        "duplicate-competency-entry.yaml": {Code.DUPLICATE_MAPPING_COMPETENCY},
+        "duplicate-topic-reference.yaml": {
+            Code.DUPLICATE_MAPPING_TOPIC_REFERENCE,
+            Code.DUPLICATE_COMPETENCY_TOPIC_PAIR,
+        },
+        "duplicate-competency-topic-pair.yaml": {
+            Code.DUPLICATE_MAPPING_COMPETENCY,
+            Code.DUPLICATE_COMPETENCY_TOPIC_PAIR,
+        },
+        "unknown-competency-set.yaml": {Code.MAPPING_COMPETENCY_SET_MISSING},
+        "wrong-competency-set-version.yaml": {
+            Code.MAPPING_COMPETENCY_SET_VERSION_MISMATCH
+        },
+        "unknown-competency.yaml": {Code.MAPPING_COMPETENCY_MISSING},
+        "unknown-topic.yaml": {Code.MAPPING_TOPIC_MISSING},
+        "wrong-topic-content-version.yaml": {Code.MAPPING_TOPIC_VERSION_MISMATCH},
+    }
+    result.fixture_count += (
+        len(valid_filenames) + len(invalid_expectations) + len(semantic_expectations)
+    )
+    validator = validators["competency_topic_mapping"]
+    fixture_canonical = CanonicalPackage(
+        directory=fixture_root / "fixture-competency-set",
+        set_path=fixture_root / "fixture-competency-set/competency-set.yaml",
+        competencies_path=fixture_root / "fixture-competency-set/competencies.yaml",
+        competency_set={"id": "fixture-competency-set", "version": 1},
+        competencies={
+            "competencies": [
+                {"id": "explain-fixture-boundary"},
+                {"id": "apply-fixture-boundary"},
+            ]
+        },
+    )
+    canonical_sets = {"fixture-competency-set": fixture_canonical}
+    topic_versions = {"fixture-primary-topic": 1, "fixture-secondary-topic": 2}
+
+    for filename in valid_filenames:
+        path = fixture_root / "valid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required mapping fixture is missing")
+            continue
+        data = _load_sequence_yaml(root, path, result)
+        if data is None:
+            continue
+        if not _validate_schema(root, path, validator, data, result):
+            continue
+        fixture_result = ValidationResult()
+        _validate_competency_topic_mapping(
+            root,
+            CompetencyTopicMappingPackage(path.parent / str(data.get("mapping_id")), path, data),
+            canonical_sets,
+            topic_versions,
+            fixture_result,
+        )
+        if fixture_result.diagnostics:
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "valid mapping fixture failed semantic validation",
+            )
+
+    for filename, (expected_validators, expected_path) in invalid_expectations.items():
+        path = fixture_root / "invalid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required mapping fixture is missing")
+            continue
+        data = _load_sequence_yaml(root, path, result)
+        if data is None:
+            continue
+        errors = _schema_errors(validator, data)
+        if (
+            sorted(error.validator for error in errors) != sorted(expected_validators)
+            or any(tuple(error.absolute_path) != expected_path for error in errors)
+        ):
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "fixture did not fail exclusively for its intended reason",
+            )
+
+    for filename, expected_codes in semantic_expectations.items():
+        path = fixture_root / "invalid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required mapping fixture is missing")
+            continue
+        data = _load_sequence_yaml(root, path, result)
+        if data is None:
+            continue
+        if _schema_errors(validator, data):
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "semantic fixture must satisfy the mapping schema",
+            )
+            continue
+        fixture_result = ValidationResult()
+        _validate_competency_topic_mapping(
+            root,
+            CompetencyTopicMappingPackage(path.parent / str(data.get("mapping_id")), path, data),
+            canonical_sets,
+            topic_versions,
+            fixture_result,
+        )
+        if {item.code for item in fixture_result.diagnostics} != expected_codes:
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "fixture did not fail exclusively for its intended semantic reason",
+            )
+
+
 def _discover_packages(root: Path) -> list[SourcePackage]:
     sources_root = root / "competencies/sources"
     if not sources_root.is_dir():
@@ -594,6 +752,22 @@ def _discover_learning_sequence_packages(root: Path) -> list[LearningSequencePac
             sequence_path=directory / "sequence.yaml",
         )
         for directory in sorted(sequences_root.iterdir(), key=lambda path: path.name)
+        if directory.is_dir() and directory.name != "reports"
+    ]
+
+
+def _discover_competency_topic_mapping_packages(
+    root: Path,
+) -> list[CompetencyTopicMappingPackage]:
+    mappings_root = root / "competency-topic-mappings"
+    if not mappings_root.is_dir():
+        return []
+    return [
+        CompetencyTopicMappingPackage(
+            directory=directory,
+            mapping_path=directory / "mapping.yaml",
+        )
+        for directory in sorted(mappings_root.iterdir(), key=lambda path: path.name)
         if directory.is_dir() and directory.name != "reports"
     ]
 
@@ -1160,6 +1334,202 @@ def _validate_learning_sequence_packages(
             )
 
 
+def _topic_version_index(root: Path, result: ValidationResult) -> dict[str, int]:
+    index: dict[str, int] = {}
+    for package in discover_topic_packages(root):
+        if not package.topic_path.is_file():
+            continue
+        topic = _load_yaml(root, package.topic_path, result)
+        if not isinstance(topic, Mapping):
+            continue
+        topic_id = topic.get("id")
+        content_version = topic.get("content_version")
+        if (
+            isinstance(topic_id, str)
+            and isinstance(content_version, int)
+            and not isinstance(content_version, bool)
+            and topic_id not in index
+        ):
+            index[topic_id] = content_version
+    return index
+
+
+def _validate_competency_topic_mapping(
+    root: Path,
+    package: CompetencyTopicMappingPackage,
+    canonical_sets: Mapping[str, CanonicalPackage],
+    topic_versions: Mapping[str, int],
+    result: ValidationResult,
+) -> None:
+    mapping = package.mapping
+    if not isinstance(mapping, Mapping):
+        return
+    display_path = _relative(root, package.mapping_path)
+    entries = mapping.get("mappings", [])
+    if not isinstance(entries, list):
+        return
+
+    competency_ids = [
+        entry.get("competency_id")
+        for entry in entries
+        if isinstance(entry, Mapping)
+    ]
+    for duplicate_id in _duplicates(competency_ids):
+        result.add(
+            Code.DUPLICATE_MAPPING_COMPETENCY,
+            display_path,
+            f"competency id {duplicate_id!r} appears in more than one mapping entry",
+            "mappings",
+        )
+
+    seen_pairs: set[tuple[str, str]] = set()
+    duplicate_pairs: set[tuple[str, str]] = set()
+    referenced_competencies: list[tuple[int, str]] = []
+    for entry_index, entry in enumerate(entries):
+        if not isinstance(entry, Mapping):
+            continue
+        competency_id = entry.get("competency_id")
+        if not isinstance(competency_id, str):
+            continue
+        referenced_competencies.append((entry_index, competency_id))
+        topics = entry.get("topics", [])
+        if not isinstance(topics, list):
+            continue
+        topic_ids = [
+            topic.get("topic_id")
+            for topic in topics
+            if isinstance(topic, Mapping)
+        ]
+        for duplicate_id in _duplicates(topic_ids):
+            result.add(
+                Code.DUPLICATE_MAPPING_TOPIC_REFERENCE,
+                display_path,
+                f"competency {competency_id!r} repeats topic reference {duplicate_id!r}",
+                f"mappings[{entry_index}] ({competency_id}).topics",
+            )
+        for topic_index, topic in enumerate(topics):
+            if not isinstance(topic, Mapping):
+                continue
+            topic_id = topic.get("topic_id")
+            if not isinstance(topic_id, str):
+                continue
+            pair = (competency_id, topic_id)
+            if pair in seen_pairs:
+                duplicate_pairs.add(pair)
+            seen_pairs.add(pair)
+            location = (
+                f"mappings[{entry_index}] ({competency_id}).topics[{topic_index}]"
+            )
+            actual_version = topic_versions.get(topic_id)
+            if actual_version is None:
+                result.add(
+                    Code.MAPPING_TOPIC_MISSING,
+                    display_path,
+                    f"referenced topic {topic_id!r} does not exist",
+                    f"{location}.topic_id",
+                )
+            elif topic.get("content_version") != actual_version:
+                result.add(
+                    Code.MAPPING_TOPIC_VERSION_MISMATCH,
+                    display_path,
+                    f"topic {topic_id!r} version {topic.get('content_version')!r} does not match repository version {actual_version!r}",
+                    f"{location}.content_version",
+                )
+
+    for competency_id, topic_id in sorted(duplicate_pairs):
+        result.add(
+            Code.DUPLICATE_COMPETENCY_TOPIC_PAIR,
+            display_path,
+            f"competency/topic pair ({competency_id!r}, {topic_id!r}) appears more than once",
+            "mappings",
+        )
+
+    set_reference = mapping.get("competency_set", {})
+    if not isinstance(set_reference, Mapping):
+        return
+    set_id = set_reference.get("id")
+    canonical_package = canonical_sets.get(set_id) if isinstance(set_id, str) else None
+    if canonical_package is None:
+        result.add(
+            Code.MAPPING_COMPETENCY_SET_MISSING,
+            display_path,
+            f"referenced competency set {set_id!r} does not exist",
+            "competency_set.id",
+        )
+        return
+    expected_version = (canonical_package.competency_set or {}).get("version")
+    referenced_version = set_reference.get("version")
+    if referenced_version != expected_version:
+        result.add(
+            Code.MAPPING_COMPETENCY_SET_VERSION_MISMATCH,
+            display_path,
+            f"competency set {set_id!r} version {referenced_version!r} does not match repository version {expected_version!r}",
+            "competency_set.version",
+        )
+        return
+    available_ids = _canonical_competency_ids(canonical_package)
+    for entry_index, competency_id in referenced_competencies:
+        if competency_id not in available_ids:
+            result.add(
+                Code.MAPPING_COMPETENCY_MISSING,
+                display_path,
+                f"mapping references missing competency {competency_id!r} in set {set_id!r} version {referenced_version!r}",
+                f"mappings[{entry_index}].competency_id",
+            )
+
+
+def _validate_competency_topic_mapping_packages(
+    root: Path,
+    packages: list[CompetencyTopicMappingPackage],
+    canonical_packages: list[CanonicalPackage],
+    validator: Draft202012Validator,
+    result: ValidationResult,
+) -> None:
+    canonical_sets = _canonical_set_index(canonical_packages)
+    topic_versions = _topic_version_index(root, result) if packages else {}
+    identities: dict[tuple[str, int], list[str]] = {}
+    for package in packages:
+        if not package.mapping_path.is_file():
+            result.add(
+                Code.MISSING_FILE,
+                _relative(root, package.directory),
+                "missing required file 'mapping.yaml'",
+            )
+            continue
+        package.mapping = _load_sequence_yaml(root, package.mapping_path, result)
+        if package.mapping is None:
+            continue
+        _validate_schema(root, package.mapping_path, validator, package.mapping, result)
+        _validate_competency_topic_mapping(
+            root,
+            package,
+            canonical_sets,
+            topic_versions,
+            result,
+        )
+        if not isinstance(package.mapping, Mapping):
+            continue
+        mapping_id = package.mapping.get("mapping_id")
+        mapping_version = package.mapping.get("mapping_version")
+        if (
+            isinstance(mapping_id, str)
+            and isinstance(mapping_version, int)
+            and not isinstance(mapping_version, bool)
+        ):
+            identities.setdefault((mapping_id, mapping_version), []).append(
+                _relative(root, package.mapping_path)
+            )
+    for (mapping_id, mapping_version), paths in sorted(identities.items()):
+        if len(paths) > 1:
+            ordered_paths = sorted(paths)
+            result.add(
+                Code.DUPLICATE_MAPPING_VERSION,
+                ordered_paths[0],
+                f"mapping {mapping_id!r} version {mapping_version!r} appears in: {', '.join(ordered_paths)}",
+                "mapping_version",
+            )
+
+
 def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
     root = root.resolve()
     result = ValidationResult()
@@ -1239,6 +1609,19 @@ def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
         validators["learning_sequence"],
         result,
     )
+    mapping_packages = _discover_competency_topic_mapping_packages(root)
+    result.mapping_package_count = len(mapping_packages)
+    if verbose:
+        result.verbose_messages.append(
+            f"Discovered {len(mapping_packages)} competency-to-topic mapping package(s)."
+        )
+    _validate_competency_topic_mapping_packages(
+        root,
+        mapping_packages,
+        canonical_packages,
+        validators["competency_topic_mapping"],
+        result,
+    )
     return result
 
 
@@ -1272,6 +1655,7 @@ def main(argv: list[str] | None = None) -> int:
             f"{result.package_count} source packages, "
             f"{result.canonical_package_count} canonical packages, "
             f"{result.sequence_package_count} learning-sequence packages, "
+            f"{result.mapping_package_count} competency-to-topic mapping packages, "
             f"{result.template_count} templates, {result.fixture_count} schema fixtures."
         )
     else:
@@ -1279,7 +1663,8 @@ def main(argv: list[str] | None = None) -> int:
             "Competency validation failed: "
             f"{len(diagnostics)} errors across {result.package_count} source packages "
             f"{result.canonical_package_count} canonical packages, and "
-            f"{result.sequence_package_count} learning-sequence packages."
+            f"{result.sequence_package_count} learning-sequence packages, and "
+            f"{result.mapping_package_count} competency-to-topic mapping packages."
         )
     return result.exit_code
 
