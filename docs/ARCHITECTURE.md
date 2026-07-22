@@ -2,9 +2,12 @@
 
 ## Current architectural stage
 
-The repository is currently in the **Foundation** phase.
+The repository is currently in **Phase 2 — Competency import**. The repository
+foundation, educational topic contracts, source competency model, and first
+canonical competency model are implemented. Current work focuses on
+provenance-preserving source import and editorial canonicalization.
 
-No production application architecture is considered final yet.
+No production client architecture is considered final yet.
 
 ## System boundaries
 
@@ -14,6 +17,8 @@ The project has two primary data categories.
 
 Examples:
 
+- imported competency source packages and source items;
+- canonical competencies and their evidence links;
 - topic metadata;
 - theory;
 - cheat sheets;
@@ -23,7 +28,7 @@ Examples:
 - references;
 - roadmap dependencies.
 
-Planned storage:
+Storage:
 
 - Markdown;
 - YAML or JSON;
@@ -46,6 +51,37 @@ Planned storage evolution:
 1. local browser storage for the earliest web MVP;
 2. persistent database when synchronization is introduced;
 3. local Android database plus synchronization for offline-first support.
+
+## Competency-to-content flow
+
+The current and future educational domains follow this conceptual flow:
+
+```text
+External publication
+        ↓
+Source package
+        ↓
+Source items
+        ↓
+Evidence links
+        ↓
+Canonical competencies
+        ↓
+Future relations and learning sequence
+        ↓
+Educational topics
+```
+
+This is an editorial and architectural flow, not an automatic generation
+pipeline. Source items preserve the meaning, context, and provenance of an
+external publication. Evidence links connect versioned source items to
+repository-owned canonical competencies, which express stable demonstrable
+capabilities independently of any one publication.
+
+Competency relations and learning sequences are future domain data.
+Educational topics are separately authored learning material; they are not
+generated automatically from competencies. Learner progress is personal state
+and remains outside both competency and topic data.
 
 ## Target high-level architecture
 
@@ -72,38 +108,51 @@ Planned storage evolution:
 
 ```text
 android-library/
-├── docs/          Project and architecture documentation
-├── content/       Educational content
-├── schemas/       Machine-readable content schemas
-├── templates/     Templates for new topics and tasks
-├── scripts/       Content validation and generation tools
-├── tasks/         Approved implementation tasks
-├── web/           Future web application
-├── android/       Future Android application
-├── backend/       Future custom backend, only when justified
-├── shared/        Future shared contracts or generated artifacts
-├── tools/         Developer tooling that does not belong in scripts
-└── .github/       CI, issue templates, and repository automation
+├── competencies/  Imported evidence, canonical competencies, and review reports
+├── content/       Authored educational topic packages
+├── docs/          Project, workflow, and architecture documentation
+├── schemas/       Machine-readable content and competency schemas
+├── templates/     Templates for topics, source packages, and tasks
+├── scripts/       Repository-local validation tools
+└── tasks/         Approved implementation tasks
 ```
 
-Empty future directories may contain `.gitkeep`. Their presence does not authorize implementation.
+The implemented competency area is organized as:
+
+```text
+competencies/
+├── sources/       Immutable, versioned representations of external publications
+├── normalized/    Repository-owned canonical competency sets and evidence links
+└── reports/       Import and normalization review records
+```
+
+Potential `web/`, `android/`, `backend/`, `shared/`, `tools/`, and `.github/`
+areas remain future work. A future directory's presence would not authorize its
+implementation.
 
 ## Dependency direction
 
-Educational content must not depend on:
+- Source packages preserve publication data and do not depend on canonical
+  competencies.
+- Canonical competencies may reference versioned source evidence.
+- Educational topics may later map to canonical competencies, but this
+  architecture does not yet define that mapping.
+- Competency data does not depend on clients or learner state.
+- Educational content does not depend on web, Android, backend, or database
+  models.
+- Clients and tooling may depend on stable educational contracts.
+- Learner state must refer to stable domain identifiers, not filesystem paths.
 
-- web code;
-- Android code;
-- backend code;
-- database models.
+## Separate future graphs
 
-Clients and tooling may depend on content contracts.
+The future competency prerequisite or relation graph describes relationships
+between canonical capabilities. The existing topic prerequisite graph describes
+authored learning-material dependencies between educational topics. They may
+inform one another, but they are separate data models and must not be merged.
 
-Personal progress models must refer to stable topic identifiers rather than filesystem paths.
+## Educational topic package
 
-## Initial topic package
-
-A topic is expected to evolve toward:
+The current topic contract uses:
 
 ```text
 content/<track>/<section>/<topic>/
@@ -115,7 +164,15 @@ content/<track>/<section>/<topic>/
 └── test.yaml
 ```
 
-The exact schemas will be approved in a dedicated task.
+The topic and test schemas are implemented under `schemas/`. Topic packages and
+their prerequisite graph remain separate from canonical competency data.
+
+## Canonical model status
+
+`docs/architecture/CANONICAL_COMPETENCY_MODEL.md` remains `PROPOSED`. The first
+canonical competency set exercises the model with one source, but a second
+independent source and cross-source normalization are still required before an
+acceptance decision.
 
 ## Architecture decision records
 

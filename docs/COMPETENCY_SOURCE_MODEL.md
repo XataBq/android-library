@@ -19,7 +19,10 @@ competencies/sources/<source-id>/
 
 `source.yaml` records identity, provenance, repository safety, source version, and optional source-declared scope. `items.yaml` contains faithful extracted statements and precise locators. `raw/` is optional and must contain only declared artifacts that may legally be stored.
 
-Templates are under `templates/competency-source/`. The reserved `competencies/normalized/` and `competencies/reports/` directories belong to later work.
+Templates are under `templates/competency-source/`. Canonical competency sets
+are stored under `competencies/normalized/`, and import and normalization review
+records are stored under `competencies/reports/`. These separate areas do not
+change or own source packages.
 
 ## Source metadata
 
@@ -103,7 +106,11 @@ python -B scripts/validate_competencies.py
 
 Semantic validation checks package/file identity, matching source versions, global source-ID uniqueness, source-local item-ID uniqueness, artifact paths, existence, regular-file type, checksums, undeclared raw files, and the `citation-only` restriction. It also verifies templates and valid/invalid fixture expectations with deterministic diagnostics.
 
-Normalization remains deferred. The validator does not infer cross-source duplicates, create canonical competencies, decide equivalence or merges, define prerequisite or related-competency edges, map items to topics, create learning sequences, or modify files.
+Normalization is a separate editorial workflow. The validator checks canonical
+package structure and evidence-reference integrity, but it does not infer
+cross-source duplicates, create canonical competencies, decide equivalence or
+merges, define prerequisite or related-competency edges, map items to topics,
+create learning sequences, or modify files.
 
 ## Author workflow
 

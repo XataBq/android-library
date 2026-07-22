@@ -36,17 +36,25 @@ Deliverables:
 
 **Status: Current; not completed.**
 
-Goal: import coherent, provenance-preserving source publications and later
-transform their reviewed items into an approved learning graph.
+Goal: import coherent, provenance-preserving source publications, normalize
+their evidence into canonical competencies, and establish the reviewed basis
+for a future learning graph.
 
-Deliverables:
+Implemented foundations:
 
-- reviewed source packages, one coherent publication or independently maintained
-  documentation section per package;
-- canonical competency registry;
-- duplicate and conflict report;
-- prerequisite graph;
-- first approved learning sequence.
+- source package and source-item model;
+- one external source package in `review`;
+- proposed canonical competency model and registry validation;
+- one partially normalized canonical pilot in `review`.
+
+Remaining Phase 2 milestones:
+
+- import a second independent source;
+- normalize it against the complete existing registry and record duplicates or
+  conflicts;
+- decide whether the canonical model can move from `PROPOSED` to `ACCEPTED`;
+- define a competency relation graph;
+- define the first learning sequence.
 
 ## Phase 3 — Content repository MVP
 

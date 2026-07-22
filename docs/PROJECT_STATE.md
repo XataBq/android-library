@@ -32,32 +32,37 @@ The repository currently provides:
 - **Task 000 — DONE:** Established the repository structure, project rules, architecture boundaries, and initial decision record.
 - **Task 001 — DONE:** Defined the YAML and Markdown educational content model, schemas, templates, fixtures, and author documentation.
 - **Task 002 — DONE:** Added the repository-local validator, semantic checks, deterministic diagnostics, tests, and validation documentation.
+- **Task 003 — completed:** Synchronized the documented project state and moved the roadmap to Phase 2.
+- **Task 004 — DONE:** Defined the provenance-preserving competency source model, schemas, fixtures, validator support, templates, and workflow documentation.
+- **Task 005 — DONE:** Imported the first external source package and recorded its extraction review.
+- **Task 006 — DONE:** Implemented the proposed canonical competency model, evidence validation, fixtures, tests, and a small canonical pilot. Task 006.1 completed its editorial and technical review.
 
 ## Current focus
 
 The first source package, `android-developers-app-architecture`, and a small
 canonical Android app architecture pilot are implemented with `review` status.
-The source has not been fully normalized, and Phase 2 remains incomplete. The
-broader Phase 2 focus remains to:
+The canonical model remains `PROPOSED`, and the imported source is only
+partially normalized. Phase 2 remains incomplete.
 
-- review and approve the first competency source package;
-- review and extend normalization of duplicate and overlapping requirements;
-- build an approved prerequisite graph;
-- define the first learning sequence.
+The next validation milestone is to import a second independent source and
+normalize it against the complete existing canonical registry. This will test
+cross-source evidence reuse, duplicate review, and canonical wording before an
+architecture-status decision.
 
 ## Next planned tasks
 
 The immediate planned sequence is:
 
-1. Task 004 — Define competency source model
-2. Task 005 — Import first competency source
-3. Task 006 — Normalize competencies
-4. Task 007 — Build prerequisite graph
-5. Task 008 — Approve first learning sequence
-6. Task 009 — Generate content catalog
-7. Task 010+ — Create first reviewed educational topics
+1. Import a second independent source.
+2. Perform cross-source normalization against the existing canonical registry.
+3. Decide whether the canonical model can move from `PROPOSED` to `ACCEPTED`.
+4. Define competency relations and prerequisites.
+5. Define the first learning sequence.
+6. Map canonical competencies to authored educational topics.
+7. Generate the first content catalog.
+8. Create reviewed educational topics.
 
-Task numbers after Task 003 describe the current plan and may be refined through the normal architecture-review process.
+Exact task numbers for this work have not yet been approved.
 
 ## Known non-goals and deferred work
 
