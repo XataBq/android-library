@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/canonical-competencies.schema.json",
+  "title": "Canonical competencies",
+  "description": "Repository-owned canonical capabilities with versioned source evidence.",
+  "type": "object",
+  "required": ["schema_version", "competency_set_id", "competency_set_version", "competencies"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "competency_set_id": { "$ref": "#/$defs/kebabCase" },
+    "competency_set_version": { "type": "integer", "minimum": 1 },
+    "competencies": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/competency" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "evidenceEntry": {
+      "type": "object",
+      "required": ["source_id", "source_version", "item_ids"],
+      "properties": {
+        "source_id": { "$ref": "#/$defs/kebabCase" },
+        "source_version": { "type": "integer", "minimum": 1 },
+        "item_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/kebabCase" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "competency": {
+      "type": "object",
+      "required": ["id", "title", "outcome", "evidence"],
+      "properties": {
+        "id": { "$ref": "#/$defs/kebabCase" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "outcome": { "$ref": "#/$defs/nonEmptyString" },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/evidenceEntry" }
+        },
+        "normalization_notes": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

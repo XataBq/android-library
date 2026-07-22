@@ -1,0 +1,159 @@
+schema_version: 1
+competency_set_id: android-app-architecture
+competency_set_version: 1
+competencies:
+  - id: explain-android-component-lifecycle-constraints
+    title: Explain Android component lifecycle constraints
+    outcome: >
+      Explain how Activity recreation and process termination constrain retaining
+      application data and state in Android framework components.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - expect-process-termination
+          - keep-state-out-of-activities
+    normalization_notes: >
+      Merges Activity recreation and process-termination evidence into one
+      explanatory capability about lifecycle-safe data and state ownership.
+
+  - id: design-independent-app-components
+    title: Design independent Android app components
+    outcome: >
+      Design activities, services, and broadcast receivers to remain independent
+      of application data ownership and retrieve only the data relevant to their
+      work.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - keep-app-components-independent
+          - keep-entry-points-from-owning-data
+    normalization_notes: >
+      Merges the general component-independence rule with the concrete entry-point
+      rule. Lifecycle evidence is intentionally confined to the separate
+      lifecycle-constraints competency.
+
+  - id: apply-separation-of-concerns
+    title: Apply separation of concerns
+    outcome: >
+      Apply separation of concerns by assigning clear responsibilities and
+      boundaries to application units instead of distributing one operation
+      across unrelated classes.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - define-architecture-boundaries
+          - separate-concerns
+          - define-module-responsibility-boundaries
+    normalization_notes: >
+      The general boundary principle, separation rule, and module guidance all
+      support one capability: assigning cohesive responsibilities across
+      application units as the app grows.
+
+  - id: explain-persistent-data-models
+    title: Explain persistent data models
+    outcome: >
+      Explain how persistent data models decouple application data from UI and
+      component lifecycles and preserve it through process removal or unavailable
+      connectivity.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - drive-ui-from-data-models
+          - use-persistent-models-for-resilience
+    normalization_notes: >
+      Merges the model-independence and resilience statements into one explanatory
+      capability without prescribing a storage technology.
+
+  - id: establish-single-source-of-truth
+    title: Establish a single source of truth
+    outcome: >
+      Establish one owner for each data type that exposes the data immutably and
+      performs all changes requested through its API.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - assign-single-source-of-truth
+
+  - id: explain-unidirectional-data-flow
+    title: Explain unidirectional data flow
+    outcome: >
+      Explain how application state flows toward the UI while events flow back
+      toward the source of truth that performs data changes.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - use-unidirectional-data-flow
+
+  - id: explain-ui-layer-responsibilities
+    title: Explain UI layer responsibilities
+    outcome: >
+      Explain how UI elements render data while state holders expose data, handle
+      UI logic, and live as long as the UI elements they serve.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - render-data-with-ui-elements
+          - manage-ui-state-with-state-holders
+    normalization_notes: >
+      Merges the complementary rendering and state-holder responsibilities into
+      one explanation of the UI layer without relying on the broader layer item.
+
+  - id: design-data-layer-around-repositories
+    title: Design a data layer around repositories
+    outcome: >
+      Design a data layer that contains application business logic and exposes
+      application data through repositories organized by distinct data types.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - include-ui-and-data-layers
+          - organize-data-layer-around-repositories
+    normalization_notes: >
+      Merges the data-layer responsibility with the repository organization rule
+      because together they support one data-layer design capability.
+
+  - id: explain-repository-responsibilities
+    title: Explain repository responsibilities
+    outcome: >
+      Explain how repositories expose application data, centralize data changes,
+      resolve conflicts, hide data sources, and contain applicable business logic.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - centralize-data-access-in-repositories
+
+  - id: evaluate-optional-domain-layer
+    title: Evaluate the need for a domain layer
+    outcome: >
+      Evaluate whether an optional domain layer is justified by complex logic or
+      logic reused across multiple state holders.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - add-domain-layer-when-needed
+
+  - id: explain-dependency-injection
+    title: Explain dependency injection
+    outcome: >
+      Explain how dependency-injection practices delegate object construction to
+      a dependency tree and can provide dependencies to Android framework classes.
+    evidence:
+      - source_id: android-developers-app-architecture
+        source_version: 1
+        item_ids:
+          - use-modern-architecture-techniques
+          - prefer-dependency-injection-with-hilt
+    normalization_notes: >
+      Generalizes the Hilt-specific recommendation to dependency injection while
+      retaining supported construction and framework-container behavior. The
+      Hilt-specific compile-time verification claim is intentionally omitted.

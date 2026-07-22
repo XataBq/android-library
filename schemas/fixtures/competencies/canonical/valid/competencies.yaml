@@ -1,0 +1,29 @@
+schema_version: 1
+competency_set_id: validation-fixture-competencies
+competency_set_version: 1
+competencies:
+  - id: explain-invented-boundary
+    title: Explain an invented boundary
+    outcome: Explain the purpose of an invented architectural boundary.
+    evidence:
+      - source_id: validation-fixture-source
+        source_version: 1
+        item_ids:
+          - first-invented-statement
+          - second-invented-statement
+      - source_id: second-validation-source
+        source_version: 2
+        item_ids:
+          - supporting-statement
+    normalization_notes: >
+      Demonstrates multiple evidence entries and several items in one entry.
+  - id: apply-invented-boundary
+    title: Apply an invented boundary
+    outcome: Apply the invented boundary to a synthetic design.
+    evidence:
+      - source_id: validation-fixture-source
+        source_version: 1
+        item_ids:
+          - first-invented-statement
+    normalization_notes: >
+      Demonstrates one source item supporting more than one competency.

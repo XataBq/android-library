@@ -23,7 +23,9 @@ The repository currently provides:
 - unit tests for validator behavior;
 - a provenance-preserving competency source model and templates;
 - competency source schemas, fixtures, and repository-local validation;
-- the first real competency source package, with review documentation.
+- the first real competency source package, with review documentation;
+- canonical competency schemas, evidence-reference validation, and a small
+  Android app architecture pilot in review.
 
 ## Completed tasks
 
@@ -33,12 +35,13 @@ The repository currently provides:
 
 ## Current focus
 
-The first source package, `android-developers-app-architecture`, is implemented
-with `review` status and awaits human review. Normalization has not started, and
-Phase 2 remains incomplete. The broader Phase 2 focus remains to:
+The first source package, `android-developers-app-architecture`, and a small
+canonical Android app architecture pilot are implemented with `review` status.
+The source has not been fully normalized, and Phase 2 remains incomplete. The
+broader Phase 2 focus remains to:
 
 - review and approve the first competency source package;
-- normalize duplicate and overlapping requirements;
+- review and extend normalization of duplicate and overlapping requirements;
 - build an approved prerequisite graph;
 - define the first learning sequence.
 
@@ -62,6 +65,7 @@ The completed foundation and content tooling do not yet provide:
 
 - real published educational topic content;
 - approved competency source packages;
+- approved canonical competency packages;
 - a generated content catalog;
 - a web application;
 - an Android application;

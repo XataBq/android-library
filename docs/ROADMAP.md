@@ -43,7 +43,7 @@ Deliverables:
 
 - reviewed source packages, one coherent publication or independently maintained
   documentation section per package;
-- normalized topic registry;
+- canonical competency registry;
 - duplicate and conflict report;
 - prerequisite graph;
 - first approved learning sequence.

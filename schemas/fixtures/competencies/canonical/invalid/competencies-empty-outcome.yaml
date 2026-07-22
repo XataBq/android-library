@@ -1,0 +1,13 @@
+# Intentionally invalid: outcomes must not be empty.
+schema_version: 1
+competency_set_id: invalid-canonical-fixture
+competency_set_version: 1
+competencies:
+  - id: explain-invented-boundary
+    title: Explain an invented boundary
+    outcome: ""
+    evidence:
+      - source_id: validation-fixture-source
+        source_version: 1
+        item_ids:
+          - first-invented-statement

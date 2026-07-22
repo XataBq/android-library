@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/canonical-competency-set.schema.json",
+  "title": "Canonical competency set",
+  "description": "Metadata for a repository-owned set of canonical competencies.",
+  "type": "object",
+  "required": ["schema_version", "id", "title", "description", "language", "version", "status"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "$ref": "#/$defs/kebabCase" },
+    "title": { "$ref": "#/$defs/nonEmptyString" },
+    "description": { "$ref": "#/$defs/nonEmptyString" },
+    "language": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+    },
+    "version": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["draft", "review", "approved", "deprecated"] }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    }
+  }
+}

@@ -6,7 +6,8 @@ A competency-driven learning platform and knowledge base for Android and softwar
 
 The project is in **Phase 2 — Competency import**. The first real competency
 source package, `android-developers-app-architecture`, is implemented with
-`review` status and awaits human review; normalization has not started.
+`review` status. The first canonical Android app architecture package is a
+review-stage pilot; the source has not been fully normalized.
 
 The repository will gradually contain:
 
@@ -35,8 +36,9 @@ The repository will gradually contain:
 5. Read `docs/DEVELOPMENT_WORKFLOW.md`.
 6. Read `docs/COMPETENCY_SOURCE_MODEL.md` before recording competency sources.
 7. Read the [competency import workflow](docs/COMPETENCY_IMPORT_WORKFLOW.md) before importing a source publication.
-8. Run `python -B scripts/validate_competencies.py` after adding or changing competency sources.
-9. Read `docs/CONTENT_MODEL.md` before authoring educational content.
-10. Run `python scripts/validate_content.py` after adding or changing topic content.
-11. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and diagnostics.
-12. Read `AGENTS.md` before using an AI coding agent.
+8. Read the [canonical competency model](docs/architecture/CANONICAL_COMPETENCY_MODEL.md) before normalizing source evidence.
+9. Run `python -B scripts/validate_competencies.py` after changing source or canonical competency packages.
+10. Read `docs/CONTENT_MODEL.md` before authoring educational content.
+11. Run `python scripts/validate_content.py` after adding or changing topic content.
+12. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and diagnostics.
+13. Read `AGENTS.md` before using an AI coding agent.

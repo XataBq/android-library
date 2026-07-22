@@ -1,0 +1,7 @@
+schema_version: 1
+id: validation-fixture-competencies
+title: Validation fixture competencies
+description: An invented canonical competency set used for schema validation.
+language: en
+version: 1
+status: draft

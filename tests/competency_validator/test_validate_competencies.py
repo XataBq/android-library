@@ -45,6 +45,43 @@ def items_data(source_id: str) -> dict:
     }
 
 
+def competency_set_data(set_id: str = "invented-architecture") -> dict:
+    return {
+        "schema_version": 1,
+        "id": set_id,
+        "title": "Invented architecture",
+        "description": "An invented canonical competency set.",
+        "language": "en",
+        "version": 1,
+        "status": "review",
+    }
+
+
+def canonical_competencies_data(
+    set_id: str = "invented-architecture",
+    source_id: str = "invented-source",
+) -> dict:
+    return {
+        "schema_version": 1,
+        "competency_set_id": set_id,
+        "competency_set_version": 1,
+        "competencies": [
+            {
+                "id": "explain-invented-boundary",
+                "title": "Explain an invented boundary",
+                "outcome": "Explain the purpose of an invented boundary.",
+                "evidence": [
+                    {
+                        "source_id": source_id,
+                        "source_version": 1,
+                        "item_ids": ["invented-item"],
+                    }
+                ],
+            }
+        ],
+    }
+
+
 class CompetencyValidatorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary_directory = tempfile.TemporaryDirectory()
@@ -72,6 +109,27 @@ class CompetencyValidatorTests(unittest.TestCase):
         self.write_yaml(package / "items.yaml", items)
         return package
 
+    def add_canonical_package(
+        self,
+        set_id: str = "invented-architecture",
+        directory_name: str | None = None,
+        competency_set: dict | None = None,
+        competencies: dict | None = None,
+    ) -> Path:
+        package = self.root / "competencies" / "normalized" / (directory_name or set_id)
+        package.mkdir(parents=True)
+        competency_set = copy.deepcopy(
+            competency_set if competency_set is not None else competency_set_data(set_id)
+        )
+        competencies = copy.deepcopy(
+            competencies
+            if competencies is not None
+            else canonical_competencies_data(set_id)
+        )
+        self.write_yaml(package / "competency-set.yaml", competency_set)
+        self.write_yaml(package / "competencies.yaml", competencies)
+        return package
+
     @staticmethod
     def write_yaml(path: Path, data: dict) -> None:
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
@@ -88,6 +146,229 @@ class CompetencyValidatorTests(unittest.TestCase):
         self.add_package()
         result = validate_repository(self.root)
         self.assertEqual(0, result.exit_code, [item.render() for item in result.diagnostics])
+
+    def test_valid_canonical_package_is_discovered(self) -> None:
+        self.add_package()
+        self.add_canonical_package()
+        result = validate_repository(self.root)
+        self.assertEqual(0, result.exit_code, [item.render() for item in result.diagnostics])
+        self.assertEqual(1, result.canonical_package_count)
+
+    def test_valid_multiple_evidence_entries(self) -> None:
+        self.add_package()
+        self.add_package("second-source")
+        data = canonical_competencies_data()
+        data["competencies"][0]["evidence"].append(
+            {
+                "source_id": "second-source",
+                "source_version": 1,
+                "item_ids": ["invented-item"],
+            }
+        )
+        self.add_canonical_package(competencies=data)
+        self.assertEqual(0, validate_repository(self.root).exit_code)
+
+    def test_valid_multiple_item_ids_in_evidence(self) -> None:
+        items = items_data("invented-source")
+        items["items"].append(
+            {
+                "id": "second-invented-item",
+                "statement": "A second invented statement for validator tests.",
+                "locator": {"type": "section", "value": "Second test section"},
+            }
+        )
+        self.add_package(items=items)
+        data = canonical_competencies_data()
+        data["competencies"][0]["evidence"][0]["item_ids"].append(
+            "second-invented-item"
+        )
+        self.add_canonical_package(competencies=data)
+        self.assertEqual(0, validate_repository(self.root).exit_code)
+
+    def test_valid_source_item_reuse(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        second = copy.deepcopy(data["competencies"][0])
+        second["id"] = "apply-invented-boundary"
+        second["title"] = "Apply an invented boundary"
+        second["outcome"] = "Apply an invented boundary to a synthetic design."
+        data["competencies"].append(second)
+        self.add_canonical_package(competencies=data)
+        self.assertEqual(0, validate_repository(self.root).exit_code)
+
+    def test_missing_evidence(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        del data["competencies"][0]["evidence"]
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.SCHEMA)
+
+    def test_unknown_evidence_source(self) -> None:
+        self.add_canonical_package()
+        self.assert_code(Code.EVIDENCE_SOURCE_MISSING)
+
+    def test_wrong_evidence_source_version(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competencies"][0]["evidence"][0]["source_version"] = 2
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.EVIDENCE_SOURCE_VERSION_MISMATCH)
+
+    def test_unknown_evidence_item(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competencies"][0]["evidence"][0]["item_ids"] = ["missing-item"]
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.EVIDENCE_ITEM_MISSING)
+
+    def test_duplicate_canonical_id_across_packages(self) -> None:
+        self.add_package()
+        self.add_canonical_package("first-set")
+        self.add_canonical_package("second-set")
+        self.assert_code(Code.DUPLICATE_CANONICAL_ID)
+
+    def test_duplicate_canonical_id_within_package(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competencies"].append(copy.deepcopy(data["competencies"][0]))
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.DUPLICATE_CANONICAL_ID)
+
+    def test_duplicate_competency_set_id_across_directories(self) -> None:
+        self.add_package()
+        self.add_canonical_package("shared-set", directory_name="first-directory")
+        self.add_canonical_package("shared-set", directory_name="second-directory")
+        self.assert_code(Code.DUPLICATE_COMPETENCY_SET_ID)
+
+    def test_duplicate_item_in_evidence_entry(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competencies"][0]["evidence"][0]["item_ids"] = [
+            "invented-item",
+            "invented-item",
+        ]
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.DUPLICATE_EVIDENCE_ITEM)
+
+    def test_duplicate_evidence_entry(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competencies"][0]["evidence"].append(
+            copy.deepcopy(data["competencies"][0]["evidence"][0])
+        )
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.DUPLICATE_EVIDENCE_ENTRY)
+
+    def test_duplicate_evidence_entry_with_reordered_items(self) -> None:
+        items = items_data("invented-source")
+        items["items"].append(
+            {
+                "id": "second-invented-item",
+                "statement": "A second invented statement for validator tests.",
+                "locator": {"type": "section", "value": "Second test section"},
+            }
+        )
+        self.add_package(items=items)
+        data = canonical_competencies_data()
+        first_evidence = data["competencies"][0]["evidence"][0]
+        first_evidence["item_ids"] = ["invented-item", "second-invented-item"]
+        data["competencies"][0]["evidence"].append(
+            {
+                "source_id": "invented-source",
+                "source_version": 1,
+                "item_ids": ["second-invented-item", "invented-item"],
+            }
+        )
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.DUPLICATE_EVIDENCE_ENTRY)
+
+    def test_canonical_package_id_mismatch(self) -> None:
+        self.add_package()
+        self.add_canonical_package(directory_name="different-directory")
+        self.assert_code(Code.CANONICAL_PACKAGE_ID_MISMATCH)
+
+    def test_competency_set_id_mismatch(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data(set_id="different-set")
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.COMPETENCY_SET_ID_MISMATCH)
+
+    def test_competency_set_version_mismatch(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competency_set_version"] = 2
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.COMPETENCY_SET_VERSION_MISMATCH)
+
+    def test_unsupported_canonical_field(self) -> None:
+        self.add_package()
+        data = canonical_competencies_data()
+        data["competencies"][0]["difficulty"] = "advanced"
+        self.add_canonical_package(competencies=data)
+        self.assert_code(Code.SCHEMA)
+
+    def test_empty_canonical_title_and_outcome(self) -> None:
+        for field in ("title", "outcome"):
+            for value in ("", "   "):
+                with self.subTest(field=field, value=repr(value)):
+                    package = self.root / "competencies/normalized/invented-architecture"
+                    if package.exists():
+                        shutil.rmtree(package)
+                    if not (self.root / "competencies/sources/invented-source").exists():
+                        self.add_package()
+                    data = canonical_competencies_data()
+                    data["competencies"][0][field] = value
+                    self.add_canonical_package(competencies=data)
+                    self.assertIn(Code.SCHEMA, self.result_codes())
+
+    def test_canonical_schema_version_must_be_one(self) -> None:
+        self.add_package()
+        for filename in ("competency-set.yaml", "competencies.yaml"):
+            with self.subTest(filename=filename):
+                package = self.root / "competencies/normalized/invented-architecture"
+                if package.exists():
+                    shutil.rmtree(package)
+                self.add_canonical_package()
+                data = yaml.safe_load((package / filename).read_text(encoding="utf-8"))
+                data["schema_version"] = 2
+                self.write_yaml(package / filename, data)
+                self.assertIn(Code.SCHEMA, self.result_codes())
+
+    def test_boolean_canonical_version_is_rejected(self) -> None:
+        self.add_package()
+        metadata = competency_set_data()
+        metadata["version"] = True
+        self.add_canonical_package(competency_set=metadata)
+        self.assert_code(Code.SCHEMA)
+
+    def test_malformed_canonical_yaml(self) -> None:
+        self.add_package()
+        package = self.add_canonical_package()
+        (package / "competencies.yaml").write_text(
+            "competencies: [unterminated\n", encoding="utf-8"
+        )
+        self.assert_code(Code.YAML_PARSE)
+
+    def test_missing_canonical_set_file(self) -> None:
+        self.add_package()
+        package = self.add_canonical_package()
+        (package / "competency-set.yaml").unlink()
+        self.assert_code(Code.MISSING_FILE)
+
+    def test_missing_canonical_competencies_file(self) -> None:
+        self.add_package()
+        package = self.add_canonical_package()
+        (package / "competencies.yaml").unlink()
+        self.assert_code(Code.MISSING_FILE)
+
+    def test_source_and_canonical_validation_coexist(self) -> None:
+        source = source_data("invented-source")
+        source["repository_usage"] = "unrestricted"
+        self.add_package(source=source)
+        self.add_canonical_package()
+        result = validate_repository(self.root)
+        self.assertIn(Code.SCHEMA, {item.code for item in result.diagnostics})
+        self.assertEqual(1, result.canonical_package_count)
 
     def test_valid_declared_artifact(self) -> None:
         package = self.add_package()

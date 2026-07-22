@@ -1,4 +1,4 @@
-"""Validate repository competency source packages."""
+"""Validate repository source and canonical competency packages."""
 
 from __future__ import annotations
 
@@ -33,6 +33,16 @@ class Code:
     ARTIFACT_HASH_MISMATCH = "ARTIFACT_HASH_MISMATCH"
     UNDECLARED_ARTIFACT = "UNDECLARED_ARTIFACT"
     CITATION_ONLY_ARTIFACT = "CITATION_ONLY_ARTIFACT"
+    CANONICAL_PACKAGE_ID_MISMATCH = "CANONICAL_PACKAGE_ID_MISMATCH"
+    DUPLICATE_COMPETENCY_SET_ID = "DUPLICATE_COMPETENCY_SET_ID"
+    COMPETENCY_SET_ID_MISMATCH = "COMPETENCY_SET_ID_MISMATCH"
+    COMPETENCY_SET_VERSION_MISMATCH = "COMPETENCY_SET_VERSION_MISMATCH"
+    DUPLICATE_CANONICAL_ID = "DUPLICATE_CANONICAL_ID"
+    EVIDENCE_SOURCE_MISSING = "EVIDENCE_SOURCE_MISSING"
+    EVIDENCE_SOURCE_VERSION_MISMATCH = "EVIDENCE_SOURCE_VERSION_MISMATCH"
+    EVIDENCE_ITEM_MISSING = "EVIDENCE_ITEM_MISSING"
+    DUPLICATE_EVIDENCE_ITEM = "DUPLICATE_EVIDENCE_ITEM"
+    DUPLICATE_EVIDENCE_ENTRY = "DUPLICATE_EVIDENCE_ENTRY"
     INTERNAL = "INTERNAL"
 
 
@@ -57,6 +67,15 @@ class SourcePackage:
     items: dict[str, Any] | None = None
 
 
+@dataclass
+class CanonicalPackage:
+    directory: Path
+    set_path: Path
+    competencies_path: Path
+    competency_set: dict[str, Any] | None = None
+    competencies: dict[str, Any] | None = None
+
+
 @dataclass(frozen=True)
 class InvalidFixtureExpectation:
     schema_validator: str | None = None
@@ -72,6 +91,7 @@ class InvalidFixtureExpectation:
 class ValidationResult:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     package_count: int = 0
+    canonical_package_count: int = 0
     template_count: int = 0
     fixture_count: int = 0
     configuration_error: bool = False
@@ -118,6 +138,8 @@ def _load_schemas(
     schema_names = {
         "source": "competency-source.schema.json",
         "items": "competency-items.schema.json",
+        "canonical_set": "canonical-competency-set.schema.json",
+        "canonical_competencies": "canonical-competencies.schema.json",
     }
     for kind, filename in schema_names.items():
         path = root / "schemas" / filename
@@ -135,7 +157,7 @@ def _load_schemas(
                 str(error).splitlines()[0],
             )
             result.configuration_error = True
-    return validators if len(validators) == 2 else None
+    return validators if len(validators) == len(schema_names) else None
 
 
 def _load_yaml(root: Path, path: Path, result: ValidationResult) -> dict[str, Any] | None:
@@ -323,6 +345,73 @@ def _validate_support_files(
         valid_data.get("items"),
         result,
     )
+    _validate_canonical_fixtures(root, validators, result)
+
+
+def _validate_canonical_fixtures(
+    root: Path,
+    validators: Mapping[str, Draft202012Validator],
+    result: ValidationResult,
+) -> None:
+    fixture_root = root / "schemas/fixtures/competencies/canonical"
+    valid_paths = {
+        "canonical_set": fixture_root / "valid/competency-set.yaml",
+        "canonical_competencies": fixture_root / "valid/competencies.yaml",
+    }
+    invalid_expectations = {
+        "competencies-missing-evidence.yaml": (
+            ("required",),
+            ("competencies", 0),
+        ),
+        "competencies-duplicate-item-id.yaml": (
+            ("uniqueItems",),
+            ("competencies", 0, "evidence", 0, "item_ids"),
+        ),
+        "competencies-duplicate-evidence.yaml": (
+            ("uniqueItems",),
+            ("competencies", 0, "evidence"),
+        ),
+        "competencies-unsupported-field.yaml": (
+            ("additionalProperties",),
+            ("competencies", 0),
+        ),
+        "competencies-empty-title.yaml": (
+            ("minLength", "pattern"),
+            ("competencies", 0, "title"),
+        ),
+        "competencies-empty-outcome.yaml": (
+            ("minLength", "pattern"),
+            ("competencies", 0, "outcome"),
+        ),
+    }
+    result.fixture_count += len(valid_paths) + len(invalid_expectations)
+    for kind, path in valid_paths.items():
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required canonical fixture is missing")
+            continue
+        data = _load_yaml(root, path, result)
+        if data is not None:
+            _validate_schema(root, path, validators[kind], data, result)
+
+    validator = validators["canonical_competencies"]
+    for filename, (expected_validators, expected_path) in invalid_expectations.items():
+        path = fixture_root / "invalid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required canonical fixture is missing")
+            continue
+        data = _load_yaml(root, path, result)
+        if data is None:
+            continue
+        errors = _schema_errors(validator, data)
+        if (
+            sorted(error.validator for error in errors) != sorted(expected_validators)
+            or any(tuple(error.absolute_path) != expected_path for error in errors)
+        ):
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "fixture did not fail exclusively for its intended reason",
+            )
 
 
 def _discover_packages(root: Path) -> list[SourcePackage]:
@@ -336,6 +425,21 @@ def _discover_packages(root: Path) -> list[SourcePackage]:
             items_path=directory / "items.yaml",
         )
         for directory in sorted(sources_root.iterdir(), key=lambda path: path.name)
+        if directory.is_dir()
+    ]
+
+
+def _discover_canonical_packages(root: Path) -> list[CanonicalPackage]:
+    normalized_root = root / "competencies/normalized"
+    if not normalized_root.is_dir():
+        return []
+    return [
+        CanonicalPackage(
+            directory=directory,
+            set_path=directory / "competency-set.yaml",
+            competencies_path=directory / "competencies.yaml",
+        )
+        for directory in sorted(normalized_root.iterdir(), key=lambda path: path.name)
         if directory.is_dir()
     ]
 
@@ -505,6 +609,218 @@ def _validate_repository_wide(
             )
 
 
+def _source_index(packages: list[SourcePackage]) -> dict[str, SourcePackage]:
+    index: dict[str, SourcePackage] = {}
+    for package in packages:
+        if package.source is None or package.items is None:
+            continue
+        source_id = package.source.get("id")
+        if isinstance(source_id, str) and source_id not in index:
+            index[source_id] = package
+    return index
+
+
+def _evidence_key(entry: Mapping[str, Any]) -> tuple[str, int, tuple[str, ...]] | None:
+    source_id = entry.get("source_id")
+    source_version = entry.get("source_version")
+    item_ids = entry.get("item_ids", [])
+    if (
+        not isinstance(source_id, str)
+        or not isinstance(source_version, int)
+        or isinstance(source_version, bool)
+        or not isinstance(item_ids, list)
+        or not all(isinstance(item_id, str) for item_id in item_ids)
+    ):
+        return None
+    return (
+        source_id,
+        source_version,
+        tuple(sorted(item_ids)),
+    )
+
+
+def _validate_canonical_pair(
+    root: Path,
+    package: CanonicalPackage,
+    source_packages: Mapping[str, SourcePackage],
+    result: ValidationResult,
+) -> None:
+    competency_set = package.competency_set
+    document = package.competencies
+    if competency_set is None or document is None:
+        return
+    set_id = competency_set.get("id")
+    if set_id != package.directory.name:
+        result.add(
+            Code.CANONICAL_PACKAGE_ID_MISMATCH,
+            _relative(root, package.set_path),
+            f"competency set id {set_id!r} does not match package directory {package.directory.name!r}",
+            "id",
+        )
+    if document.get("competency_set_id") != set_id:
+        result.add(
+            Code.COMPETENCY_SET_ID_MISMATCH,
+            _relative(root, package.competencies_path),
+            f"competency_set_id {document.get('competency_set_id')!r} does not match set id {set_id!r}",
+            "competency_set_id",
+        )
+    if document.get("competency_set_version") != competency_set.get("version"):
+        result.add(
+            Code.COMPETENCY_SET_VERSION_MISMATCH,
+            _relative(root, package.competencies_path),
+            "competency_set_version does not match competency set metadata",
+            "competency_set_version",
+        )
+    competencies = document.get("competencies", [])
+    if not isinstance(competencies, list):
+        return
+    for competency_index, competency in enumerate(competencies):
+        if not isinstance(competency, Mapping):
+            continue
+        competency_id = competency.get("id")
+        evidence = competency.get("evidence", [])
+        if not isinstance(evidence, list):
+            continue
+        seen_entries: set[tuple[str, int, tuple[str, ...]]] = set()
+        duplicate_entries: set[tuple[str, int, tuple[str, ...]]] = set()
+        for entry in evidence:
+            if not isinstance(entry, Mapping):
+                continue
+            key = _evidence_key(entry)
+            if key is None:
+                continue
+            if key in seen_entries:
+                duplicate_entries.add(key)
+            seen_entries.add(key)
+        for source_id, source_version, item_ids in sorted(duplicate_entries):
+            result.add(
+                Code.DUPLICATE_EVIDENCE_ENTRY,
+                _relative(root, package.competencies_path),
+                f"competency {competency_id!r} repeats evidence for {source_id!r} version {source_version!r} and items {list(item_ids)!r}",
+                f"competencies[{competency_index}] ({competency_id}).evidence",
+            )
+        for evidence_index, entry in enumerate(evidence):
+            if not isinstance(entry, Mapping):
+                continue
+            location = f"competencies[{competency_index}] ({competency_id}).evidence[{evidence_index}]"
+            source_id = entry.get("source_id")
+            source_package = source_packages.get(source_id) if isinstance(source_id, str) else None
+            if source_package is None:
+                result.add(
+                    Code.EVIDENCE_SOURCE_MISSING,
+                    _relative(root, package.competencies_path),
+                    f"competency {competency_id!r} references missing source {source_id!r}",
+                    location,
+                )
+                continue
+            actual_version = source_package.source.get("source_version") if source_package.source else None
+            if entry.get("source_version") != actual_version:
+                result.add(
+                    Code.EVIDENCE_SOURCE_VERSION_MISMATCH,
+                    _relative(root, package.competencies_path),
+                    f"competency {competency_id!r} references source {source_id!r} version {entry.get('source_version')!r}, expected {actual_version!r}",
+                    f"{location}.source_version",
+                )
+            item_ids = entry.get("item_ids", [])
+            if not isinstance(item_ids, list):
+                continue
+            for duplicate_id in _duplicates(item_ids):
+                result.add(
+                    Code.DUPLICATE_EVIDENCE_ITEM,
+                    _relative(root, package.competencies_path),
+                    f"competency {competency_id!r} repeats item {duplicate_id!r} in evidence for source {source_id!r}",
+                    f"{location}.item_ids",
+                )
+            available_items = {
+                item.get("id")
+                for item in (source_package.items or {}).get("items", [])
+                if isinstance(item, Mapping) and isinstance(item.get("id"), str)
+            }
+            for item_id in item_ids:
+                if isinstance(item_id, str) and item_id not in available_items:
+                    result.add(
+                        Code.EVIDENCE_ITEM_MISSING,
+                        _relative(root, package.competencies_path),
+                        f"competency {competency_id!r} references missing item {item_id!r} in source {source_id!r}",
+                        f"{location}.item_ids",
+                    )
+
+
+def _validate_canonical_packages(
+    root: Path,
+    packages: list[CanonicalPackage],
+    source_packages: Mapping[str, SourcePackage],
+    validators: Mapping[str, Draft202012Validator],
+    result: ValidationResult,
+) -> None:
+    for package in packages:
+        for required_path in (package.set_path, package.competencies_path):
+            if not required_path.is_file():
+                result.add(
+                    Code.MISSING_FILE,
+                    _relative(root, package.directory),
+                    f"missing required file {required_path.name!r}",
+                )
+        if package.set_path.is_file():
+            package.competency_set = _load_yaml(root, package.set_path, result)
+            if package.competency_set is not None:
+                _validate_schema(
+                    root,
+                    package.set_path,
+                    validators["canonical_set"],
+                    package.competency_set,
+                    result,
+                )
+        if package.competencies_path.is_file():
+            package.competencies = _load_yaml(root, package.competencies_path, result)
+            if package.competencies is not None:
+                _validate_schema(
+                    root,
+                    package.competencies_path,
+                    validators["canonical_competencies"],
+                    package.competencies,
+                    result,
+                )
+        _validate_canonical_pair(root, package, source_packages, result)
+
+    competency_locations: dict[str, list[str]] = {}
+    set_locations: dict[str, list[str]] = {}
+    for package in packages:
+        set_id = (package.competency_set or {}).get("id")
+        if isinstance(set_id, str):
+            set_locations.setdefault(set_id, []).append(
+                _relative(root, package.set_path)
+            )
+        document = package.competencies or {}
+        competencies = document.get("competencies", [])
+        if not isinstance(competencies, list):
+            continue
+        for competency in competencies:
+            if not isinstance(competency, Mapping):
+                continue
+            competency_id = competency.get("id")
+            if isinstance(competency_id, str):
+                competency_locations.setdefault(competency_id, []).append(
+                    _relative(root, package.competencies_path)
+                )
+    for competency_id, paths in sorted(competency_locations.items()):
+        if len(paths) > 1:
+            result.add(
+                Code.DUPLICATE_CANONICAL_ID,
+                sorted(paths)[0],
+                f"canonical competency id {competency_id!r} appears in: {', '.join(sorted(paths))}",
+                "competencies",
+            )
+    for set_id, paths in sorted(set_locations.items()):
+        if len(paths) > 1:
+            result.add(
+                Code.DUPLICATE_COMPETENCY_SET_ID,
+                sorted(paths)[0],
+                f"competency set id {set_id!r} appears in: {', '.join(sorted(paths))}",
+                "id",
+            )
+
+
 def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
     root = root.resolve()
     result = ValidationResult()
@@ -558,6 +874,19 @@ def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
         )
 
     _validate_repository_wide(root, packages, result)
+    canonical_packages = _discover_canonical_packages(root)
+    result.canonical_package_count = len(canonical_packages)
+    if verbose:
+        result.verbose_messages.append(
+            f"Discovered {len(canonical_packages)} canonical competency package(s)."
+        )
+    _validate_canonical_packages(
+        root,
+        canonical_packages,
+        _source_index(packages),
+        validators,
+        result,
+    )
     return result
 
 
@@ -589,12 +918,14 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "Competency validation passed: "
             f"{result.package_count} source packages, "
+            f"{result.canonical_package_count} canonical packages, "
             f"{result.template_count} templates, {result.fixture_count} schema fixtures."
         )
     else:
         print(
             "Competency validation failed: "
-            f"{len(diagnostics)} errors across {result.package_count} source packages."
+            f"{len(diagnostics)} errors across {result.package_count} source packages "
+            f"and {result.canonical_package_count} canonical packages."
         )
     return result.exit_code
 

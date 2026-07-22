@@ -1,0 +1,8 @@
+# Intentionally invalid: every canonical competency requires evidence.
+schema_version: 1
+competency_set_id: invalid-canonical-fixture
+competency_set_version: 1
+competencies:
+  - id: explain-invented-boundary
+    title: Explain an invented boundary
+    outcome: Explain an invented architectural boundary.
