@@ -22,7 +22,8 @@ The repository currently provides:
 - prerequisite dependency-cycle detection;
 - unit tests for validator behavior;
 - a provenance-preserving competency source model and templates;
-- competency source schemas, fixtures, and repository-local validation.
+- competency source schemas, fixtures, and repository-local validation;
+- the first real competency source package, with review documentation.
 
 ## Completed tasks
 
@@ -32,9 +33,11 @@ The repository currently provides:
 
 ## Current focus
 
-The next operational step is importing the first approved competency source. The broader Phase 2 focus remains to:
+The first source package, `android-developers-app-architecture`, is implemented
+with `review` status and awaits human review. Normalization has not started, and
+Phase 2 remains incomplete. The broader Phase 2 focus remains to:
 
-- import the first competency source;
+- review and approve the first competency source package;
 - normalize duplicate and overlapping requirements;
 - build an approved prerequisite graph;
 - define the first learning sequence.
@@ -58,7 +61,7 @@ Task numbers after Task 003 describe the current plan and may be refined through
 The completed foundation and content tooling do not yet provide:
 
 - real published educational topic content;
-- competency import data;
+- approved competency source packages;
 - a generated content catalog;
 - a web application;
 - an Android application;

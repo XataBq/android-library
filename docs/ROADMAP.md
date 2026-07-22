@@ -36,11 +36,13 @@ Deliverables:
 
 **Status: Current; not completed.**
 
-Goal: transform source competency matrices into an approved learning graph.
+Goal: import coherent, provenance-preserving source publications and later
+transform their reviewed items into an approved learning graph.
 
 Deliverables:
 
-- raw source archive;
+- reviewed source packages, one coherent publication or independently maintained
+  documentation section per package;
 - normalized topic registry;
 - duplicate and conflict report;
 - prerequisite graph;

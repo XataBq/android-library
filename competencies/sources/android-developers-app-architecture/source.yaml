@@ -1,0 +1,27 @@
+id: android-developers-app-architecture
+title: Guide to app architecture
+source_type: other
+language: en
+source_version: 1
+status: review
+repository_usage: citation-only
+
+provenance:
+  citation: Android Developers, Guide to app architecture
+  publisher: Google
+  url: https://developer.android.com/topic/architecture
+  retrieved_on: "2026-07-21"
+  version_label: "Last updated 2026-04-14 UTC"
+  notes: >
+    This package represents only the Guide to app architecture publication,
+    not the complete Android Developers app architecture documentation set or
+    any publication linked from the guide.
+
+scope:
+  roles:
+    - Android developer
+  declared_levels: []
+  platforms:
+    - Android
+  technologies:
+    - Android

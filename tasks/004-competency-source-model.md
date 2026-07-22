@@ -1,6 +1,6 @@
 # Task 004 — Define the competency source model
 
-- Status: READY
+- Status: DONE
 - Owner: Human
 - Implementer: Codex
 - Reviewer: Human + ChatGPT

@@ -1,0 +1,428 @@
+source_id: android-developers-app-architecture
+source_version: 1
+items:
+  - id: use-single-activity-container
+    statement: >
+      Modern apps use a single-activity architecture in which one Activity
+      contains the app's screens or Jetpack Compose destinations.
+    locator:
+      type: heading
+      value: App composition
+      details: Modern apps use a single-activity architecture.
+    context:
+      - App composition
+
+  - id: handle-form-factor-configuration-changes
+    statement: >
+      Do not assume a fixed device orientation; account for form-factor and
+      configuration changes that recompose the UI and affect app state.
+    locator:
+      type: heading
+      value: Multiple form factors
+    context:
+      - App composition
+      - Multiple form factors
+
+  - id: expect-process-termination
+    statement: >
+      Design for the possibility that Android stops the app process when the
+      resource-constrained device needs resources for other processes.
+    locator:
+      type: heading
+      value: Resource constraints
+    context:
+      - App composition
+      - Resource constraints
+
+  - id: keep-app-components-independent
+    statement: >
+      Because app components can start individually, out of order, and be
+      destroyed at any time, do not store application data or state in them;
+      keep the components self-contained and independent.
+    locator:
+      type: heading
+      value: Variable launch conditions
+    context:
+      - App composition
+      - Variable launch conditions
+    transcription_notes: >
+      The lifecycle premise and its two adjacent prescriptions were retained
+      together because the source presents them as one cause-and-response rule.
+
+  - id: define-architecture-boundaries
+    statement: >
+      Define boundaries between parts of a growing app and assign clear
+      responsibilities to each part so the architecture can scale.
+    locator:
+      type: heading
+      value: Common architectural principles
+    context:
+      - Common architectural principles
+
+  - id: separate-concerns
+    statement: >
+      Separate the app into methods, classes, files, packages, modules, and
+      layers with clearly defined responsibilities and boundaries.
+    locator:
+      type: heading
+      value: Separation of concerns
+    context:
+      - Common architectural principles
+      - Separation of concerns
+
+  - id: keep-state-out-of-activities
+    statement: >
+      Treat an Activity as a host for the app UI, not as a holder of application
+      data or state, because the operating system can destroy and recreate it.
+    locator:
+      type: heading
+      value: Separation of concerns
+      details: The primary role of an Activity is to host your app's UI.
+    context:
+      - Common architectural principles
+      - Separation of concerns
+
+  - id: implement-adaptive-layouts
+    statement: >
+      Implement adaptive canonical layouts that handle orientation and
+      window-size changes and provide an appropriate experience across form
+      factors.
+    locator:
+      type: heading
+      value: Adaptive layouts
+    context:
+      - Common architectural principles
+      - Adaptive layouts
+
+  - id: drive-ui-from-data-models
+    statement: >
+      Drive the UI from data models, preferably persistent models that remain
+      independent of UI elements and app-component lifecycles.
+    locator:
+      type: heading
+      value: Drive UI from data models
+    context:
+      - Common architectural principles
+      - Drive UI from data models
+
+  - id: use-persistent-models-for-resilience
+    statement: >
+      Prefer persistent models so users do not lose data after process removal
+      and the app can continue working with intermittent or unavailable network
+      access.
+    locator:
+      type: heading
+      value: Drive UI from data models
+      details: Persistent models are ideal for the following reasons.
+    context:
+      - Common architectural principles
+      - Drive UI from data models
+    transcription_notes: >
+      Two source bullets were condensed into one statement because together
+      they explain the resilience expected from persistent models.
+
+  - id: assign-single-source-of-truth
+    statement: >
+      Assign one source of truth to each new data type; let only that owner
+      mutate the data, expose it immutably, and provide functions or accept
+      events for requested changes.
+    locator:
+      type: heading
+      value: Single source of truth
+    context:
+      - Common architectural principles
+      - Single source of truth
+
+  - id: choose-source-of-truth-by-app-needs
+    statement: >
+      In an offline-first app, typically use a database as the source of truth
+      for application data; in other cases, a ViewModel can be the source of
+      truth.
+    locator:
+      type: heading
+      value: Single source of truth
+      details: In an offline-first application, the source of truth is typically a database.
+    context:
+      - Common architectural principles
+      - Single source of truth
+
+  - id: use-unidirectional-data-flow
+    statement: >
+      Use unidirectional data flow so state moves from higher-scoped types or
+      data sources toward the UI while events travel back toward the source of
+      truth that performs changes.
+    locator:
+      type: heading
+      value: Unidirectional data flow
+    context:
+      - Common architectural principles
+      - Unidirectional data flow
+
+  - id: include-ui-and-data-layers
+    statement: >
+      Design each app with at least a UI layer that displays application data
+      and a data layer that contains business logic and exposes application
+      data.
+    locator:
+      type: heading
+      value: Recommended app architecture
+      details: Design each application with at least two layers.
+    context:
+      - Recommended app architecture
+
+  - id: add-domain-layer-when-needed
+    statement: >
+      Add the optional domain layer between the UI and data layers only when it
+      is needed to encapsulate complex logic or reuse logic across multiple
+      state holders.
+    locator:
+      type: heading
+      value: Domain layer
+    context:
+      - Recommended app architecture
+      - Domain layer
+
+  - id: use-modern-architecture-techniques
+    statement: >
+      A modern Android app architecture uses adaptive layered design,
+      unidirectional data flow throughout its layers, UI state holders,
+      coroutines and flows, and dependency-injection practices.
+    locator:
+      type: heading
+      value: Modern app architecture
+    context:
+      - Recommended app architecture
+      - Modern app architecture
+    transcription_notes: >
+      The source's short list of complementary modern techniques was converted
+      into one sentence without adding implementation guidance.
+
+  - id: render-data-with-ui-elements
+    statement: >
+      Give UI elements responsibility for rendering data on screen, using
+      Jetpack Compose functions when building adaptive layouts.
+    locator:
+      type: heading
+      value: UI layer
+      details: UI elements that render the data on the screen.
+    context:
+      - Recommended app architecture
+      - UI layer
+
+  - id: manage-ui-state-with-state-holders
+    statement: >
+      Use state holders to hold and expose data and handle UI logic, and keep a
+      state holder alive for the same duration as the UI element it serves.
+    locator:
+      type: heading
+      value: UI layer
+      details: State holders should live for the same duration as the UI element.
+    context:
+      - Recommended app architecture
+      - UI layer
+
+  - id: organize-data-layer-around-repositories
+    statement: >
+      Keep application business logic in the data layer and create a repository
+      for each distinct type of data, backed by zero or more data sources.
+    locator:
+      type: heading
+      value: Data layer
+      details: Create a repository class for each different type of data.
+    context:
+      - Recommended app architecture
+      - Data layer
+
+  - id: centralize-data-access-in-repositories
+    statement: >
+      Make repositories expose data, centralize its changes, resolve conflicts
+      among data sources, hide those sources from the rest of the app, and
+      contain the applicable business logic.
+    locator:
+      type: heading
+      value: Data layer
+      details: Repository classes are responsible for the following.
+    context:
+      - Recommended app architecture
+      - Data layer
+    transcription_notes: >
+      The repository responsibility list was condensed into one statement while
+      preserving each responsibility and the source's repository boundary.
+
+  - id: limit-data-source-responsibility
+    statement: >
+      Give each data-source class responsibility for working with only one
+      source of data and bridging that source's data operations to the app.
+    locator:
+      type: heading
+      value: Data layer
+      details: Each data source class has the responsibility of working with only one source of data.
+    context:
+      - Recommended app architecture
+      - Data layer
+
+  - id: keep-use-cases-single-purpose
+    statement: >
+      When a domain layer is present, give each use case or interactor
+      responsibility for one functionality.
+    locator:
+      type: heading
+      value: Domain layer
+      details: Each use case has responsibility for a single functionality.
+    context:
+      - Recommended app architecture
+      - Domain layer
+
+  - id: prefer-dependency-injection-with-hilt
+    statement: >
+      Use dependency injection and Hilt in Android apps so Hilt can construct
+      objects from the dependency tree, verify dependencies at compile time,
+      and provide containers for Android framework classes.
+    locator:
+      type: heading
+      value: Manage dependencies between components
+      details: "Key Point: Use the dependency injection pattern and the Hilt library."
+    context:
+      - Manage dependencies between components
+
+  - id: keep-entry-points-from-owning-data
+    statement: >
+      Do not make activities, services, or broadcast receivers sources of data;
+      let these short-lived entry points coordinate with other components to
+      retrieve only the data relevant to them.
+    locator:
+      type: heading
+      value: General best practices
+      details: Don't store data in app components.
+    context:
+      - General best practices
+
+  - id: isolate-android-framework-dependencies
+    statement: >
+      Limit reliance on Android framework SDK APIs to app components and
+      abstract other classes away from those components to improve testability
+      and reduce coupling.
+    locator:
+      type: heading
+      value: General best practices
+      details: Reduce dependencies on Android classes.
+    context:
+      - General best practices
+
+  - id: define-module-responsibility-boundaries
+    statement: >
+      Define clear module responsibilities; do not scatter one operation across
+      unrelated classes or combine unrelated responsibilities in one class.
+    locator:
+      type: heading
+      value: General best practices
+      details: Define clear boundaries of responsibility between modules in your app.
+    context:
+      - General best practices
+
+  - id: expose-minimal-module-api
+    statement: >
+      Expose as little as possible from each module and avoid shortcuts that
+      reveal internal implementation details.
+    locator:
+      type: heading
+      value: General best practices
+      details: Expose as little as possible from each module.
+    context:
+      - General best practices
+
+  - id: delegate-boilerplate-to-recommended-libraries
+    statement: >
+      Focus implementation effort on the app's unique core and let Jetpack and
+      other recommended libraries handle repetitive boilerplate.
+    locator:
+      type: heading
+      value: General best practices
+      details: Focus on the unique core of your app so it stands out from other apps.
+    context:
+      - General best practices
+
+  - id: preserve-ui-state-across-configuration-changes
+    statement: >
+      Preserve the user's current UI state across adaptive configuration changes
+      such as resizing, folding, and orientation changes.
+    locator:
+      type: heading
+      value: General best practices
+      details: Preserve UI state across configuration changes.
+    context:
+      - General best practices
+
+  - id: build-reusable-composable-ui
+    statement: >
+      Build reusable, composable UI components that can be combined and
+      rearranged for different screen sizes and postures without substantial
+      refactoring.
+    locator:
+      type: heading
+      value: General best practices
+      details: Design reusable and composable UI components.
+    context:
+      - General best practices
+
+  - id: make-parts-testable-in-isolation
+    statement: >
+      Keep responsibilities behind well-defined APIs so each part of the app can
+      be tested in isolation rather than mixing or widely distributing its
+      logic.
+    locator:
+      type: heading
+      value: General best practices
+      details: Consider how to make each part of your app testable in isolation.
+    context:
+      - General best practices
+
+  - id: let-types-own-concurrency-policy
+    statement: >
+      Make each type responsible for moving its long-running blocking work to
+      the appropriate thread, and make the type safe to call from the main
+      thread without blocking it.
+    locator:
+      type: heading
+      value: General best practices
+      details: Types are responsible for their concurrency policy.
+    context:
+      - General best practices
+
+  - id: persist-relevant-fresh-data-for-offline-use
+    statement: >
+      Persist as much relevant, fresh data as possible so users can use app
+      functionality when connectivity is unavailable or unreliable.
+    locator:
+      type: heading
+      value: General best practices
+      details: Persist as much relevant and fresh data as possible.
+    context:
+      - General best practices
+
+  - id: improve-engineering-outcomes-with-architecture
+    statement: >
+      Good architecture improves app maintainability, quality, robustness,
+      scaling across contributors, team onboarding, testability, and systematic
+      bug investigation.
+    locator:
+      type: heading
+      value: Benefits of architecture
+      details: Benefits to the project and engineering teams.
+    context:
+      - Benefits of architecture
+    transcription_notes: >
+      The source's related project and engineering-team benefits were condensed
+      from a bullet list without adding a ranking or causal interpretation.
+
+  - id: improve-user-outcomes-with-architecture
+    statement: >
+      Although architecture requires an up-front time investment, users benefit
+      from a more stable app and more features when the engineering team becomes
+      more productive.
+    locator:
+      type: heading
+      value: Benefits of architecture
+      details: Although good architecture requires an up-front time investment.
+    context:
+      - Benefits of architecture
