@@ -8,8 +8,9 @@ The project is in **Phase 2 — Competency import**. Two Android Developers sour
 packages and the version 2 canonical Android app architecture set remain in
 `review`. Canonical competency relations were researched and deferred. A
 minimal learning-sequence model and the first Android app architecture sequence
-are implemented; the sequence also remains in `review`. The canonical model is
-still `PROPOSED` pending human approval.
+are implemented; the sequence also remains in `review`. The canonical
+competency model is now the repository's `ACCEPTED` architecture. This
+architecture status does not approve any package.
 
 The repository will gradually contain:
 

@@ -345,3 +345,11 @@ status transition.
 - [ ] Confirm both source packages are byte-for-byte unchanged.
 - [ ] Confirm no relations, prerequisites, sequence, topic mapping, difficulty, assessment, or progress fields were added.
 - [ ] Confirm the architecture model remains `PROPOSED` pending human approval.
+
+## Task 010 disposition
+
+Task 010 accepted the recommendation recorded above and prepared the canonical
+model status transition to `ACCEPTED`. The original recommendation and checklist
+remain as the historical Task 008 review record. This later architecture
+decision does not change the version 2 canonical package's `review` status or
+approve either source package.

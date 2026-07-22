@@ -44,16 +44,15 @@ Implemented foundations:
 
 - source package and source-item model;
 - two external source packages in `review`;
-- proposed canonical competency model and registry validation;
+- accepted canonical competency model and registry validation;
 - one version 2 canonical set normalized across both sources in `review`;
-- a cross-source model review with an acceptance recommendation;
+- a cross-source model review and completed architecture acceptance decision;
 - canonical competency relation research, with production relations deferred;
 - a minimal ordered-stage learning-sequence model;
 - one Android app architecture foundations sequence in `review`.
 
 Remaining Phase 2 milestones:
 
-- decide whether the canonical model can move from `PROPOSED` to `ACCEPTED`;
 - review the first learning sequence without treating its stage order as
   canonical competency relations.
 

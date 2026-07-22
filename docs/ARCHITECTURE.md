@@ -186,9 +186,12 @@ their prerequisite graph remain separate from canonical competency data.
 
 ## Canonical model status
 
-`docs/architecture/CANONICAL_COMPETENCY_MODEL.md` remains `PROPOSED`. A second
-independent source and cross-source normalization have produced an acceptance
-recommendation, but the human architecture-status decision remains pending.
+`docs/architecture/CANONICAL_COMPETENCY_MODEL.md` is `ACCEPTED` as the
+repository architecture for stable, source-independent, evidence-backed
+competencies. Both source packages and the canonical competency set remain in
+`review`, as does learning sequence version 1. Architecture acceptance does not
+approve those editorial packages. Canonical relations and competency-to-topic
+mappings remain deferred.
 
 ## Architecture decision records
 

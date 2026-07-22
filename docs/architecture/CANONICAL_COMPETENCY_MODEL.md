@@ -1,6 +1,6 @@
 # CanonICAL COMPETENCY MODEL
 
-Status: PROPOSED
+Status: ACCEPTED
 Version: 1
 Scope: Canonical Android competency domain model
 
@@ -488,6 +488,32 @@ IDs should remain stable when:
 - new evidence is added;
 - evidence is removed but the competency remains supported;
 - the competency moves between files without semantic change.
+
+### 11.5 Versioning and editorial lifecycle
+
+The model uses distinct version and status concepts:
+
+- The `Version` in this document identifies the architecture contract. It
+  changes when the model's meaning or required structure changes. Moving this
+  document from `PROPOSED` to `ACCEPTED` approves the existing contract and does
+  not by itself require a new document version.
+- `schema_version` identifies the machine-readable file shape. It changes only
+  when a new schema contract is introduced.
+- `competency-set.yaml` `version` identifies a revision of one canonical set;
+  `competencies.yaml` must carry the same value as `competency_set_version`.
+  Increment the set version when competency membership, evidence, or semantic
+  wording changes. Formatting-only edits do not require an increment.
+- `source_version` belongs to the referenced source package and follows the
+  source model's versioning rules. It is independent from the competency-set
+  version.
+- `status` is editorial lifecycle state, not a version. Accepting this
+  architecture does not approve any source package, canonical competency set,
+  or learning sequence.
+
+The active package directory represents its current version; Git history
+preserves earlier revisions. Consumers that reference an exact set version must
+be reviewed and migrated when the active set version changes. A wording change
+that alters competency identity must not silently reuse an existing stable ID.
 
 ## 12. Normalization notes
 

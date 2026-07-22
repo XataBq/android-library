@@ -24,8 +24,9 @@ The repository currently provides:
 - a provenance-preserving competency source model and templates;
 - competency source schemas, fixtures, and repository-local validation;
 - two real competency source packages, each with review documentation;
-- canonical competency schemas, evidence-reference validation, and a version 2
-  Android app architecture set normalized across both sources in review;
+- an accepted canonical competency architecture, canonical schemas,
+  evidence-reference validation, and a version 2 Android app architecture set
+  normalized across both sources in review;
 - a minimal ordered-stage learning-sequence schema, semantic reference
   validation, fixtures, tests, and authoring documentation;
 - the first Android app architecture foundations sequence in `review`.
@@ -42,9 +43,8 @@ The repository currently provides:
 - **Task 006.2 — DONE:** Synchronized the repository architecture and normalization workflow documentation.
 - **Task 007 — DONE:** Imported the second Android Developers architecture source package and recorded its review.
 - **Task 008 — DONE:** Normalized the second source across the canonical registry and advanced the canonical set to version 2.
-
-Task 009 implementation is ready for review; its task status remains controlled
-by the human owner.
+- **Task 009 — DONE:** Implemented the minimal ordered-stage learning-sequence model and the first review-stage Android architecture sequence.
+- **Task 010 — DONE:** Reviewed and accepted the canonical competency model as repository architecture without changing package editorial states.
 
 ## Current focus
 
@@ -54,22 +54,24 @@ Two Android Developers source packages are implemented with `review` status:
 has been performed against both packages. The resulting canonical Android app
 architecture package is version 2 and remains in `review`.
 
-The cross-source review recommends `ACCEPT`, but the canonical model remains
-`PROPOSED` until the human owner makes the architecture-status decision.
-Canonical competency relations were researched and deferred. The minimal
-learning-sequence model is implemented, and
-`android-app-architecture-foundations` version 1 remains in `review`.
+The cross-source review recommendation has been accepted: the canonical
+competency model is now `ACCEPTED` repository architecture. This does not
+change the editorial state of either source package or the canonical package;
+all remain in `review`. Canonical competency relations were researched and
+deferred. The minimal learning-sequence model is implemented, and
+`android-app-architecture-foundations` version 1 also remains in `review`.
 
 ## Next planned tasks
 
 The immediate planned sequence is:
 
-1. Review the model acceptance recommendation and decide whether the canonical
-   model can move from `PROPOSED` to `ACCEPTED`.
-2. Map canonical competencies to authored educational topics without treating
+1. Review the first learning sequence as an editorial package without treating
+   its stage order as canonical competency relations.
+2. Define a separately approved competency-to-topic mapping before using one.
+3. Map canonical competencies to authored educational topics without treating
    topics as sequence nodes.
-3. Create the first reviewed educational topics.
-4. Generate the first content catalog when real content justifies it.
+4. Create the first reviewed educational topics.
+5. Generate the first content catalog when real content justifies it.
 
 Exact task numbers for this work have not yet been approved.
 
