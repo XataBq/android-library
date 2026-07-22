@@ -4,12 +4,11 @@ A competency-driven learning platform and knowledge base for Android and softwar
 
 ## Current status
 
-The project is in **Phase 2 — Competency import**. The first real competency
-source package, `android-developers-app-architecture`, is implemented with
-`review` status. One canonical Android app architecture competency set is also
-implemented as a `review`-stage pilot. The source is only partially normalized;
-the next validation milestone is importing a second independent source and
-normalizing it against the existing canonical registry.
+The project is in **Phase 2 — Competency import**. Two Android Developers source
+packages are implemented with `review` status. One canonical Android app
+architecture competency set is also implemented as a `review`-stage pilot based
+only on the first source. Cross-source normalization has not been performed;
+Task 008 is the next validation milestone.
 
 The repository will gradually contain:
 

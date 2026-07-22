@@ -1,0 +1,404 @@
+source_id: android-developers-architecture-recommendations
+source_version: 1
+items:
+  - id: define-data-layer-with-repositories
+    statement: >
+      Use a clearly defined data layer to expose application data and contain
+      most business logic, creating repositories even for a single data source.
+      In a small app, data-layer types may be placed in a `data` package or
+      module.
+    locator:
+      type: heading
+      value: Layered architecture
+      details: Use a clearly defined data layer.
+    context:
+      - Layered architecture
+    declared_level: Strongly recommended
+    transcription_notes: >
+      The repository rule and small-app packaging qualification were kept with
+      the recommendation row rather than split into separate items.
+
+  - id: define-ui-layer
+    statement: >
+      Use a clearly defined UI layer to display application data and provide
+      the primary point of user interaction, with Jetpack Compose identified as
+      the recommended modern UI toolkit. For small apps, the page says
+      data-layer types may be placed in a `ui` package or module.
+    locator:
+      type: heading
+      value: Layered architecture
+      details: Use a clearly defined UI layer.
+    context:
+      - Layered architecture
+    declared_level: Strongly recommended
+    transcription_notes: >
+      The small-app qualification is retained as displayed. Although it appears
+      in the UI-layer row, the live page refers to "data layer types"; the
+      extraction does not silently correct that possible editorial inconsistency.
+
+  - id: expose-data-through-repositories
+    statement: >
+      Expose data-layer application data through repositories so UI-layer
+      components such as composables and ViewModels do not interact directly
+      with databases, DataStore, SharedPreferences, Firebase APIs, GPS or
+      Bluetooth providers, or network-connectivity providers.
+    locator:
+      type: heading
+      value: Layered architecture
+      details: Expose application data from the data layer using a repository.
+    context:
+      - Layered architecture
+    declared_level: Strongly recommended
+    transcription_notes: >
+      The source's data-source examples were retained within the repository
+      boundary recommendation rather than extracted as separate items.
+
+  - id: communicate-between-layers-with-coroutines-flows
+    statement: >
+      Use Kotlin coroutines and flows to communicate between application layers.
+    locator:
+      type: heading
+      value: Layered architecture
+      details: Use coroutines and flows.
+    context:
+      - Layered architecture
+    declared_level: Strongly recommended
+
+  - id: use-domain-layer-in-big-apps
+    statement: >
+      In a big app, use a domain layer with use cases when business logic that
+      interacts with the data layer must be reused across multiple ViewModels,
+      or when a particular ViewModel's business logic needs simplification.
+    locator:
+      type: heading
+      value: Layered architecture
+      details: Use a domain layer.
+    context:
+      - Layered architecture
+    declared_level: Recommended in big apps
+
+  - id: follow-udf-with-viewmodel-ui-state
+    statement: >
+      Follow unidirectional data flow principles: ViewModels expose UI state
+      through the observer pattern and receive UI actions through method calls.
+    locator:
+      type: heading
+      value: UI layer
+      details: Follow Unidirectional Data Flow (UDF).
+    context:
+      - UI layer
+    declared_level: Strongly recommended
+
+  - id: use-aac-viewmodels-when-beneficial
+    statement: >
+      When their benefits apply to the app, use Android Architecture Components
+      ViewModels to handle business logic, fetch application data, and expose UI
+      state to the UI.
+    locator:
+      type: heading
+      value: UI layer
+      details: Use AAC ViewModels if their benefits apply to your app.
+    context:
+      - UI layer
+    declared_level: Strongly recommended
+
+  - id: collect-ui-state-lifecycle-aware
+    statement: >
+      Collect UI state from the UI with the appropriate lifecycle-aware
+      coroutine builder, specifically `collectAsStateWithLifecycle` in the
+      page's recommendation.
+    locator:
+      type: heading
+      value: UI layer
+      details: Use lifecycle-aware UI state collection.
+    context:
+      - UI layer
+    declared_level: Strongly recommended
+
+  - id: process-viewmodel-events-as-state-updates
+    statement: >
+      Do not send events from a ViewModel to the UI; process each event
+      immediately in the ViewModel and update state with the handling result.
+    locator:
+      type: heading
+      value: UI layer
+      details: Do not send events from the ViewModel to the UI.
+    context:
+      - UI layer
+    declared_level: Strongly recommended
+
+  - id: use-single-activity-with-navigation
+    statement: >
+      Use a single-activity application and, when the app has more than one
+      screen, use Navigation 3 to move between screens and deep link into the
+      app.
+    locator:
+      type: heading
+      value: UI layer
+      details: Use a single-activity application.
+    context:
+      - UI layer
+    declared_level: Strongly recommended
+
+  - id: use-compose-for-new-apps
+    statement: >
+      Use Jetpack Compose to build new applications for phones, tablets,
+      foldables, and Wear OS.
+    locator:
+      type: heading
+      value: UI layer
+      details: Use Jetpack Compose.
+    context:
+      - UI layer
+    declared_level: Strongly recommended
+
+  - id: keep-viewmodels-lifecycle-independent
+    statement: >
+      Keep ViewModels independent of the Android lifecycle: do not retain
+      lifecycle-related types or accept Activity, Context, or Resources as
+      dependencies, and reconsider the layer when a ViewModel appears to need a
+      Context.
+    locator:
+      type: heading
+      value: ViewModel
+      details: Keep ViewModels independent of the Android lifecycle.
+    context:
+      - ViewModel
+    declared_level: Strongly recommended
+
+  - id: use-flows-and-suspend-functions-in-viewmodels
+    statement: >
+      Have ViewModels interact with data or domain layers through Kotlin flows
+      for receiving application data and suspend functions in `viewModelScope`
+      for performing actions.
+    locator:
+      type: heading
+      value: ViewModel
+      details: Use coroutines and flows.
+    context:
+      - ViewModel
+    declared_level: Strongly recommended
+
+  - id: scope-viewmodels-to-screens
+    statement: >
+      Use ViewModels at screen level, including screen-level composables and
+      Navigation destinations or graphs, rather than in reusable UI. For a more
+      complex or state-driven composable, the page also permits scoping a
+      ViewModel to its call site with `rememberViewModelStoreOwner()`.
+    locator:
+      type: heading
+      value: ViewModel
+      details: Use ViewModels at screen level.
+    context:
+      - ViewModel
+    declared_level: Strongly recommended
+    transcription_notes: >
+      The direct composable-scoping qualification was retained with the
+      screen-level recommendation because the source presents it in the same row.
+
+  - id: use-plain-state-holders-in-reusable-ui
+    statement: >
+      Use plain state-holder classes to handle complexity in reusable UI
+      components so their state can be hoisted and controlled externally.
+    locator:
+      type: heading
+      value: ViewModel
+      details: Use plain state holder classes in reusable UI components.
+    context:
+      - ViewModel
+    declared_level: Strongly recommended
+
+  - id: avoid-androidviewmodel
+    statement: >
+      Use `ViewModel` rather than `AndroidViewModel`; do not use the Application
+      class in a ViewModel, and move that dependency to the UI or data layer.
+    locator:
+      type: heading
+      value: ViewModel
+      details: Do not use AndroidViewModel.
+    context:
+      - ViewModel
+    declared_level: Recommended
+
+  - id: expose-viewmodel-ui-state
+    statement: >
+      Expose ViewModel data through a `uiState` property, allowing multiple
+      properties for unrelated data. Use `StateFlow`; derive streamed data with
+      `stateIn` and `WhileSubscribed(5000)`, or expose an immutable StateFlow
+      backed by MutableStateFlow for simpler non-stream cases. A screen UI state
+      may be a data class, or a sealed class for mutually exclusive states.
+    locator:
+      type: heading
+      value: ViewModel
+      details: Expose a UI state.
+    context:
+      - ViewModel
+    declared_level: Recommended
+    transcription_notes: >
+      The alternatives and exception for unrelated UI data were kept together
+      because they qualify the single recommendation row.
+
+  - id: use-lifecycle-aware-compose-effects
+    statement: >
+      For UI-related lifecycle work in composables, use lifecycle-aware effects
+      or coroutine APIs instead of overriding Activity lifecycle callbacks: use
+      LifecycleStartEffect for start and stop work, LifecycleResumeEffect for
+      resume and pause work, repeatOnLifecycle for asynchronous lifecycle work,
+      and collectAsStateWithLifecycle for Flow collection.
+    locator:
+      type: heading
+      value: Lifecycle
+      details: Use lifecycle-aware effects in composables instead of overriding Activity lifecycle callbacks.
+    context:
+      - Lifecycle
+    declared_level: Strongly recommended
+    transcription_notes: >
+      The four API choices were retained as inseparable, task-specific
+      qualifications of the lifecycle recommendation; the code example was not
+      extracted.
+
+  - id: use-constructor-dependency-injection
+    statement: >
+      Follow dependency-injection practices, using constructor injection when
+      possible.
+    locator:
+      type: heading
+      value: Handle dependencies
+      details: Use dependency injection.
+    context:
+      - Handle dependencies
+    declared_level: Strongly recommended
+
+  - id: scope-shared-or-expensive-types
+    statement: >
+      Scope a type to a dependency container when it holds mutable data that
+      must be shared, or when it is expensive to initialize and used widely in
+      the app.
+    locator:
+      type: heading
+      value: Handle dependencies
+      details: Scope to a component when necessary.
+    context:
+      - Handle dependencies
+    declared_level: Strongly recommended
+
+  - id: choose-hilt-for-complex-projects
+    statement: >
+      Use Hilt or manual dependency injection in simple apps, and use Hilt when
+      project complexity warrants it, including projects with multiple screens
+      and ViewModels, WorkManager, or ViewModels scoped to the navigation back
+      stack.
+    locator:
+      type: heading
+      value: Handle dependencies
+      details: Use Hilt.
+    context:
+      - Handle dependencies
+    declared_level: Recommended
+    transcription_notes: >
+      The simple-app alternative and the source's example complexity criteria
+      were retained with the Hilt recommendation.
+
+  - id: test-viewmodels-data-layer-and-navigation
+    statement: >
+      Unless the project is only as simple as a hello-world app, test it; at a
+      minimum, include unit tests for ViewModels and their flows, unit tests for
+      repositories and data sources, and UI navigation tests useful as CI
+      regression tests.
+    locator:
+      type: heading
+      value: Testing
+      details: Know what to test.
+    context:
+      - Testing
+    declared_level: Strongly recommended
+    transcription_notes: >
+      The minimum test categories and hello-world exception were retained as
+      one recommendation rather than split by test type.
+
+  - id: prefer-fakes-to-mocks
+    statement: >
+      Prefer fakes to mocks.
+    locator:
+      type: heading
+      value: Testing
+      details: Prefer fakes to mocks.
+    context:
+      - Testing
+    declared_level: Strongly recommended
+
+  - id: test-stateflow-values
+    statement: >
+      When testing StateFlow, assert on its `value` property whenever possible
+      and use `WhileSubscribed`.
+    locator:
+      type: heading
+      value: Testing
+      details: Test StateFlows.
+    context:
+      - Testing
+    declared_level: Strongly recommended
+
+  - id: separate-layer-models-in-complex-apps
+    statement: >
+      In complex apps, create separate models in different layers or components
+      when useful: remote data sources can map network models to app-focused
+      classes, repositories can map DAO models to UI-focused data classes, and
+      ViewModels can include data-layer models in UI-state classes.
+    locator:
+      type: heading
+      value: Models
+      details: Create a model per layer in complex apps.
+    context:
+      - Models
+    declared_level: Recommended
+    transcription_notes: >
+      The examples were summarized as possible mappings rather than converted
+      into universal requirements or separate items.
+
+  - id: name-methods-with-verb-phrases
+    statement: >
+      Name methods with verb phrases, such as `makePayment()`.
+    locator:
+      type: heading
+      value: Naming conventions
+      details: Naming methods.
+    context:
+      - Naming conventions
+    declared_level: Optional
+
+  - id: name-properties-with-noun-phrases
+    statement: >
+      Name properties with noun phrases, such as `inProgressTopicSelection`.
+    locator:
+      type: heading
+      value: Naming conventions
+      details: Naming properties.
+    context:
+      - Naming conventions
+    declared_level: Optional
+
+  - id: name-stream-functions-by-model
+    statement: >
+      Name functions that expose Flow or other streams as
+      `get{model}Stream`, using a plural model name when returning a list.
+    locator:
+      type: heading
+      value: Naming conventions
+      details: Naming streams of data.
+    context:
+      - Naming conventions
+    declared_level: Optional
+
+  - id: name-interface-implementations-meaningfully
+    statement: >
+      Give interface implementations meaningful names, use `Default` as a
+      prefix only when no better name is available, and prefix fake
+      implementations with `Fake`.
+    locator:
+      type: heading
+      value: Naming conventions
+      details: Naming interfaces implementations.
+    context:
+      - Naming conventions
+    declared_level: Optional
