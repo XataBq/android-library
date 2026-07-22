@@ -5,7 +5,8 @@
 The repository is currently in **Phase 2 — Competency import**. The repository
 foundation, educational topic contracts, source competency model, and first
 canonical competency model are implemented. Current work focuses on
-provenance-preserving source import and editorial canonicalization.
+provenance-preserving source import, editorial canonicalization, and reviewed
+pedagogical sequences through canonical competencies.
 
 No production client architecture is considered final yet.
 
@@ -66,10 +67,11 @@ Source items
 Evidence links
         ↓
 Canonical competencies
-        ↓
-Future relations and learning sequence
-        ↓
-Educational topics
+        ├──────────────→ Authored learning sequences
+        ├──────────────→ Future canonical relations (deferred)
+        └──────────────→ Future educational-topic mappings
+                               ↓
+                      Authored educational topics
 ```
 
 This is an editorial and architectural flow, not an automatic generation
@@ -78,7 +80,10 @@ external publication. Evidence links connect versioned source items to
 repository-owned canonical competencies, which express stable demonstrable
 capabilities independently of any one publication.
 
-Competency relations and learning sequences are future domain data.
+Learning sequences are separate pedagogical data that reference a fixed
+canonical competency-set version. Their stage order is recommended only within
+the authored sequence and creates no canonical relation. Canonical competency
+relations remain deferred.
 Educational topics are separately authored learning material; they are not
 generated automatically from competencies. Learner progress is personal state
 and remains outside both competency and topic data.
@@ -109,6 +114,7 @@ and remains outside both competency and topic data.
 ```text
 android-library/
 ├── competencies/  Imported evidence, canonical competencies, and review reports
+├── learning-sequences/  Authored pedagogical paths through canonical competencies
 ├── content/       Authored educational topic packages
 ├── docs/          Project, workflow, and architecture documentation
 ├── schemas/       Machine-readable content and competency schemas
@@ -126,6 +132,14 @@ competencies/
 └── reports/       Import and normalization review records
 ```
 
+The implemented learning-sequence area is organized as:
+
+```text
+learning-sequences/
+├── <sequence-id>/  Versioned sequence YAML and package README
+└── reports/        Sequence implementation and review records
+```
+
 Potential `web/`, `android/`, `backend/`, `shared/`, `tools/`, and `.github/`
 areas remain future work. A future directory's presence would not authorize its
 implementation.
@@ -135,6 +149,8 @@ implementation.
 - Source packages preserve publication data and do not depend on canonical
   competencies.
 - Canonical competencies may reference versioned source evidence.
+- Learning sequences reference one exact canonical competency set and version;
+  their order does not create canonical competency relations.
 - Educational topics may later map to canonical competencies, but this
   architecture does not yet define that mapping.
 - Competency data does not depend on clients or learner state.
@@ -145,10 +161,11 @@ implementation.
 
 ## Separate future graphs
 
-The future competency prerequisite or relation graph describes relationships
-between canonical capabilities. The existing topic prerequisite graph describes
-authored learning-material dependencies between educational topics. They may
-inform one another, but they are separate data models and must not be merged.
+Any future canonical competency relation graph would describe relationships
+between capabilities. Learning-sequence stage order is contextual pedagogical
+guidance. The existing topic prerequisite graph describes dependencies between
+authored learning materials. These are separate data models and must not be
+merged.
 
 ## Educational topic package
 
@@ -169,10 +186,9 @@ their prerequisite graph remain separate from canonical competency data.
 
 ## Canonical model status
 
-`docs/architecture/CANONICAL_COMPETENCY_MODEL.md` remains `PROPOSED`. The first
-canonical competency set exercises the model with one source, but a second
-independent source and cross-source normalization are still required before an
-acceptance decision.
+`docs/architecture/CANONICAL_COMPETENCY_MODEL.md` remains `PROPOSED`. A second
+independent source and cross-source normalization have produced an acceptance
+recommendation, but the human architecture-status decision remains pending.
 
 ## Architecture decision records
 

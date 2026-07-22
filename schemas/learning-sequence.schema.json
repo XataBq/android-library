@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://android-library.local/schemas/learning-sequence.schema.json",
+  "title": "Learning sequence",
+  "description": "An authored pedagogical order through one versioned canonical competency set.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sequence_id",
+    "sequence_version",
+    "title",
+    "language",
+    "status",
+    "competency_set",
+    "stages"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "sequence_id": { "$ref": "#/$defs/kebabCase" },
+    "sequence_version": { "type": "integer", "minimum": 1 },
+    "title": { "$ref": "#/$defs/nonEmptyString" },
+    "description": { "$ref": "#/$defs/nonEmptyString" },
+    "language": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+    },
+    "status": { "enum": ["draft", "review", "approved", "deprecated"] },
+    "competency_set": { "$ref": "#/$defs/competencySetReference" },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/stage" }
+    },
+    "editorial_notes": { "$ref": "#/$defs/nonEmptyString" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kebabCase": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "competencySetReference": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/kebabCase" },
+        "version": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "stage": {
+      "type": "object",
+      "required": ["id", "title", "competencies"],
+      "properties": {
+        "id": { "$ref": "#/$defs/kebabCase" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "rationale": { "$ref": "#/$defs/nonEmptyString" },
+        "competencies": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/kebabCase" }
+        },
+        "editorial_notes": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,80 @@
+schema_version: 1
+sequence_id: android-app-architecture-foundations
+sequence_version: 1
+title: Android app architecture foundations
+description: >
+  A foundational learning path through the canonical Android app architecture
+  competency set.
+language: en
+status: review
+competency_set:
+  id: android-app-architecture
+  version: 2
+stages:
+  - id: platform-constraints
+    title: Platform constraints
+    rationale: >
+      Establish the Android lifecycle and process constraints that motivate
+      later architecture decisions.
+    competencies:
+      - explain-android-component-lifecycle-constraints
+
+  - id: foundational-boundaries
+    title: Foundational boundaries
+    rationale: >
+      Establish responsibility, ownership, and framework-dependency boundaries
+      before introducing concrete application layers.
+    competencies:
+      - apply-separation-of-concerns
+      - design-independent-app-components
+      - isolate-android-framework-dependencies
+
+  - id: state-and-data-principles
+    title: State and data principles
+    rationale: >
+      Introduce authoritative state ownership, state propagation, and durable
+      data before applying them in layer-specific designs.
+    competencies:
+      - establish-single-source-of-truth
+      - explain-unidirectional-data-flow
+      - explain-persistent-data-models
+
+  - id: ui-architecture
+    title: UI architecture
+    rationale: >
+      Apply the state principles to UI responsibilities, state holders, and
+      lifecycle-aware work in Android UI.
+    competencies:
+      - explain-ui-layer-responsibilities
+      - design-viewmodel-ui-state
+      - select-ui-state-holders-by-scope
+      - handle-compose-lifecycle-work
+
+  - id: data-architecture
+    title: Data architecture
+    rationale: >
+      Define repository responsibilities, data-layer boundaries, and
+      inter-layer data and action APIs as one instructional unit.
+    competencies:
+      - explain-repository-responsibilities
+      - design-data-layer-around-repositories
+      - use-coroutines-and-flows-across-layers
+
+  - id: dependency-management
+    title: Dependency management
+    rationale: >
+      Introduce externalized construction after concrete object boundaries,
+      then consider lifetime and reuse decisions.
+    competencies:
+      - explain-dependency-injection
+      - scope-dependencies-when-needed
+
+  - id: application-composition
+    title: Application composition
+    rationale: >
+      Address application-scale navigation and conditional layer refinements
+      after the core UI, data, and dependency boundaries are established.
+    competencies:
+      - design-single-activity-navigation
+      - evaluate-optional-domain-layer
+      - evaluate-layer-specific-models

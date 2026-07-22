@@ -1,0 +1,23 @@
+schema_version: 1
+sequence_id: multi-stage-sequence
+sequence_version: 2
+title: Multi-stage sequence
+description: A fixture that exercises optional sequence and stage text.
+language: en-US
+status: review
+competency_set:
+  id: fixture-competency-set
+  version: 1
+stages:
+  - id: foundations
+    title: Foundations
+    rationale: Establish the shared vocabulary before design work.
+    competencies:
+      - explain-fixture-boundary
+  - id: application
+    title: Application
+    rationale: Apply the boundary after its purpose is clear.
+    competencies:
+      - apply-fixture-boundary
+    editorial_notes: The stages are pedagogical, not prerequisite declarations.
+editorial_notes: This fixture intentionally uses every optional text field.

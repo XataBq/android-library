@@ -1,0 +1,14 @@
+schema_version: 2
+sequence_id: unsupported-schema-version
+sequence_version: 1
+title: Unsupported schema version
+language: en
+status: draft
+competency_set:
+  id: fixture-competency-set
+  version: 1
+stages:
+  - id: foundations
+    title: Foundations
+    competencies:
+      - explain-fixture-boundary

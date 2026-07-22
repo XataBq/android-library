@@ -1,0 +1,18 @@
+schema_version: 1
+sequence_id: duplicate-stage-id
+sequence_version: 1
+title: Duplicate stage ID
+language: en
+status: draft
+competency_set:
+  id: fixture-competency-set
+  version: 1
+stages:
+  - id: foundations
+    title: First foundations stage
+    competencies:
+      - explain-fixture-boundary
+  - id: foundations
+    title: Second foundations stage
+    competencies:
+      - apply-fixture-boundary

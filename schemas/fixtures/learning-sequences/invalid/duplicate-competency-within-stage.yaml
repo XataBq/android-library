@@ -1,0 +1,15 @@
+schema_version: 1
+sequence_id: duplicate-competency-within-stage
+sequence_version: 1
+title: Duplicate competency within stage
+language: en
+status: draft
+competency_set:
+  id: fixture-competency-set
+  version: 1
+stages:
+  - id: foundations
+    title: Foundations
+    competencies:
+      - explain-fixture-boundary
+      - explain-fixture-boundary

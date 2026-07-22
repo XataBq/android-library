@@ -1,0 +1,14 @@
+schema_version: 1
+sequence_id: unknown-competency
+sequence_version: 1
+title: Unknown competency
+language: en
+status: draft
+competency_set:
+  id: fixture-competency-set
+  version: 1
+stages:
+  - id: foundations
+    title: Foundations
+    competencies:
+      - missing-competency

@@ -1,4 +1,4 @@
-"""Validate repository source and canonical competency packages."""
+"""Validate repository competency and learning-sequence packages."""
 
 from __future__ import annotations
 
@@ -43,6 +43,18 @@ class Code:
     EVIDENCE_ITEM_MISSING = "EVIDENCE_ITEM_MISSING"
     DUPLICATE_EVIDENCE_ITEM = "DUPLICATE_EVIDENCE_ITEM"
     DUPLICATE_EVIDENCE_ENTRY = "DUPLICATE_EVIDENCE_ENTRY"
+    SEQUENCE_PACKAGE_ID_MISMATCH = "SEQUENCE_PACKAGE_ID_MISMATCH"
+    DUPLICATE_SEQUENCE_VERSION = "DUPLICATE_SEQUENCE_VERSION"
+    SEQUENCE_COMPETENCY_SET_MISSING = "SEQUENCE_COMPETENCY_SET_MISSING"
+    SEQUENCE_COMPETENCY_SET_VERSION_MISMATCH = (
+        "SEQUENCE_COMPETENCY_SET_VERSION_MISMATCH"
+    )
+    SEQUENCE_COMPETENCY_MISSING = "SEQUENCE_COMPETENCY_MISSING"
+    DUPLICATE_STAGE_ID = "DUPLICATE_STAGE_ID"
+    DUPLICATE_STAGE_COMPETENCY = "DUPLICATE_STAGE_COMPETENCY"
+    DUPLICATE_SEQUENCE_COMPETENCY = "DUPLICATE_SEQUENCE_COMPETENCY"
+    EMPTY_SEQUENCE_STAGES = "EMPTY_SEQUENCE_STAGES"
+    EMPTY_STAGE_COMPETENCIES = "EMPTY_STAGE_COMPETENCIES"
     INTERNAL = "INTERNAL"
 
 
@@ -76,6 +88,13 @@ class CanonicalPackage:
     competencies: dict[str, Any] | None = None
 
 
+@dataclass
+class LearningSequencePackage:
+    directory: Path
+    sequence_path: Path
+    sequence: Any | None = None
+
+
 @dataclass(frozen=True)
 class InvalidFixtureExpectation:
     schema_validator: str | None = None
@@ -92,6 +111,7 @@ class ValidationResult:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     package_count: int = 0
     canonical_package_count: int = 0
+    sequence_package_count: int = 0
     template_count: int = 0
     fixture_count: int = 0
     configuration_error: bool = False
@@ -140,6 +160,7 @@ def _load_schemas(
         "items": "competency-items.schema.json",
         "canonical_set": "canonical-competency-set.schema.json",
         "canonical_competencies": "canonical-competencies.schema.json",
+        "learning_sequence": "learning-sequence.schema.json",
     }
     for kind, filename in schema_names.items():
         path = root / "schemas" / filename
@@ -173,8 +194,17 @@ def _load_yaml(root: Path, path: Path, result: ValidationResult) -> dict[str, An
     return value
 
 
+def _load_sequence_yaml(root: Path, path: Path, result: ValidationResult) -> Any | None:
+    try:
+        with path.open(encoding="utf-8") as file:
+            return yaml.safe_load(file)
+    except (OSError, yaml.YAMLError) as error:
+        result.add(Code.YAML_PARSE, _relative(root, path), str(error).splitlines()[0])
+        return None
+
+
 def _schema_errors(
-    validator: Draft202012Validator, data: Mapping[str, Any]
+    validator: Draft202012Validator, data: Any
 ) -> list[Any]:
     return sorted(
         validator.iter_errors(data),
@@ -189,7 +219,7 @@ def _validate_schema(
     root: Path,
     path: Path,
     validator: Draft202012Validator,
-    data: Mapping[str, Any],
+    data: Any,
     result: ValidationResult,
 ) -> bool:
     errors = _schema_errors(validator, data)
@@ -346,6 +376,7 @@ def _validate_support_files(
         result,
     )
     _validate_canonical_fixtures(root, validators, result)
+    _validate_learning_sequence_fixtures(root, validators, result)
 
 
 def _validate_canonical_fixtures(
@@ -414,6 +445,115 @@ def _validate_canonical_fixtures(
             )
 
 
+def _validate_learning_sequence_fixtures(
+    root: Path,
+    validators: Mapping[str, Draft202012Validator],
+    result: ValidationResult,
+) -> None:
+    fixture_root = root / "schemas/fixtures/learning-sequences"
+    valid_filenames = ("minimal.yaml", "multi-stage.yaml")
+    invalid_expectations = {
+        "missing-required-field.yaml": (("required",), ()),
+        "unsupported-schema-version.yaml": (("const",), ("schema_version",)),
+        "empty-stages.yaml": (("minItems",), ("stages",)),
+        "empty-stage-competencies.yaml": (
+            ("minItems",),
+            ("stages", 0, "competencies"),
+        ),
+        "duplicate-competency-within-stage.yaml": (
+            ("uniqueItems",),
+            ("stages", 0, "competencies"),
+        ),
+        "unexpected-property.yaml": (("additionalProperties",), ()),
+    }
+    semantic_expectations = {
+        "duplicate-stage-id.yaml": Code.DUPLICATE_STAGE_ID,
+        "duplicate-competency-across-stages.yaml": Code.DUPLICATE_SEQUENCE_COMPETENCY,
+        "unknown-competency-set.yaml": Code.SEQUENCE_COMPETENCY_SET_MISSING,
+        "wrong-competency-set-version.yaml": (
+            Code.SEQUENCE_COMPETENCY_SET_VERSION_MISMATCH
+        ),
+        "unknown-competency.yaml": Code.SEQUENCE_COMPETENCY_MISSING,
+    }
+    result.fixture_count += (
+        len(valid_filenames) + len(invalid_expectations) + len(semantic_expectations)
+    )
+    validator = validators["learning_sequence"]
+    for filename in valid_filenames:
+        path = fixture_root / "valid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required sequence fixture is missing")
+            continue
+        data = _load_yaml(root, path, result)
+        if data is not None:
+            _validate_schema(root, path, validator, data, result)
+
+    for filename, (expected_validators, expected_path) in invalid_expectations.items():
+        path = fixture_root / "invalid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required sequence fixture is missing")
+            continue
+        data = _load_yaml(root, path, result)
+        if data is None:
+            continue
+        errors = _schema_errors(validator, data)
+        if (
+            sorted(error.validator for error in errors) != sorted(expected_validators)
+            or any(tuple(error.absolute_path) != expected_path for error in errors)
+        ):
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "fixture did not fail exclusively for its intended reason",
+            )
+
+    fixture_canonical = CanonicalPackage(
+        directory=fixture_root / "fixture-competency-set",
+        set_path=fixture_root / "fixture-competency-set/competency-set.yaml",
+        competencies_path=fixture_root / "fixture-competency-set/competencies.yaml",
+        competency_set={"id": "fixture-competency-set", "version": 1},
+        competencies={
+            "competencies": [
+                {"id": "explain-fixture-boundary"},
+                {"id": "apply-fixture-boundary"},
+            ]
+        },
+    )
+    for filename, expected_code in semantic_expectations.items():
+        path = fixture_root / "invalid" / filename
+        if not path.is_file():
+            result.add(Code.SCHEMA, _relative(root, path), "required sequence fixture is missing")
+            continue
+        data = _load_yaml(root, path, result)
+        if data is None:
+            continue
+        if _schema_errors(validator, data):
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "semantic fixture must satisfy the learning-sequence schema",
+            )
+            continue
+        fixture_result = ValidationResult()
+        fixture_package = LearningSequencePackage(
+            directory=path.parent / str(data.get("sequence_id")),
+            sequence_path=path,
+            sequence=data,
+        )
+        _validate_learning_sequence(
+            root,
+            fixture_package,
+            {"fixture-competency-set": fixture_canonical},
+            fixture_result,
+        )
+        if {item.code for item in fixture_result.diagnostics} != {expected_code}:
+            result.add(
+                Code.FIXTURE_EXPECTATION,
+                _relative(root, path),
+                "fixture did not fail exclusively for its intended semantic reason",
+            )
+
+
 def _discover_packages(root: Path) -> list[SourcePackage]:
     sources_root = root / "competencies/sources"
     if not sources_root.is_dir():
@@ -441,6 +581,20 @@ def _discover_canonical_packages(root: Path) -> list[CanonicalPackage]:
         )
         for directory in sorted(normalized_root.iterdir(), key=lambda path: path.name)
         if directory.is_dir()
+    ]
+
+
+def _discover_learning_sequence_packages(root: Path) -> list[LearningSequencePackage]:
+    sequences_root = root / "learning-sequences"
+    if not sequences_root.is_dir():
+        return []
+    return [
+        LearningSequencePackage(
+            directory=directory,
+            sequence_path=directory / "sequence.yaml",
+        )
+        for directory in sorted(sequences_root.iterdir(), key=lambda path: path.name)
+        if directory.is_dir() and directory.name != "reports"
     ]
 
 
@@ -821,6 +975,191 @@ def _validate_canonical_packages(
             )
 
 
+def _canonical_set_index(
+    packages: list[CanonicalPackage],
+) -> dict[str, CanonicalPackage]:
+    index: dict[str, CanonicalPackage] = {}
+    for package in packages:
+        set_id = (package.competency_set or {}).get("id")
+        if isinstance(set_id, str) and set_id not in index:
+            index[set_id] = package
+    return index
+
+
+def _canonical_competency_ids(package: CanonicalPackage) -> set[str]:
+    document = package.competencies or {}
+    competencies = document.get("competencies", [])
+    if not isinstance(competencies, list):
+        return set()
+    return {
+        competency["id"]
+        for competency in competencies
+        if isinstance(competency, Mapping) and isinstance(competency.get("id"), str)
+    }
+
+
+def _validate_learning_sequence(
+    root: Path,
+    package: LearningSequencePackage,
+    canonical_sets: Mapping[str, CanonicalPackage],
+    result: ValidationResult,
+) -> None:
+    sequence = package.sequence
+    if not isinstance(sequence, Mapping):
+        return
+    display_path = _relative(root, package.sequence_path)
+    sequence_id = sequence.get("sequence_id")
+    if sequence_id != package.directory.name:
+        result.add(
+            Code.SEQUENCE_PACKAGE_ID_MISMATCH,
+            display_path,
+            f"sequence id {sequence_id!r} does not match package directory {package.directory.name!r}",
+            "sequence_id",
+        )
+
+    stages = sequence.get("stages", [])
+    if not isinstance(stages, list):
+        return
+    if not stages:
+        result.add(
+            Code.EMPTY_SEQUENCE_STAGES,
+            display_path,
+            "learning sequence must contain at least one stage",
+            "stages",
+        )
+    stage_ids = [
+        stage.get("id") for stage in stages if isinstance(stage, Mapping)
+    ]
+    for duplicate_id in _duplicates(stage_ids):
+        result.add(
+            Code.DUPLICATE_STAGE_ID,
+            display_path,
+            f"stage id {duplicate_id!r} appears more than once",
+            "stages",
+        )
+
+    first_stage_by_competency: dict[str, tuple[int, str]] = {}
+    referenced_competencies: list[tuple[int, str | None, str]] = []
+    for stage_index, stage in enumerate(stages):
+        if not isinstance(stage, Mapping):
+            continue
+        stage_id = stage.get("id")
+        stage_label = stage_id if isinstance(stage_id, str) else f"index-{stage_index}"
+        competencies = stage.get("competencies", [])
+        if not isinstance(competencies, list):
+            continue
+        location = f"stages[{stage_index}] ({stage_label}).competencies"
+        if not competencies:
+            result.add(
+                Code.EMPTY_STAGE_COMPETENCIES,
+                display_path,
+                f"stage {stage_label!r} must reference at least one competency",
+                location,
+            )
+        for duplicate_id in _duplicates(competencies):
+            result.add(
+                Code.DUPLICATE_STAGE_COMPETENCY,
+                display_path,
+                f"stage {stage_label!r} repeats competency {duplicate_id!r}",
+                location,
+            )
+        for competency_id in competencies:
+            if not isinstance(competency_id, str):
+                continue
+            referenced_competencies.append((stage_index, stage_id, competency_id))
+        for competency_id in sorted(set(value for value in competencies if isinstance(value, str))):
+            previous_stage = first_stage_by_competency.get(competency_id)
+            if previous_stage is not None and previous_stage[0] != stage_index:
+                result.add(
+                    Code.DUPLICATE_SEQUENCE_COMPETENCY,
+                    display_path,
+                    f"competency {competency_id!r} appears in stages {previous_stage[1]!r} and {stage_label!r}",
+                    "stages",
+                )
+            else:
+                first_stage_by_competency[competency_id] = (stage_index, stage_label)
+
+    set_reference = sequence.get("competency_set", {})
+    if not isinstance(set_reference, Mapping):
+        return
+    set_id = set_reference.get("id")
+    canonical_package = canonical_sets.get(set_id) if isinstance(set_id, str) else None
+    if canonical_package is None:
+        result.add(
+            Code.SEQUENCE_COMPETENCY_SET_MISSING,
+            display_path,
+            f"referenced competency set {set_id!r} does not exist",
+            "competency_set.id",
+        )
+        return
+    expected_version = (canonical_package.competency_set or {}).get("version")
+    referenced_version = set_reference.get("version")
+    if referenced_version != expected_version:
+        result.add(
+            Code.SEQUENCE_COMPETENCY_SET_VERSION_MISMATCH,
+            display_path,
+            f"competency set {set_id!r} version {referenced_version!r} does not match repository version {expected_version!r}",
+            "competency_set.version",
+        )
+        return
+
+    available_ids = _canonical_competency_ids(canonical_package)
+    for stage_index, stage_id, competency_id in referenced_competencies:
+        if competency_id not in available_ids:
+            stage_label = stage_id if isinstance(stage_id, str) else f"index-{stage_index}"
+            result.add(
+                Code.SEQUENCE_COMPETENCY_MISSING,
+                display_path,
+                f"stage {stage_label!r} references missing competency {competency_id!r} in set {set_id!r} version {referenced_version!r}",
+                f"stages[{stage_index}] ({stage_label}).competencies",
+            )
+
+
+def _validate_learning_sequence_packages(
+    root: Path,
+    packages: list[LearningSequencePackage],
+    canonical_packages: list[CanonicalPackage],
+    validator: Draft202012Validator,
+    result: ValidationResult,
+) -> None:
+    canonical_sets = _canonical_set_index(canonical_packages)
+    identities: dict[tuple[str, int], list[str]] = {}
+    for package in packages:
+        if not package.sequence_path.is_file():
+            result.add(
+                Code.MISSING_FILE,
+                _relative(root, package.directory),
+                "missing required file 'sequence.yaml'",
+            )
+            continue
+        package.sequence = _load_sequence_yaml(root, package.sequence_path, result)
+        if package.sequence is None:
+            continue
+        _validate_schema(root, package.sequence_path, validator, package.sequence, result)
+        _validate_learning_sequence(root, package, canonical_sets, result)
+        if not isinstance(package.sequence, Mapping):
+            continue
+        sequence_id = package.sequence.get("sequence_id")
+        sequence_version = package.sequence.get("sequence_version")
+        if (
+            isinstance(sequence_id, str)
+            and isinstance(sequence_version, int)
+            and not isinstance(sequence_version, bool)
+        ):
+            identities.setdefault((sequence_id, sequence_version), []).append(
+                _relative(root, package.sequence_path)
+            )
+    for (sequence_id, sequence_version), paths in sorted(identities.items()):
+        if len(paths) > 1:
+            ordered_paths = sorted(paths)
+            result.add(
+                Code.DUPLICATE_SEQUENCE_VERSION,
+                ordered_paths[0],
+                f"sequence {sequence_id!r} version {sequence_version!r} appears in: {', '.join(ordered_paths)}",
+                "sequence_version",
+            )
+
+
 def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
     root = root.resolve()
     result = ValidationResult()
@@ -887,6 +1226,19 @@ def validate_repository(root: Path, verbose: bool = False) -> ValidationResult:
         validators,
         result,
     )
+    sequence_packages = _discover_learning_sequence_packages(root)
+    result.sequence_package_count = len(sequence_packages)
+    if verbose:
+        result.verbose_messages.append(
+            f"Discovered {len(sequence_packages)} learning-sequence package(s)."
+        )
+    _validate_learning_sequence_packages(
+        root,
+        sequence_packages,
+        canonical_packages,
+        validators["learning_sequence"],
+        result,
+    )
     return result
 
 
@@ -919,13 +1271,15 @@ def main(argv: list[str] | None = None) -> int:
             "Competency validation passed: "
             f"{result.package_count} source packages, "
             f"{result.canonical_package_count} canonical packages, "
+            f"{result.sequence_package_count} learning-sequence packages, "
             f"{result.template_count} templates, {result.fixture_count} schema fixtures."
         )
     else:
         print(
             "Competency validation failed: "
             f"{len(diagnostics)} errors across {result.package_count} source packages "
-            f"and {result.canonical_package_count} canonical packages."
+            f"{result.canonical_package_count} canonical packages, and "
+            f"{result.sequence_package_count} learning-sequence packages."
         )
     return result.exit_code
 

@@ -46,13 +46,16 @@ Implemented foundations:
 - two external source packages in `review`;
 - proposed canonical competency model and registry validation;
 - one version 2 canonical set normalized across both sources in `review`;
-- a cross-source model review with an acceptance recommendation.
+- a cross-source model review with an acceptance recommendation;
+- canonical competency relation research, with production relations deferred;
+- a minimal ordered-stage learning-sequence model;
+- one Android app architecture foundations sequence in `review`.
 
 Remaining Phase 2 milestones:
 
 - decide whether the canonical model can move from `PROPOSED` to `ACCEPTED`;
-- define a competency relation graph;
-- define the first learning sequence.
+- review the first learning sequence without treating its stage order as
+  canonical competency relations.
 
 ## Phase 3 — Content repository MVP
 
@@ -61,6 +64,7 @@ Goal: make the repository useful for real learning without an application.
 Deliverables:
 
 - first 10–15 reviewed topics;
+- mappings from canonical competencies to authored topics;
 - catalog generation;
 - content validation;
 - internal link checking;

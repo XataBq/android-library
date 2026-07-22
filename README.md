@@ -5,11 +5,11 @@ A competency-driven learning platform and knowledge base for Android and softwar
 ## Current status
 
 The project is in **Phase 2 — Competency import**. Two Android Developers source
-packages are implemented with `review` status. One canonical Android app
-architecture competency set has been normalized across both sources as version
-2 and remains in `review`. Its cross-source review recommends accepting the
-model, but the canonical model remains `PROPOSED` pending human approval.
-Competency relations and the first learning sequence remain future work.
+packages and the version 2 canonical Android app architecture set remain in
+`review`. Canonical competency relations were researched and deferred. A
+minimal learning-sequence model and the first Android app architecture sequence
+are implemented; the sequence also remains in `review`. The canonical model is
+still `PROPOSED` pending human approval.
 
 The repository will gradually contain:
 
@@ -40,8 +40,9 @@ The repository will gradually contain:
 7. Read the [competency import workflow](docs/COMPETENCY_IMPORT_WORKFLOW.md) before importing a source publication.
 8. Read the [canonical competency model](docs/architecture/CANONICAL_COMPETENCY_MODEL.md) before normalizing source evidence.
 9. Read the [competency normalization workflow](docs/COMPETENCY_NORMALIZATION_WORKFLOW.md) before adding evidence or canonical competencies.
-10. Run `python -B scripts/validate_competencies.py` after changing source or canonical competency packages.
-11. Read `docs/CONTENT_MODEL.md` before authoring educational content.
-12. Run `python -B scripts/validate_content.py` after adding or changing topic content.
-13. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and diagnostics.
-14. Read `AGENTS.md` before using an AI coding agent.
+10. Read the [learning-sequence model](docs/LEARNING_SEQUENCE_MODEL.md) and [authoring guide](docs/LEARNING_SEQUENCE_AUTHORING.md) before changing a sequence.
+11. Run `python -B scripts/validate_competencies.py` after changing source, canonical competency, or learning-sequence packages.
+12. Read `docs/CONTENT_MODEL.md` before authoring educational content.
+13. Run `python -B scripts/validate_content.py` after adding or changing topic content.
+14. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and diagnostics.
+15. Read `AGENTS.md` before using an AI coding agent.

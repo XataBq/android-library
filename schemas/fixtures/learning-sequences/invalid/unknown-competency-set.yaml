@@ -1,0 +1,14 @@
+schema_version: 1
+sequence_id: unknown-competency-set
+sequence_version: 1
+title: Unknown competency set
+language: en
+status: draft
+competency_set:
+  id: missing-competency-set
+  version: 1
+stages:
+  - id: foundations
+    title: Foundations
+    competencies:
+      - explain-fixture-boundary
