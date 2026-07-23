@@ -1,0 +1,155 @@
+topic_id: android-app-architecture-foundations
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: component-data-ownership
+    type: single-choice
+    prompt: Why is an Activity a poor authoritative owner for application data?
+    difficulty: foundation
+    points: 1
+    explanation: An Activity is a system-controlled UI component that can be destroyed and recreated. Application data needs an owner whose responsibility and recovery behavior match the data's required lifetime.
+    options:
+      - id: activities-cannot-read-data
+        text: Activities cannot read application data.
+      - id: lifecycle-is-system-controlled
+        text: The system controls Activity lifetime, so an Activity instance is not a stable application-data owner.
+      - id: activities-cannot-have-state
+        text: Activities are forbidden from holding any temporary UI state.
+      - id: data-must-always-be-remote
+        text: All application data must be owned by a remote server.
+    correct_option_id: lifecycle-is-system-controlled
+
+  - id: ui-layer-responsibilities
+    type: multiple-choice
+    prompt: Which responsibilities normally belong to the UI layer? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: UI renders state, captures user intent, and owns presentation behavior. Application-data mutation and source conflict resolution belong behind a Data-layer boundary.
+    options:
+      - id: render-ui-state
+        text: Render loading, content, and error states.
+      - id: capture-user-action
+        text: Capture that the user selected the bookmark action.
+      - id: reconcile-data-sources
+        text: Resolve conflicts between database and network article records.
+      - id: mutate-authoritative-bookmark
+        text: Directly mutate the authoritative saved-article record.
+      - id: format-screen-label
+        text: Format a value for the needs of one screen.
+    correct_option_ids:
+      - render-ui-state
+      - capture-user-action
+      - format-screen-label
+
+  - id: domain-layer-required
+    type: true-false
+    prompt: Every Android application should include a Domain layer, even when all of its operations only forward calls to the Data layer.
+    difficulty: foundation
+    points: 1
+    explanation: The Domain layer in Android guidance is optional. It earns its cost when it isolates complex business logic or logic reused by multiple consumers; pass-through operations can add indirection without value.
+    correct_answer: false
+
+  - id: choose-source-of-truth
+    type: single-choice
+    prompt: An offline-first notes feature reads network responses and cached notes. Confirmed edits must remain available after process removal. Which ownership design best supports those requirements?
+    difficulty: foundation
+    points: 2
+    explanation: A local persistent authority can survive process removal and serve offline reads. Network results should be reconciled into it by the Data layer so UI observes one authoritative mutation path.
+    options:
+      - id: screen-list-owner
+        text: Let each screen own and mutate its own notes list.
+      - id: newest-callback-wins
+        text: Treat whichever source responds last as authoritative in the UI.
+      - id: local-persistent-owner
+        text: Use a local persistent source as SSOT and let the Data layer reconcile remote changes into it.
+      - id: duplicate-writable-caches
+        text: Keep independent writable network, cache, and UI copies without a conflict policy.
+    correct_option_id: local-persistent-owner
+
+  - id: dependency-boundary-violations
+    type: multiple-choice
+    prompt: Which observations indicate a responsibility or dependency violation? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: UI should not know concrete data sources or own application rules, and Data should not depend on UI types. UI depending on an application-facing Data boundary is a normal layered dependency.
+    options:
+      - id: ui-knows-database-schema
+        text: A screen builds database queries and interprets storage rows.
+      - id: data-returns-widget
+        text: A repository returns a framework UI widget configured for the screen.
+      - id: activity-calculates-pricing
+        text: An Activity implements the product's reusable pricing rule.
+      - id: ui-depends-on-repository-boundary
+        text: A UI state producer requests application data through a repository boundary.
+      - id: domain-coordinates-reused-rule
+        text: A focused Domain operation coordinates a reused rule across Data boundaries.
+    correct_option_ids:
+      - ui-knows-database-schema
+      - data-returns-widget
+      - activity-calculates-pricing
+
+  - id: distinguish-ssot-and-udf
+    type: free-text
+    prompt: Explain the difference between Single Source of Truth and Unidirectional Data Flow, then describe how they work together when a user bookmarks an article.
+    difficulty: foundation
+    points: 3
+    explanation: SSOT establishes mutation authority, while UDF establishes predictable paths for state and actions. Together they prevent a screen's local copy from competing with application-data ownership.
+    rubric:
+      - criterion: Defines SSOT as the authoritative owner allowed to change the bookmarked state.
+        points: 1
+      - criterion: Defines UDF as state flowing to UI and the bookmark action flowing back through a defined path.
+        points: 1
+      - criterion: Describes the full loop from rendered state through user action and owner mutation to updated rendered state.
+        points: 1
+    sample_answer: The saved-article SSOT is the one owner that may change bookmark data. UDF sends its state toward the UI and sends the user's bookmark intent back to that owner. The owner applies the change and exposes new article data, from which the UI renders updated state.
+
+  - id: analyze-competing-owners
+    type: code-analysis
+    prompt: Analyze the responsibility and ownership problems in this conceptual Kotlin code. Identify four distinct problems and propose the corrected state/action flow. Do not suggest specific libraries.
+    difficulty: foundation
+    points: 4
+    explanation: The screen owns mutable application data, calls concrete sources, chooses a consistency policy, and writes both sources directly. A Data-layer owner should reconcile sources and expose updates; the screen should render state and forward intent.
+    language: kotlin
+    code: |
+      class OrdersScreen {
+          private val remote = RemoteOrders()
+          private val disk = DiskOrders()
+          private var orders = mutableListOf<Order>()
+
+          fun refresh() {
+              orders = remote.load().ifEmpty { disk.load() }.toMutableList()
+              render(orders)
+          }
+
+          fun markPaid(id: String) {
+              orders.first { it.id == id }.paid = true
+              disk.save(orders)
+              remote.save(orders)
+              render(orders)
+          }
+      }
+    rubric:
+      - criterion: Identifies the screen as an unstable mutable owner of application data.
+        points: 1
+      - criterion: Identifies direct UI dependencies on concrete data sources.
+        points: 1
+      - criterion: Identifies source selection, mutation, or conflict handling as misplaced Data-layer responsibility.
+        points: 1
+      - criterion: Proposes state from Data owner to UI, intent back to owner, reconciliation by owner, and updated state back to UI.
+        points: 1
+    sample_answer: The screen owns a mutable orders list, knows both sources, chooses fallback policy, mutates payment state, and writes sources independently. A Data-layer boundary should own orders and reconciliation. It exposes order updates to UI; UI renders them and sends mark-paid intent; the owner applies and reconciles the change, then exposes updated orders.
+
+  - id: justify-domain-boundary
+    type: free-text
+    prompt: A validation rule combines account, inventory, and regional policy data. One screen uses it today, and a second screen is confirmed for the next release. Justify whether to introduce a Domain operation, including one benefit and one cost.
+    difficulty: foundation
+    points: 3
+    explanation: Complexity across Data boundaries and confirmed reuse make a focused Domain operation reasonable, but the decision still carries indirection and maintenance cost. Architecture should be justified by requirements rather than applied as a universal template.
+    rubric:
+      - criterion: Connects the Domain boundary to the rule's cross-data complexity or confirmed reuse.
+        points: 1
+      - criterion: States a benefit such as one consistent rule, reduced duplication, or simpler UI state producers.
+        points: 1
+      - criterion: States a cost or limiting condition such as added indirection, another abstraction to maintain, or removal if reuse disappears.
+        points: 1
+    sample_answer: A focused Domain operation is justified because the business rule coordinates several Data boundaries and will be reused by two UI consumers. It keeps one consistent rule and prevents duplication, at the cost of another abstraction and dependency hop that must remain focused rather than becoming a pass-through layer.

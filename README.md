@@ -12,7 +12,9 @@ are implemented; the sequence also remains in `review`. The canonical
 competency model is now the repository's `ACCEPTED` architecture. This
 architecture status does not approve any package. Version 1 infrastructure for
 separate competency-to-topic mappings is implemented, but no production mapping
-or educational topic packages exist yet.
+packages exist yet. The first production educational topic,
+`android-app-architecture-foundations`, now exists in `review`; additional
+Android topics are planned for Tasks 012.2 and 012.3.
 
 The repository will gradually contain:
 

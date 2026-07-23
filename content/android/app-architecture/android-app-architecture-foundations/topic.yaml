@@ -1,0 +1,53 @@
+id: android-app-architecture-foundations
+title: Android App Architecture Foundations
+track: android
+section: app-architecture
+difficulty: foundation
+status: review
+estimated_minutes: 90
+content_version: 1
+prerequisites: []
+learning_outcomes:
+  - Explain why Android framework components should not own application data.
+  - Distinguish the responsibilities of the UI, Data, and optional Domain layers.
+  - Explain how separation of concerns limits the effects of change.
+  - Analyze dependency direction and data flow in a layered Android application.
+  - Explain how a Single Source of Truth protects data consistency.
+  - Explain how Unidirectional Data Flow connects state, user actions, and data changes.
+  - Identify misplaced responsibilities in Android-oriented scenarios.
+  - Justify an architecture boundary using lifecycle, consistency, and complexity constraints.
+tags:
+  - app-architecture
+  - separation-of-concerns
+  - single-source-of-truth
+  - unidirectional-data-flow
+references:
+  - title: Guide to app architecture
+    url: https://developer.android.com/topic/architecture?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Recommendations for Android architecture
+    url: https://developer.android.com/topic/architecture/recommendations?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: UI layer
+    url: https://developer.android.com/topic/architecture/ui-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Data layer
+    url: https://developer.android.com/topic/architecture/data-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Domain layer
+    url: https://developer.android.com/topic/architecture/domain-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+summary: A reasoning-first introduction to responsibility boundaries, dependency direction, data ownership, and state flow in modern Android applications.
+android_connections:
+  - Android framework components have system-controlled lifecycles, so they are unsuitable owners of application data.
+  - Configuration changes and process removal make explicit state ownership and recovery boundaries necessary.

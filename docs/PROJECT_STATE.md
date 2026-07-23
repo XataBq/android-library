@@ -32,6 +32,9 @@ The repository currently provides:
 - the first Android app architecture foundations sequence in `review`;
 - a separate version 1 competency-to-topic mapping schema, cross-domain
   reference validation, fixtures, tests, and authoring documentation.
+- the first production educational topic package,
+  `android-app-architecture-foundations`, in `review` as the editorial baseline
+  for later topics.
 
 ## Completed tasks
 
@@ -61,10 +64,13 @@ competency model is now `ACCEPTED` repository architecture. This does not
 change the editorial state of either source package or the canonical package;
 all remain in `review`. Canonical competency relations were researched and
 deferred. The minimal learning-sequence model is implemented, and
-`android-app-architecture-foundations` version 1 also remains in `review`.
+the `android-app-architecture-foundations` learning sequence version 1 also
+remains in `review`.
 Competency-to-topic mapping infrastructure is implemented as a separate domain,
-but there are no production mapping packages because production educational
-topics have not yet been authored.
+but there are no production mapping packages. The first production educational
+topic, `android-app-architecture-foundations` version 1, now exists in `review`.
+It establishes the initial editorial baseline; additional Android topics remain
+planned for Tasks 012.2 and 012.3.
 
 ## Next planned tasks
 
@@ -72,12 +78,14 @@ The immediate planned sequence is:
 
 1. Review the first learning sequence as an editorial package without treating
    its stage order as canonical competency relations.
-2. Create the first reviewed educational topics.
-3. Author production competency-to-topic mappings against exact reviewed topic
+2. Review the first production educational topic as an editorial package.
+3. Author additional Android topics in Tasks 012.2 and 012.3.
+4. Author production competency-to-topic mappings against exact reviewed topic
    and canonical package versions without treating topics as sequence nodes.
-4. Generate the first content catalog when real content justifies it.
+5. Generate the first content catalog when real content justifies it.
 
-Exact task numbers for this work have not yet been approved.
+Exact task numbers for the later mapping and catalog work have not yet been
+approved.
 
 ## Known non-goals and deferred work
 

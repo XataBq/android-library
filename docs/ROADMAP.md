@@ -51,7 +51,9 @@ Implemented foundations:
 - a minimal ordered-stage learning-sequence model;
 - one Android app architecture foundations sequence in `review`;
 - separate competency-to-topic mapping schema, validation, fixtures, and
-  authoring documentation, with no production mapping packages.
+  authoring documentation, with no production mapping packages;
+- the first production educational topic package,
+  `android-app-architecture-foundations`, in `review` as an editorial baseline.
 
 Remaining Phase 2 milestones:
 
@@ -61,6 +63,10 @@ Remaining Phase 2 milestones:
 ## Phase 3 — Content repository MVP
 
 Goal: make the repository useful for real learning without an application.
+
+The first production topic now provides the authoring baseline. Additional
+Android topics are planned for Tasks 012.2 and 012.3; production mappings remain
+deferred until reviewed topic coverage justifies them.
 
 Deliverables:
 
