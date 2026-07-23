@@ -53,7 +53,10 @@ Implemented foundations:
 - separate competency-to-topic mapping schema, validation, fixtures, and
   authoring documentation, with no production mapping packages;
 - the first production educational topic package,
-  `android-app-architecture-foundations`, in `review` as an editorial baseline.
+  `android-app-architecture-foundations`, in `review` as an editorial baseline;
+- the second production educational topic package,
+  `android-ui-layer-and-unidirectional-data-flow`, in `review`, continuing the
+  foundations topic with focused UI-layer and UDF coverage.
 
 Remaining Phase 2 milestones:
 
@@ -64,9 +67,9 @@ Remaining Phase 2 milestones:
 
 Goal: make the repository useful for real learning without an application.
 
-The first production topic now provides the authoring baseline. Additional
-Android topics are planned for Tasks 012.2 and 012.3; production mappings remain
-deferred until reviewed topic coverage justifies them.
+The foundations topic remains the authoring baseline, and Task 012.2 adds the
+second production topic for UI-layer and UDF reasoning. Further production
+topics and production mappings remain deferred.
 
 Deliverables:
 

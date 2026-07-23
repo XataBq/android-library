@@ -1,0 +1,182 @@
+topic_id: android-ui-layer-and-unidirectional-data-flow
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: ui-element-responsibility
+    type: single-choice
+    prompt: Which responsibility most naturally belongs to an active UI element?
+    difficulty: foundation
+    points: 1
+    explanation: UI elements render state, capture input, and perform UI-scoped framework interactions. Data reconciliation belongs behind the Data boundary.
+    options:
+      - id: reconcile-remote-cache
+        text: Reconcile remote and cached account records.
+      - id: launch-file-picker
+        text: Launch a framework file picker after the user requests an attachment.
+      - id: persist-application-data
+        text: Persist the authoritative order.
+      - id: apply-reusable-policy
+        text: Apply a reusable eligibility policy.
+    correct_option_id: launch-file-picker
+
+  - id: state-holder-responsibilities
+    type: multiple-choice
+    prompt: Which are reasonable responsibilities for a screen-level state holder? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: A state holder produces screen state, accepts relevant actions, and delegates business work. It should not own UI instances or source reconciliation.
+    options:
+      - id: transform-screen-state
+        text: Transform application data into renderable screen state.
+      - id: accept-refresh-action
+        text: Accept a refresh action and delegate the operation.
+      - id: retain-activity
+        text: Retain the Activity so it can navigate later.
+      - id: resolve-database-network
+        text: Decide how database and network conflicts are reconciled.
+      - id: publish-coherent-snapshot
+        text: Publish a coherent UI-state snapshot.
+    correct_option_ids:
+      - transform-screen-state
+      - accept-refresh-action
+      - publish-coherent-snapshot
+
+  - id: viewmodel-process-survival
+    type: true-false
+    prompt: State held only in a ViewModel automatically survives system-initiated process death.
+    difficulty: foundation
+    points: 1
+    explanation: A ViewModel can survive configuration-driven host recreation, but it is destroyed with the process. Process recreation needs saved reconstruction inputs or persistent data.
+    correct_answer: false
+
+  - id: exclusive-state-model
+    type: single-choice
+    prompt: A screen can only be Loading, Content, Empty, or FatalError, and the modes never coexist. Which model best prevents contradictory top-level states?
+    difficulty: foundation
+    points: 2
+    explanation: Mutually exclusive variants represent exactly the stated invariant and support exhaustive rendering. This does not make sealed models universal.
+    options:
+      - id: independent-flags
+        text: Four independent Booleans plus nullable content and error.
+      - id: mutable-global-fields
+        text: Separate globally mutable loading, content, and error fields.
+      - id: sealed-variants
+        text: A sealed hierarchy with one variant for each valid mode.
+      - id: infer-from-rendering
+        text: No state model; let rendering infer the mode and start work.
+    correct_option_id: sealed-variants
+
+  - id: state-and-effect-classification
+    type: multiple-choice
+    prompt: Which values are normally durable state rather than one-time framework effects? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: Displayed data, validation, and current input remain true until changed. Picker and permission launches are framework interactions whose replay must be decided explicitly.
+    options:
+      - id: displayed-items
+        text: The items currently displayed.
+      - id: validation-error
+        text: A validation error that remains until the input changes.
+      - id: current-input
+        text: Current form text.
+      - id: picker-launch
+        text: Launch the file picker now.
+      - id: permission-launch
+        text: Open a permission dialog now.
+    correct_option_ids:
+      - displayed-items
+      - validation-error
+      - current-input
+
+  - id: lifecycle-observation-scenario
+    type: single-choice
+    prompt: After each rotation, a screen adds another observer, and hidden screens continue trying to display messages. What is the best architectural correction?
+    difficulty: foundation
+    points: 2
+    explanation: Observation and UI effects should follow the active consumer's lifecycle. This prevents duplicate consumers and delivery to unavailable UI without moving data ownership into the screen.
+    options:
+      - id: global-ui-reference
+        text: Keep the newest Activity in a global variable.
+      - id: lifecycle-aware-consumption
+        text: Bind state consumption and UI effects to the active UI lifecycle.
+      - id: stop-producing-data
+        text: Delete Data-layer state whenever a screen is hidden.
+      - id: navigate-from-data
+        text: Let the Data layer display messages and navigate.
+    correct_option_id: lifecycle-aware-consumption
+
+  - id: explain-udf-cycle
+    type: free-text
+    prompt: Trace the UDF responsibility flow when a user selects Retry after a profile load failure.
+    difficulty: foundation
+    points: 3
+    explanation: A strong answer keeps rendering passive, delegates application work, and returns a new coherent state through the producer.
+    rubric:
+      - criterion: Starts with UI capture of RetrySelected and forwarding it to the state holder.
+        points: 1
+      - criterion: Delegates loading to the application or Data operation rather than rendering.
+        points: 1
+      - criterion: Describes Loading followed by Content or Error state and UI re-rendering.
+        points: 1
+    sample_answer: The UI captures RetrySelected and sends it to the state holder. The holder publishes Loading and delegates profile loading to Data. The result becomes Content or Error, and the UI renders that new snapshot without starting work itself.
+
+  - id: analyze-broken-state-flow
+    type: code-analysis
+    prompt: Identify four UDF or state-modeling problems and propose a corrected responsibility flow.
+    difficulty: foundation
+    points: 4
+    explanation: Rendering starts work, UI mutates shared state, multiple sources compete, and related fields update separately. One producer should publish coherent state around a Data-owned source policy.
+    language: kotlin
+    code: |
+      fun render(state: FeedState) {
+          if (state.items.isEmpty()) network.load()
+          retry.onClick { state.isLoading = true }
+      }
+
+      fun onCache(items: List<Item>) { shared.items = items }
+      fun onNetwork(items: List<Item>) {
+          shared.items = items
+          shared.isLoading = false
+      }
+    rubric:
+      - criterion: Identifies work triggered by rendering.
+        points: 1
+      - criterion: Identifies direct UI mutation of received/shared state.
+        points: 1
+      - criterion: Identifies competing source updates or non-atomic related updates.
+        points: 1
+      - criterion: Proposes action to holder, delegation to Data, coherent new state, then rendering.
+        points: 1
+    sample_answer: Rendering must not call the network, and UI must not mutate state. Cache and network policy belongs to Data. Retry goes to the state holder, which delegates one operation, then publishes one Loading/Content/Error snapshot for rendering.
+
+  - id: source-versus-derived-state
+    type: single-choice
+    prompt: A screen stores query, allItems, and visibleItems as three independently mutable values. What is the main risk and correction?
+    difficulty: foundation
+    points: 2
+    explanation: Derived state can drift when it is independently mutable. Compute visibleItems from authoritative inputs or update all related values as one owned transition.
+    options:
+      - id: too-much-immutability
+        text: Immutable snapshots prevent filtering; make every list globally mutable.
+      - id: derived-state-drift
+        text: visibleItems can disagree with query or allItems; derive it or update coherently.
+      - id: viewmodel-required
+        text: The only problem is that every list must be stored in a ViewModel.
+      - id: persistence-required
+        text: Every filtered list must be persisted to disk.
+    correct_option_id: derived-state-drift
+
+  - id: choose-state-model-tradeoff
+    type: free-text
+    prompt: A feed keeps old content visible during refresh and may show a nonfatal warning. Compare a flat data class with exclusive sealed variants and justify a model.
+    difficulty: foundation
+    points: 3
+    explanation: Coexisting content, refresh, and warning conditions make a property or hybrid model natural, but its valid combinations still need explicit invariants.
+    rubric:
+      - criterion: Explains that exclusive variants simplify exhaustive rendering but can multiply for coexisting conditions.
+        points: 1
+      - criterion: Explains that a data class supports partial/coexisting state but can represent invalid combinations.
+        points: 1
+      - criterion: Justifies a property or hybrid model and states at least one invariant.
+        points: 1
+    sample_answer: Exclusive variants work well for initial Loading, Empty, and FatalError, but Content can coexist with isRefreshing and a warning. I would use a sealed initial-load state whose Content variant contains a data class. Content must be nonempty, and a fatal error cannot coexist with Content.

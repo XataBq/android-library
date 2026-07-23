@@ -13,8 +13,10 @@ competency model is now the repository's `ACCEPTED` architecture. This
 architecture status does not approve any package. Version 1 infrastructure for
 separate competency-to-topic mappings is implemented, but no production mapping
 packages exist yet. The first production educational topic,
-`android-app-architecture-foundations`, now exists in `review`; additional
-Android topics are planned for Tasks 012.2 and 012.3.
+`android-app-architecture-foundations`, remains the foundations topic in
+`review`. Task 012.2 adds the second production topic,
+`android-ui-layer-and-unidirectional-data-flow`, also in `review`. Further
+Android topics are deferred, and production mappings still do not exist.
 
 The repository will gradually contain:
 

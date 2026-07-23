@@ -35,6 +35,9 @@ The repository currently provides:
 - the first production educational topic package,
   `android-app-architecture-foundations`, in `review` as the editorial baseline
   for later topics.
+- the second production educational topic package,
+  `android-ui-layer-and-unidirectional-data-flow`, in `review`, with the
+  foundations topic as its prerequisite.
 
 ## Completed tasks
 
@@ -50,6 +53,10 @@ The repository currently provides:
 - **Task 008 — DONE:** Normalized the second source across the canonical registry and advanced the canonical set to version 2.
 - **Task 009 — DONE:** Implemented the minimal ordered-stage learning-sequence model and the first review-stage Android architecture sequence.
 - **Task 010 — DONE:** Reviewed and accepted the canonical competency model as repository architecture without changing package editorial states.
+
+- **Task 011 — DONE:** Implemented the separate competency-to-topic mapping model without creating a production mapping.
+- **Task 012.1 — DONE:** Added the first production topic as the architecture foundations baseline.
+- **Task 012.2 — DONE:** Added the second production topic for the Android UI layer and Unidirectional Data Flow.
 
 ## Current focus
 
@@ -69,8 +76,9 @@ remains in `review`.
 Competency-to-topic mapping infrastructure is implemented as a separate domain,
 but there are no production mapping packages. The first production educational
 topic, `android-app-architecture-foundations` version 1, now exists in `review`.
-It establishes the initial editorial baseline; additional Android topics remain
-planned for Tasks 012.2 and 012.3.
+It remains the architectural and editorial foundation for the second production
+topic, `android-ui-layer-and-unidirectional-data-flow` version 1, which also
+exists in `review`. Production competency-to-topic mappings remain deferred.
 
 ## Next planned tasks
 
@@ -79,7 +87,7 @@ The immediate planned sequence is:
 1. Review the first learning sequence as an editorial package without treating
    its stage order as canonical competency relations.
 2. Review the first production educational topic as an editorial package.
-3. Author additional Android topics in Tasks 012.2 and 012.3.
+3. Author further production Android topics after Task 012.2.
 4. Author production competency-to-topic mappings against exact reviewed topic
    and canonical package versions without treating topics as sequence nodes.
 5. Generate the first content catalog when real content justifies it.
