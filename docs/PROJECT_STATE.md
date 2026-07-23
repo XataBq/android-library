@@ -38,6 +38,9 @@ The repository currently provides:
 - the second production educational topic package,
   `android-ui-layer-and-unidirectional-data-flow`, in `review`, with the
   foundations topic as its prerequisite.
+- the third production educational topic package,
+  `android-data-layer-repositories-and-synchronization`, in `review`, with the
+  foundations and UI-layer topics as prerequisites.
 
 ## Completed tasks
 
@@ -57,6 +60,7 @@ The repository currently provides:
 - **Task 011 — DONE:** Implemented the separate competency-to-topic mapping model without creating a production mapping.
 - **Task 012.1 — DONE:** Added the first production topic as the architecture foundations baseline.
 - **Task 012.2 — DONE:** Added the second production topic for the Android UI layer and Unidirectional Data Flow.
+- **Task 012.3 — DONE:** Added the third production topic for the Android Data layer, repositories, and synchronization.
 
 ## Current focus
 
@@ -78,7 +82,11 @@ but there are no production mapping packages. The first production educational
 topic, `android-app-architecture-foundations` version 1, now exists in `review`.
 It remains the architectural and editorial foundation for the second production
 topic, `android-ui-layer-and-unidirectional-data-flow` version 1, which also
-exists in `review`. Production competency-to-topic mappings remain deferred.
+exists in `review`. The third production topic,
+`android-data-layer-repositories-and-synchronization` version 1, deepens Data
+ownership, repository boundaries, and synchronization and also remains in
+`review`. Tasks 012.1–012.3 form the current Android app architecture
+foundation. Production competency-to-topic mappings remain deferred.
 
 ## Next planned tasks
 
@@ -87,7 +95,7 @@ The immediate planned sequence is:
 1. Review the first learning sequence as an editorial package without treating
    its stage order as canonical competency relations.
 2. Review the first production educational topic as an editorial package.
-3. Author further production Android topics after Task 012.2.
+3. Author further production Android topics after Task 012.3.
 4. Author production competency-to-topic mappings against exact reviewed topic
    and canonical package versions without treating topics as sequence nodes.
 5. Generate the first content catalog when real content justifies it.

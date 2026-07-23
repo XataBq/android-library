@@ -57,6 +57,9 @@ Implemented foundations:
 - the second production educational topic package,
   `android-ui-layer-and-unidirectional-data-flow`, in `review`, continuing the
   foundations topic with focused UI-layer and UDF coverage.
+- the third production educational topic package,
+  `android-data-layer-repositories-and-synchronization`, in `review`, completing
+  the current three-topic architecture foundation with Data-layer coverage.
 
 Remaining Phase 2 milestones:
 
@@ -67,9 +70,10 @@ Remaining Phase 2 milestones:
 
 Goal: make the repository useful for real learning without an application.
 
-The foundations topic remains the authoring baseline, and Task 012.2 adds the
-second production topic for UI-layer and UDF reasoning. Further production
-topics and production mappings remain deferred.
+Tasks 012.1–012.3 form the current Android app architecture foundation:
+architecture fundamentals, UI-layer and UDF reasoning, and Data-layer
+repository and synchronization reasoning. Further production topics and
+production mappings remain deferred.
 
 Deliverables:
 

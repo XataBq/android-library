@@ -1,0 +1,1532 @@
+diff --git a/README.md b/README.md
+index 3587e8a..7034e0b 100644
+--- a/README.md
++++ b/README.md
+@@ -15,8 +15,12 @@ separate competency-to-topic mappings is implemented, but no production mapping
+ packages exist yet. The first production educational topic,
+ `android-app-architecture-foundations`, remains the foundations topic in
+ `review`. Task 012.2 adds the second production topic,
+-`android-ui-layer-and-unidirectional-data-flow`, also in `review`. Further
+-Android topics are deferred, and production mappings still do not exist.
++`android-ui-layer-and-unidirectional-data-flow`, also in `review`. Task 012.3
++adds the third production topic,
++`android-data-layer-repositories-and-synchronization`, in `review`. Together,
++Tasks 012.1–012.3 form the current Android app architecture foundation.
++Further Android topics are deferred, and production mappings still do not
++exist.
+ 
+ The repository will gradually contain:
+ 
+diff --git a/content/android/app-architecture/android-data-layer-repositories-and-synchronization/cheat-sheet.md b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/cheat-sheet.md
+new file mode 100644
+index 0000000..8894916
+--- /dev/null
++++ b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/cheat-sheet.md
+@@ -0,0 +1,99 @@
++# Android Data Layer — Cheat sheet
++
++## Repository responsibilities
++
++- Expose application-oriented data and operations.
++- Centralize read and write policy.
++- Coordinate local, remote, and platform sources.
++- Define the source of truth and freshness rules.
++- Reconcile source disagreements.
++- Translate source models and failures at an explicit boundary.
++- Keep storage and transport details away from consumers.
++
++## Repository vs data source
++
++| Repository | Data source |
++|---|---|
++| Represents cohesive application data | Represents one concrete system |
++| Called by UI state holders or Domain | Called by a repository |
++| Owns coordination policy | Owns source-specific operations |
++| Uses application vocabulary | Uses transport, storage, file, sensor, or platform vocabulary |
++| May coordinate several sources | Must not secretly coordinate application-wide sources |
++
++## Cache vs persistence
++
++| Cache | Persistence |
++|---|---|
++| Reusable copy for latency, cost, or availability | Data survives a defined lifetime boundary |
++| Needs invalidation and eviction policy | Needs durability and recovery policy |
++| May live in memory or on disk | Usually disk-backed |
++| May or may not be authoritative | May or may not be authoritative |
++
++A disk cache is persistent but disposable. A database can be persistent SSOT. An in-memory SSOT can be valid for session-only data.
++
++## SSOT checklist
++
++- [ ] Which exact data set is in scope?
++- [ ] Who is authoritative for that data?
++- [ ] Do all consumers observe it through one boundary?
++- [ ] How do remote results update the authoritative application view?
++- [ ] What lifetime must it survive?
++- [ ] May stale data remain usable?
++- [ ] Who resolves disagreement?
++
++SSOT means one authoritative owner for a particular piece of application data. It does not mean “always use a database.”
++
++## Read strategy comparison
++
++| Strategy | Best fit | Main benefit | Main risk |
++|---|---|---|---|
++| Network-first | Server confirmation is required | Favors current remote state | Latency and offline failure |
++| Cache-first | Fast reuse is acceptable within a validity policy | Low latency and source cost | Invalid or stale copies |
++| Local-first | Stable observation and offline reads matter | One observable path | Synchronization complexity |
++
++For every strategy, define fallback, stale-data behavior, refresh trigger, and duplicate-request behavior.
++
++## Synchronization checklist
++
++- [ ] Direction: pull, push-signaled, or hybrid.
++- [ ] Unit: snapshot, page, entity, or changes since a version.
++- [ ] Progress survives the interruption promised by the product.
++- [ ] Retries distinguish transient from terminal failure.
++- [ ] Repeated writes are idempotent or carry operation identity.
++- [ ] Dependent operations have an ordering policy.
++- [ ] Conflicts have an authority or merge rule.
++- [ ] Pending, failed, stale, and conflicted states are observable where needed.
++- [ ] Partial success has a repair path.
++
++## Freshness checklist
++
++- What makes the value stale?
++- How long is it acceptable?
++- Is stale-but-usable distinct from unavailable?
++- What triggers refresh?
++- Does refresh preserve old data on failure?
++- Can users force refresh?
++- Which signal proves a newer version exists?
++
++## Model boundary summary
++
++```text
++UserResponse → UserEntity → User → UserUiModel
++ transport      storage    application  presentation
++```
++
++Separate models when contracts, constraints, or change rates differ. Share models when meanings align and coupling is acceptable. Four models are not a requirement.
++
++## Warning signs
++
++- UI decides between local and remote sources.
++- A data source performs hidden fallback or reconciliation.
++- Local and remote values race directly to consumers.
++- “Cached” has no freshness or invalidation definition.
++- A failed refresh deletes usable data.
++- Every failure is retried identically.
++- A duplicate queued write can repeat a harmful effect.
++- Rollback can overwrite a newer edit.
++- Transport or database types become every layer’s model accidentally.
++- Repository boundaries mirror endpoints or tables without cohesive ownership.
++- A universal result wrapper hides pending, stale, or partial-success states.
+diff --git a/content/android/app-architecture/android-data-layer-repositories-and-synchronization/interview.md b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/interview.md
+new file mode 100644
+index 0000000..31871a8
+--- /dev/null
++++ b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/interview.md
+@@ -0,0 +1,79 @@
++# Android Data Layer — Interview preparation
++
++## Foundational questions
++
++### 1. Why does an application need a Data layer?
++
++**Interviewer guidance:** Expect one owner for application data access and mutation policy, source coordination, and isolation from transport or persistence details.
++
++### 2. Distinguish a repository from a data source.
++
++**Interviewer guidance:** A repository exposes application operations and owns cross-source policy. A data source communicates with one concrete system. Do not require a repository to be large.
++
++### 3. What makes a repository more than a Retrofit wrapper?
++
++**Interviewer guidance:** Look for application vocabulary, mapping, source-of-truth, freshness, write, or error policy. A thin boundary can still be intentional; the candidate should discuss its value.
++
++### 4. Define Single Source of Truth.
++
++**Interviewer guidance:** One authoritative owner for a particular data set. It can be remote, durable local storage, or repository memory; it is not automatically Room.
++
++### 5. How do cache and persistence differ?
++
++**Interviewer guidance:** Cache describes a reusable copy and its validity; persistence describes survival across a lifetime boundary. Either can exist without the other.
++
++### 6. Why expose application models rather than source models?
++
++**Interviewer guidance:** Isolation from API/storage constraints and change rates. Strong answers also mention mapping cost and cases where sharing is acceptable.
++
++## Scenario questions
++
++### 7. A feed must open immediately offline and refresh when connected. Design its read path.
++
++**Interviewer guidance:** Expect local observation as the application path, remote refresh persisted locally, freshness status, and failure that preserves usable data.
++
++### 8. A screen reads the database and network independently. What can go wrong?
++
++**Interviewer guidance:** Competing truths, races, duplicate policy, inconsistent failure handling, and UI coupling to source details.
++
++### 9. A queued write may be retried after its response is lost. What must the design provide?
++
++**Interviewer guidance:** Operation identity or idempotency, durable progress, retry classification, and a way to reconcile ambiguous remote success.
++
++### 10. A refresh fails while week-old data exists. Should the repository return an error?
++
++**Interviewer guidance:** It depends on acceptable staleness. The candidate should separate availability, data, and refresh state rather than force one universal result shape.
++
++### 11. Two devices edit the same field offline. How would you choose a conflict policy?
++
++**Interviewer guidance:** Domain meaning, server versions, possible merge or user resolution, and consequences of last-write-wins. Device timestamps alone deserve skepticism.
++
++### 12. A remote write succeeds but local persistence fails. What is success?
++
++**Interviewer guidance:** Expect explicit partial-failure semantics and a repair/re-fetch path. One Boolean cannot explain both source states.
++
++## Trade-off questions
++
++### 13. Compare network-first, cache-first, and local-first reads.
++
++**Interviewer guidance:** Listen for latency, freshness, fallback, invalidation, offline capability, and synchronization cost—not a universal recommendation.
++
++### 14. Remote-first or optimistic writes?
++
++**Interviewer guidance:** Remote-first favors confirmed authority; optimistic improves responsiveness but requires pending, rejection, rollback, and concurrency semantics.
++
++### 15. When is offline-first worth its cost?
++
++**Interviewer guidance:** Product-critical offline behavior, unreliable networks, and latency can justify it. Synchronization, conflict, testing, storage, and operational complexity are costs.
++
++### 16. One model per layer or a shared model?
++
++**Interviewer guidance:** Boundary-specific models isolate contracts and constraints; shared models reduce mapping. The answer should follow actual divergence, not a fixed count.
++
++### 17. How granular should repositories be?
++
++**Interviewer guidance:** Cohesive data ownership and policy are better guides than tables or endpoints. Mention broad god repositories, tiny wrappers, cross-repository invariants, and cycles.
++
++### 18. Should every repository use one universal result wrapper?
++
++**Interviewer guidance:** No. Reads, confirmed writes, queued work, stale data, and conflicts can require different contracts. Consistency is useful only when it preserves needed meaning.
+diff --git a/content/android/app-architecture/android-data-layer-repositories-and-synchronization/practice.md b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/practice.md
+new file mode 100644
+index 0000000..90e23a2
+--- /dev/null
++++ b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/practice.md
+@@ -0,0 +1,118 @@
++# Android Data Layer — Practice
++
++## Exercise 1 — Responsibility classification
++
++### Task
++
++Classify each responsibility as **repository**, **data source**, **UI state holder**, or **active UI**:
++
++1. Execute a user request against a REST service.
++2. Decide whether a cached profile is fresh enough.
++3. Observe a database record.
++4. Combine a remote response with a pending local edit.
++5. Convert application data into a localized subtitle.
++6. Decide when a screen shows stale-data warning state.
++7. Launch a platform document picker.
++8. Translate a storage constraint failure into a data-level write outcome.
++
++For each choice, state what information the owner needs.
++
++### Expected reasoning
++
++Concrete source operations belong to data sources. Cross-source policy, freshness, reconciliation, and application-relevant failure translation belong to the repository. Screen presentation decisions belong to its state holder, while the active UI performs framework interactions. Localization normally remains at the UI boundary.
++
++### Reviewer guidance
++
++Require reasons based on ownership and required knowledge. Accept a different boundary only if it does not make UI coordinate sources or make one data source secretly own application-wide policy.
++
++## Exercise 2 — Repository vs wrapper
++
++### Task
++
++Review:
++
++```kotlin
++class ProfileRepository(
++    private val api: ProfileApi
++) {
++    suspend fun getProfileResponse(id: String): ProfileResponse =
++        api.getProfile(id)
++}
++```
++
++The UI calls this class, catches transport exceptions, converts the response, decides whether to load a database fallback, and writes successful responses to that database. Explain whether the repository is currently a useful boundary and redesign the public operations without teaching specific storage or transport APIs.
++
++### Expected reasoning
++
++Thin delegation is not inherently wrong, but here the caller owns source selection, persistence, mapping, and failure policy. The class has not established a Data boundary. A redesigned repository can expose application models, observation, refresh, and mutation intentions while keeping coordination behind the interface.
++
++### Reviewer guidance
++
++Do not award full credit for merely adding more forwarding methods or renaming the API. Look for removal of source models/exceptions from UI, one owner for local/remote policy, and an explanation of when a deliberately thin repository would still be reasonable.
++
++## Exercise 3 — Choosing the SSOT
++
++### Task
++
++Choose and justify an SSOT for each case:
++
++1. A news feed should open instantly with previously downloaded stories and refresh when possible.
++2. A bank transfer must not appear complete until the server confirms it.
++3. A live sensor value is useful only while the current process is running.
++4. A draft inspection must remain editable for days without connectivity and synchronize later.
++
++For each, identify whether any cache exists separately from the SSOT and describe stale or unavailable behavior.
++
++### Expected reasoning
++
++The feed and inspection are strong candidates for durable local application views, though their write policies differ. The transfer’s authoritative completion is remote, while local pending state may still be persisted. Repository-owned memory can own a session sensor value. The answer should select authority per data set rather than one technology for the whole app.
++
++### Reviewer guidance
++
++Require the learner to state lifetime, correctness authority, offline promise, and reconciliation. Reject “database is always SSOT” and “server is always SSOT” without product reasoning.
++
++## Exercise 4 — Broken synchronization
++
++### Task
++
++Analyze this sequence:
++
++```text
++1. UI writes a new name directly to local storage.
++2. UI sends the same change to the network.
++3. A background refresh writes an older remote name locally.
++4. The network accepts the original change, but the response is lost.
++5. Retry sends another update with no operation identity.
++6. UI rolls back to the value it saw before step 1.
++```
++
++Identify race, duplication, rollback, and visibility problems. Redesign the responsibility flow for either remote-first or offline-queued writes and describe recovery after interruption.
++
++### Expected reasoning
++
++The UI is coordinating sources; refresh can overwrite pending intent; lost acknowledgement creates ambiguous success; blind retry can duplicate an effect; rollback can erase a newer value. A sound redesign gives the repository one operation identity and explicit pending state, defines server/version conflict policy, persists promised intent, and makes refresh respect unsynchronized work.
++
++### Reviewer guidance
++
++Require a chosen success definition, retry classification, idempotency or deduplication plan, conflict rule, and user-visible terminal outcome. A queue name alone is not a synchronization design.
++
++## Exercise 5 — Model-boundary analysis
++
++### Task
++
++A project uses one mutable `User` class for:
++
++- a service response whose `display_name` may be missing;
++- a database row where the key and last-sync version are required;
++- application rules that require a validated name;
++- UI text that includes localization and a “pending” label.
++
++Decide which boundaries need separate models. Sketch mappings and state which fields must not leak. Then describe a smaller project where sharing a model would be acceptable.
++
++### Expected reasoning
++
++Transport nullability and naming, persistence metadata, validated application meaning, and localized presentation change for different reasons. Separate types can isolate those constraints. Last-sync metadata should not become UI business data, and localized strings should not enter the repository model. The mapping cost must still be justified rather than applied by ritual.
++
++### Reviewer guidance
++
++Look for a concrete coupling analysis: API evolution, storage constraints, nullability, presentation formatting, information loss, and test cost. Do not require exactly four models if the learner gives a coherent lower-cost boundary.
+diff --git a/content/android/app-architecture/android-data-layer-repositories-and-synchronization/test.yaml b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/test.yaml
+new file mode 100644
+index 0000000..d20ff1d
+--- /dev/null
++++ b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/test.yaml
+@@ -0,0 +1,237 @@
++topic_id: android-data-layer-repositories-and-synchronization
++content_version: 1
++passing_score_percent: 70
++questions:
++  - id: repository-primary-responsibility
++    type: single-choice
++    prompt: Which responsibility most clearly belongs to a repository?
++    difficulty: foundation
++    points: 1
++    explanation: A repository owns application-level access and coordination policy. A source performs operations against one concrete system, while UI owners handle presentation.
++    options:
++      - id: render-error-message
++        text: Format and render a localized error message.
++      - id: parse-http-body
++        text: Parse the wire response from one HTTP service.
++      - id: choose-authoritative-read
++        text: Decide how local and remote user data become one authoritative application view.
++      - id: launch-picker
++        text: Launch an Android document picker.
++    correct_option_id: choose-authoritative-read
++
++  - id: data-source-responsibilities
++    type: multiple-choice
++    prompt: Which are appropriate responsibilities for a data source? Select all that apply.
++    difficulty: foundation
++    points: 2
++    explanation: A data source performs source-specific operations and translates that system's representation or failure. Cross-source fallback and application freshness policy belong to the repository.
++    options:
++      - id: execute-service-request
++        text: Execute a request against one remote service.
++      - id: observe-database-record
++        text: Observe records from one local database.
++      - id: choose-cache-fallback
++        text: Decide when the entire application should fall back from remote to cached data.
++      - id: parse-source-record
++        text: Parse the representation produced by its concrete source.
++      - id: define-product-freshness
++        text: Define how old every product value may be before use.
++    correct_option_ids:
++      - execute-service-request
++      - observe-database-record
++      - parse-source-record
++
++  - id: ssot-always-database
++    type: true-false
++    prompt: Single Source of Truth always means that a local database is authoritative.
++    difficulty: foundation
++    points: 1
++    explanation: SSOT is one authoritative owner for a particular data set. Depending on lifetime and correctness requirements, it may be a database, remote service, or repository-owned memory.
++    correct_answer: false
++
++  - id: cache-versus-persistence
++    type: single-choice
++    prompt: Which statement correctly distinguishes caching from persistence?
++    difficulty: foundation
++    points: 1
++    explanation: Cache describes the purpose and validity of a reusable copy; persistence describes survival across a lifetime boundary. A disk cache can be persistent without being authoritative.
++    options:
++      - id: cache-always-memory
++        text: A cache is always in memory, while persistence is always a database.
++      - id: persistence-always-ssot
++        text: Anything persisted to disk is automatically the SSOT.
++      - id: separate-properties
++        text: A cached copy may be persistent, but its validity and authority are separate decisions.
++      - id: identical-concepts
++        text: Cache and persistence are two names for the same responsibility.
++    correct_option_id: separate-properties
++
++  - id: offline-feed-read-strategy
++    type: single-choice
++    prompt: A feed must display previously downloaded items immediately without connectivity, observe later changes, and refresh remotely when possible. Which read path best matches those requirements?
++    difficulty: foundation
++    points: 2
++    explanation: A local-first path gives consumers one observable source and makes remote results visible by persisting them locally. It still requires freshness and synchronization policy.
++    options:
++      - id: ui-races-sources
++        text: Let UI request local and remote values and render whichever returns last.
++      - id: network-only
++        text: Block every read on a successful remote request.
++      - id: local-observe-refresh-persist
++        text: Observe local data; refresh remotely; persist the response locally.
++      - id: memory-without-policy
++        text: Keep the latest response in an unbounded process cache with no invalidation.
++    correct_option_id: local-observe-refresh-persist
++
++  - id: freshness-policy-signals
++    type: multiple-choice
++    prompt: Which questions belong in a data freshness policy? Select all that apply.
++    difficulty: foundation
++    points: 2
++    explanation: Freshness policy defines invalidation, acceptable age, usability of stale data, and refresh triggers. A network connection does not itself prove data is stale or a refresh will succeed.
++    options:
++      - id: invalidation-event
++        text: Which event or version marks the value stale?
++      - id: acceptable-age
++        text: How long may the value remain useful?
++      - id: stale-usable
++        text: May stale data remain visible when refresh fails?
++      - id: network-means-fresh
++        text: Should connectivity automatically mark every cached value fresh?
++      - id: refresh-trigger
++        text: What triggers refresh or permits the user to force it?
++    correct_option_ids:
++      - invalidation-event
++      - acceptable-age
++      - stale-usable
++      - refresh-trigger
++
++  - id: compare-read-strategies
++    type: free-text
++    prompt: Compare network-first, cache-first, and local-first reads for a product catalog. Recommend one for a catalog that must open offline but whose price must be confirmed before checkout.
++    difficulty: foundation
++    points: 4
++    explanation: A strong answer compares failure and freshness behavior, then allows catalog display and checkout confirmation to use different policies.
++    rubric:
++      - criterion: Compares network-first latency, freshness, fallback, and offline limitations.
++        points: 1
++      - criterion: Explains cache-first speed plus invalidation or stale-data risk.
++        points: 1
++      - criterion: Explains local-first observation, offline benefit, and synchronization cost.
++        points: 1
++      - criterion: Justifies local-first catalog display with separate remote price confirmation at checkout.
++        points: 1
++    sample_answer: Network-first favors current remote data but delays or fails offline. Cache-first is fast if age and invalidation are defined. Local-first exposes a stable stored catalog and refreshes it through synchronization. I would use local-first for browsing, mark freshness, and require a remote price confirmation for checkout because display availability and purchase authority are different requirements.
++
++  - id: analyze-competing-read-paths
++    type: code-analysis
++    prompt: Identify three responsibility or consistency problems and propose a corrected read and refresh flow.
++    difficulty: foundation
++    points: 4
++    explanation: UI coordinates concrete sources, two results compete as truths, and remote data bypasses persistence. A repository should own policy and expose one application path.
++    language: kotlin
++    code: |
++      fun loadUser(id: String) {
++          launch { render(api.getUser(id).toUiModel()) }
++          launch { render(database.getUser(id).toUiModel()) }
++      }
++
++      fun refresh(id: String) {
++          render(api.getUser(id).toUiModel())
++      }
++    rubric:
++      - criterion: Identifies UI dependence on concrete remote and local sources.
++        points: 1
++      - criterion: Identifies the race between two independently rendered truths.
++        points: 1
++      - criterion: Identifies that refresh bypasses the local authoritative path or persistence.
++        points: 1
++      - criterion: Proposes UI observing repository data while repository refresh persists remote results locally.
++        points: 1
++    sample_answer: The UI owns source selection and can render older data last. Refresh creates a second path and never updates storage. UI should observe the repository's application model. The repository observes local data, fetches remotely on refresh, maps and persists the response, and local observation publishes the update.
++
++  - id: analyze-broken-write-retry
++    type: code-analysis
++    prompt: Analyze the retry and rollback risks, then state what the repository contract must add.
++    difficulty: foundation
++    points: 4
++    explanation: The code loses operation identity and previous-version context. A lost response can duplicate a write, and rollback can overwrite a newer edit.
++    language: kotlin
++    code: |
++      suspend fun rename(id: String, name: String) {
++          val old = local.readName(id)
++          local.writeName(id, name)
++          try {
++              remote.updateName(id, name)
++          } catch (error: Exception) {
++              retryQueue.add { remote.updateName(id, name) }
++              local.writeName(id, old)
++          }
++      }
++    rubric:
++      - criterion: Identifies that all failures are treated as retryable and the queued intent is not durable or explicit.
++        points: 1
++      - criterion: Identifies duplicate-effect risk after a lost response and asks for idempotency or operation identity.
++        points: 1
++      - criterion: Identifies that rollback may erase a newer concurrent edit.
++        points: 1
++      - criterion: Proposes explicit pending status, version/conflict policy, and terminal failure visibility.
++        points: 1
++    sample_answer: The repository must classify failures, persist promised queued intent, and attach an operation ID that the remote side can deduplicate. The pending edit needs a version, so rejection cannot blindly restore old over newer data. It should expose pending, conflicted, or terminal failure state and reconcile ambiguous success.
++
++  - id: model-boundary-decision
++    type: single-choice
++    prompt: A service allows a missing display name, storage requires sync metadata, application rules require a validated name, and UI needs localized text. Which modeling decision is best?
++    difficulty: foundation
++    points: 2
++    explanation: The constraints and change rates differ enough to justify explicit mappings. This does not imply that every project always needs four models.
++    options:
++      - id: one-global-mutable-model
++        text: Use one mutable service-shaped class everywhere so no mapping is needed.
++      - id: separate-real-boundaries
++        text: Separate transport, persistence, application, and presentation models where those constraints diverge.
++      - id: repository-localizes
++        text: Put localized UI strings in the repository's persistent entity.
++      - id: ui-validates-source
++        text: Let every screen reinterpret source nullability independently.
++    correct_option_id: separate-real-boundaries
++
++  - id: safe-synchronization-properties
++    type: multiple-choice
++    prompt: Which properties make a retryable offline write flow safer? Select all that apply.
++    difficulty: foundation
++    points: 2
++    explanation: Durable intent, operation identity, failure classification, and conflict metadata make interruption and replay explicit. Connectivity does not guarantee completion.
++    options:
++      - id: durable-intent
++        text: Persist the pending operation for the lifetime promised to the user.
++      - id: operation-identity
++        text: Give the write an identity or idempotency contract.
++      - id: retry-classification
++        text: Distinguish transient failures from validation or authorization failures.
++      - id: version-metadata
++        text: Keep version or revision information needed for conflicts.
++      - id: connectivity-equals-success
++        text: Mark every queued write successful as soon as connectivity returns.
++    correct_option_ids:
++      - durable-intent
++      - operation-identity
++      - retry-classification
++      - version-metadata
++
++  - id: repository-granularity
++    type: free-text
++    prompt: A single AppRepository contains users, payments, catalog, analytics, and device settings, while screens still coordinate several of its methods to preserve invariants. Propose repository boundaries and explain how you would avoid replacing one god repository with endpoint-shaped wrappers.
++    difficulty: foundation
++    points: 4
++    explanation: Strong boundaries follow cohesive data ownership and policy. Higher-level coordination may depend on focused repositories when one invariant genuinely spans them.
++    rubric:
++      - criterion: Identifies unrelated responsibilities and change reasons in the current repository.
++        points: 1
++      - criterion: Proposes cohesive boundaries based on application data and policy rather than endpoints or tables.
++        points: 1
++      - criterion: Places a cross-data invariant in an explicit higher-level repository or Domain operation with clear dependency direction.
++        points: 1
++      - criterion: Explains when a thin repository is acceptable and how cycles or competing ownership are avoided.
++        points: 1
++    sample_answer: I would separate cohesive areas such as Users, Payments, Catalog, and Settings, while analytics may be an application service rather than shared data. A checkout operation that needs catalog and payment rules can coordinate focused boundaries in an explicit higher-level operation. Each repository must own real application policy or a stable boundary, not mirror one endpoint. Dependencies stay acyclic and each data set has one owner.
+diff --git a/content/android/app-architecture/android-data-layer-repositories-and-synchronization/theory.md b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/theory.md
+new file mode 100644
+index 0000000..a0600de
+--- /dev/null
++++ b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/theory.md
+@@ -0,0 +1,408 @@
++# Android Data Layer, Repositories, and Synchronization
++
++This topic continues [Android App Architecture Foundations](../android-app-architecture-foundations/theory.md) and [Android UI Layer and Unidirectional Data Flow](../android-ui-layer-and-unidirectional-data-flow/theory.md). Those topics established dependency direction and state-driven UI. Here the focus moves behind that boundary: who owns application data, how sources are coordinated, and what “current” means when local and remote state can disagree.
++
++## Learning outcomes
++
++After completing this topic, you should be able to separate repository and data-source responsibilities, identify a Single Source of Truth (SSOT), trace read and write paths, compare freshness strategies, redesign broken synchronization, and justify model and repository boundaries.
++
++## 1. Why the Data layer exists
++
++Application data may arrive from a service, database, file, sensor, platform service, or memory. Each source has different availability, latency, failure modes, and representations. If every screen chooses among those sources, the application gains several competing policies for the same data.
++
++The Data layer gives application data an owner. It:
++
++- exposes application-oriented data and operations;
++- centralizes rules for reading and changing that data;
++- coordinates sources when more than one exists;
++- translates source failures and representations at an explicit boundary;
++- shields consumers from transport and persistence details.
++
++The conceptual read path is:
++
++```text
++UI / Domain
++     ↓
++Repository
++     ↓
++Coordinate sources
++ ↙             ↘
++Local        Remote
++     ↓
++Application data
++```
++
++This is a responsibility flow, not a mandatory class diagram. A small repository may talk to one source directly. A larger repository may coordinate several sources or other repositories. What matters is that callers use an application boundary rather than reproduce source policy.
++
++## 2. Repository responsibilities
++
++A repository represents a coherent area of application data, such as users, articles, or payments. Its public operations should express what callers need rather than which technology performs the work:
++
++```kotlin
++interface UserRepository {
++    fun observeUser(id: String): Flow<User?>
++
++    suspend fun refreshUser(id: String)
++
++    suspend fun updateUserName(
++        id: String,
++        name: String
++    )
++}
++```
++
++This interface separates three intentions:
++
++- observe the application’s current view of a user;
++- request fresher data;
++- perform an application change.
++
++The repository decides where those operations read or write. Its responsibilities commonly include exposing data, centralizing mutations, choosing a source-of-truth and freshness policy, reconciling sources, and mapping source models to application models.
++
++A repository is not valuable merely because its class name ends in `Repository`. A one-line delegation can be reasonable when it establishes a stable boundary, but adding an interface and method for every source call without owning any policy can become ceremony. The boundary earns its place through application meaning, replaceable source details, shared policy, or expected evolution.
++
++## 3. Data sources
++
++A data source communicates with one concrete system for one kind of data. Examples include:
++
++- a REST service;
++- a local database;
++- preferences or typed key-value storage;
++- a file system;
++- a device sensor;
++- an Android platform service.
++
++Its vocabulary is close to that system: request and response models, database entities, file records, or sensor readings. It knows how to perform operations against that source and how that source fails.
++
++A data source should not decide application-wide coordination policy. A network source should not silently fall back to a database, and a database source should not decide when remote data is fresh. Otherwise a class presented as “one source” becomes a hidden repository whose behavior other owners cannot see or test independently.
++
++## 4. Repository vs Data source
++
++| Question | Repository | Data source |
++|---|---|---|
++| What does it represent? | Application data area | One concrete system |
++| Who calls it? | UI state holder or optional Domain layer | Repository |
++| Which vocabulary should dominate? | Application operations and models | Source operations and models |
++| Does it coordinate sources? | Yes, when the requirement needs it | No |
++| Does it own freshness or conflict policy? | Usually | Only source-specific mechanics |
++| Can it be thin? | Yes, if the boundary is still useful | Yes |
++
++Suppose `UserRemoteDataSource.getUserResponse(id)` and `UserLocalDataSource.observeEntity(id)` exist. The repository decides whether to expose local observation, when to fetch remotely, how to persist a response, and which error matters to the caller. Neither source should make all four decisions.
++
++Other layers normally should not depend directly on data sources. Direct access lets one screen bypass the repository’s source-of-truth or synchronization policy while another follows it.
++
++## 5. Data ownership
++
++Ownership answers four questions:
++
++1. Who is allowed to change a piece of data?
++2. Where is its authoritative state held?
++3. Who resolves disagreement between sources?
++4. Which boundary exposes it to the rest of the app?
++
++The UI owns rendering state, not the stored user record. A remote service may own the final business truth for an account, while a repository owns the application’s synchronization policy and a database owns the locally observable copy. These statements can coexist because “owner” is qualified by responsibility.
++
++Expose immutable values across the Data boundary so consumers cannot mutate the repository’s state behind its back. Immutability does not mean the data never changes; changes pass through repository operations and produce new observed values.
++
++## 6. Single Source of Truth
++
++SSOT means **one authoritative owner for a particular piece of application data**. It does not mean one storage system for the whole app, and it does not always mean a database.
++
++Possible choices include:
++
++- **Database as SSOT:** durable local observation and offline reads; synchronization must keep it useful.
++- **Remote server as SSOT:** appropriate when only server-confirmed data is valid; offline availability is limited.
++- **Repository-owned memory as SSOT:** useful for session-scoped or inexpensive data; process death discards it.
++- **Cache that is not SSOT:** a copy may accelerate reads while another owner remains authoritative.
++
++The critical rule is that consumers do not independently merge competing authorities. If a repository exposes local data as its application view, remote results should normally update that local source; the remote response should not also race to the UI as a second truth.
++
++Choose SSOT per data set by asking about required lifetime, offline behavior, correctness authority, latency, sharing, and recovery after process death.
++
++## 7. Read paths
++
++A read path defines which source is consulted, what is returned immediately, and what happens on failure.
++
++### Network-first
++
++Attempt the remote source first, then optionally fall back to stored data.
++
++- **Pros:** favors current server state and can avoid showing stale data.
++- **Cons:** adds latency and makes reads depend on connectivity.
++- **Failure behavior:** must say whether stored data is returned, an error replaces it, or both data and a warning are exposed.
++- **Offline implications:** weak unless a fallback exists.
++
++### Cache-first
++
++Return a cached value when acceptable; fetch if missing or invalid, often refreshing in the background.
++
++- **Pros:** low latency and reduced source work.
++- **Cons:** correctness depends on invalidation and freshness rules.
++- **Invalidation:** may use age, version, explicit mutation, or a server signal.
++- **Background refresh:** improves freshness but needs error and race behavior.
++
++### Local-first
++
++Observe a local authoritative source and let refresh persist remote results into it.
++
++- **Pros:** one observable path, fast local display, durable offline reads, and consistent updates.
++- **Cons:** synchronization and schema evolution become explicit responsibilities.
++- **Offline capability:** strong for data already stored locally.
++- **Conflict risk:** local and remote writes can diverge and require resolution.
++
++No strategy is universally best. A payment confirmation may require network-first authority; a news feed may show cached content while refreshing; an offline field tool may require local-first reads.
++
++## 8. Write paths
++
++Writes need a success definition. “The local object changed,” “the server accepted it,” and “all observers see it” are different milestones.
++
++### Remote-first write
++
++Send the change remotely, then update local state after confirmation. It simplifies authority when the server must validate the operation, but it is unavailable offline and can feel slow. If the remote succeeds and local persistence fails, the repository must reconcile that partial failure rather than report that nothing changed.
++
++### Optimistic write
++
++Update the visible or local value before remote confirmation. It improves responsiveness but needs a pending state and a policy for rejection. Rollback is safe only if it will not erase a newer edit; otherwise re-fetch or mark a conflict.
++
++### Offline queued write
++
++Persist the user’s intent locally, mark it pending, and send it later. The queue must survive the lifetime promised by the product. Retrying requires:
++
++- classification of retryable and terminal failures;
++- backoff or a suitable trigger;
++- an idempotency key or operation identity when duplicates would be harmful;
++- an ordering policy for dependent operations;
++- a visible failed or conflicted state when automatic progress stops.
++
++Partial failures are normal: remote accepted/local write failed, local accepted/queue write failed, or one item in a batch failed. Model the stages that matter instead of treating every write as one indivisible Boolean.
++
++## 9. Caching
++
++A cache is a reusable copy intended to improve latency, availability, or cost. Persistence describes whether data survives a lifetime boundary such as process death. These are independent:
++
++- an in-memory cache is not persistent;
++- a disk cache is persistent but may still be disposable;
++- a database can be both persistent storage and SSOT;
++- persistent data is not necessarily a cache if it is the authoritative local record.
++
++Every cache needs a policy:
++
++- key and scope;
++- maximum lifetime or validity condition;
++- invalidation after writes;
++- capacity and eviction;
++- behavior when stale;
++- behavior when refresh fails.
++
++“We cache it” is incomplete until the application knows when the copy can be used.
++
++## 10. Data freshness
++
++Freshness is a product property, not merely a timestamp. A transit arrival may become stale in seconds; a country list may remain useful for months. Define:
++
++- what event makes data stale;
++- how old it may be before a refresh is required;
++- whether stale data remains usable;
++- how the user learns that data may be stale;
++- which operation can force refresh.
++
++Useful signals include age, server version, invalidation notification, successful local mutation, app/session start, or user request. Connectivity alone does not prove a refresh is needed or that it will succeed.
++
++Preserve the distinction between **available** and **fresh**. Stale-but-usable data plus a refresh warning can be better than an empty error screen, while safety-critical or financial decisions may forbid stale results.
++
++## 11. Refresh strategies
++
++Refresh connects freshness policy to work. Common triggers include:
++
++- initial access when no usable data exists;
++- time-based staleness;
++- explicit pull-to-refresh or retry;
++- a mutation that invalidates related data;
++- a server notification;
++- scheduled or constraint-aware background work.
++
++Avoid refreshing solely because rendering happened. Rendering may repeat, and multiple consumers may cause duplicate work. Let a repository operation or application policy own refresh, coalesce duplicate requests if necessary, and specify whether callers wait for completion.
++
++Refresh failure should not automatically delete usable local data. A repository can preserve data and expose refresh status separately when the product benefits from that distinction.
++
++## 12. Offline-first architectures
++
++An offline-first app can perform all or a critical subset of its core behavior without a reliable network. At minimum, its critical reads do not require connectivity. This is a product promise, not a label earned by having a cache.
++
++For a local-first repository, the refresh flow is:
++
++```text
++Remote
++   ↓
++Persist locally
++   ↓
++Observe local storage
++   ↓
++Expose updated application data
++```
++
++The local source is the exclusive read path for higher layers. Remote data becomes visible by updating local storage. This avoids two competing streams and makes connection changes less disruptive.
++
++Offline writes are an additional promise, not a requirement for every offline-first app. They require durable intent, pending status, retry rules, conflict handling, and user-visible failure semantics. Some operations—such as a real-time authorization—may reasonably remain online-only.
++
++## 13. Synchronization
++
++Synchronization reconciles states that changed independently. It is more than “call refresh” because it must define direction, scope, ordering, and completion.
++
++- **Pull-based:** the app asks for current remote changes, often on navigation or refresh.
++- **Push-signaled:** a notification says data is stale; the app then fetches the changed data.
++- **Hybrid:** different data sets or circumstances use different triggers.
++
++A synchronization design should answer:
++
++1. What is synchronized: full snapshot, pages, or changes since a version?
++2. Which source is authoritative for conflicts?
++3. How is progress recorded so interruption can resume safely?
++4. Can the same operation run twice without duplicate effects?
++5. What triggers retry, and when does retry stop?
++6. How do observers distinguish current, stale, pending, failed, and conflicted data?
++
++Persistent background execution may implement parts of this design on Android, but a scheduling API does not define the synchronization policy.
++
++## 14. Conflict handling
++
++A conflict occurs when two valid histories cannot both be applied unchanged. Examples include two devices editing the same field, a local delete racing with a remote edit, or a queued action targeting an object removed elsewhere.
++
++Strategies include:
++
++- server authority rejects or overwrites the local change;
++- client authority overwrites remote state when allowed;
++- last-write-wins using trustworthy version metadata;
++- field-level or operation-level merge;
++- explicit user resolution;
++- domain-specific rules such as additive counters or append-only events.
++
++Last-write-wins is simple but can silently discard meaningful work, and device wall clocks may be unreliable. Prefer server versions, revision tokens, or operation identities when the infrastructure supports them.
++
++Conflict handling belongs where the business meaning and both histories are visible. A generic network data source rarely has enough context to decide.
++
++## 15. Error boundaries
++
++Sources fail differently:
++
++- **Transport failure:** unreachable service, timeout, or rejected request.
++- **Persistence failure:** disk full, corruption, constraint failure, or unavailable storage.
++- **Synchronization failure:** sources remain divergent after a multi-stage operation.
++- **Retryable failure:** a later attempt may succeed without changing input.
++- **Terminal failure:** authorization, validation, or conflict requires another action.
++- **Stale-but-usable:** refresh failed, but an older value is still meaningful.
++
++The repository can translate low-level failures into application-relevant outcomes. It should preserve distinctions callers need without leaking every HTTP or database exception.
++
++There is no universal `Result` wrapper that solves all operations. An observed local value may be accompanied by freshness state; a write may return server validation; a queued write may expose durable pending status. Choose explicit contracts for the decision the consumer must make.
++
++## 16. Model mapping
++
++Source and consumer constraints can justify separate models:
++
++```text
++UserResponse → UserEntity → User → UserUiModel
++```
++
++- `UserResponse` follows a transport contract and API evolution.
++- `UserEntity` follows storage keys, normalization, and nullability constraints.
++- `User` expresses application meaning without source-specific fields.
++- `UserUiModel` contains presentation formatting and interaction-specific values.
++
++Mapping prevents an API rename from becoming a database migration or UI rewrite. It also allows unsafe source nullability to become an explicit application decision.
++
++The cost is more types, mapping code, tests, and potential information loss. A small app may safely share a model across adjacent boundaries when their meanings and change rates align. Do not create four models by ritual; separate them when they protect a real boundary.
++
++Repositories commonly map source models into application models. UI-specific formatting normally belongs at the UI boundary, because putting `displayName` or localized text in a repository couples shared data to one presentation.
++
++## 17. Repository granularity
++
++“One repository per table” and “one repository for the whole app” are both weak defaults. Choose boundaries around cohesive application data and policies.
++
++A repository is probably too broad when unrelated teams or features change it for unrelated reasons, its interface becomes a catalog of the app, or every operation depends on different sources and rules. It may be too narrow when callers must coordinate several repositories to preserve one invariant or when each repository is only a technology-shaped method wrapper.
++
++Repositories may depend on other repositories for a higher-level aggregate when that direction remains clear. Avoid cycles and unclear competing ownership.
++
++Use the smallest number of boundaries that gives each data set a clear owner and keeps operations cohesive. Splitting later is reasonable when a second source or policy reveals a real seam.
++
++## 18. Android examples
++
++### Profile with local-first refresh
++
++```kotlin
++class DefaultUserRepository(
++    private val local: UserLocalDataSource,
++    private val remote: UserRemoteDataSource,
++) : UserRepository {
++    override fun observeUser(id: String): Flow<User?> =
++        local.observeUser(id)
++
++    override suspend fun refreshUser(id: String) {
++        val response = remote.fetchUser(id)
++        local.save(response.toEntity())
++    }
++
++    override suspend fun updateUserName(id: String, name: String) {
++        remote.updateUserName(id, name)
++        local.updateUserName(id, name)
++    }
++}
++```
++
++The code is intentionally conceptual. Observation uses the local SSOT; refresh maps and persists remote data; a confirmed remote-first write then updates local state. A production design must still define concurrent refreshes, partial failure, validation, and whether offline edits are required.
++
++### Session-scoped device reading
++
++A repository may own an in-memory latest reading from a sensor-backed data source. Memory can be the SSOT when loss at process death is acceptable. Adding a database solely to resemble an offline-first example would add cost without satisfying a requirement.
++
++### Server-authoritative purchase
++
++A purchase repository may require remote confirmation before exposing success. Cached catalog data can remain available offline while purchase submission does not. One application can legitimately use different strategies for different data.
++
++## 19. Common mistakes
++
++- Calling a repository a wrapper while UI still chooses local versus remote.
++- Exposing Retrofit, database, or platform models as the application contract by default.
++- Letting local and remote sources update UI independently.
++- Treating every disk copy as the SSOT.
++- Treating “cached” as a complete freshness policy.
++- Deleting useful local data when refresh fails.
++- Retrying validation or authorization failures indefinitely.
++- Retrying non-idempotent writes without operation identity.
++- Applying rollback that overwrites a newer user edit.
++- Equating network availability with successful synchronization.
++- Hiding partial failure behind one success Boolean.
++- Putting presentation formatting and Android UI objects in repositories.
++- Splitting repositories by table or endpoint without considering ownership.
++- Assuming offline reads automatically imply safe offline writes.
++
++## 20. Trade-offs
++
++| Choice | Benefit | Cost or risk |
++|---|---|---|
++| Network-first read | Favors server freshness | Latency and poor offline behavior |
++| Cache-first read | Fast and economical | Invalidation determines correctness |
++| Local-first read | Stable observable path and offline access | Synchronization complexity |
++| Remote-first write | Clear server confirmation | Weak offline support and partial local failure |
++| Optimistic write | Responsive feedback | Pending, rollback, and conflict semantics |
++| Offline queue | Preserves user intent | Ordering, retries, idempotency, and visibility |
++| Shared boundary model | Less mapping code | Greater coupling across change rates |
++| Separate boundary models | Isolation and explicit meaning | More types and mapping tests |
++| Fine-grained repositories | Focused interfaces | Cross-repository coordination |
++| Coarse repository | Centralized policy | Unrelated responsibilities accumulate |
++
++Android architecture guidance is designed to scale and improve testability, but it remains guidance. Start from product correctness, ownership, lifetime, connectivity, and failure requirements. Adopt only the machinery needed to make those decisions explicit.
++
++## 21. Summary
++
++- The Data layer owns access to application data and the policies that keep it coherent.
++- Repositories expose application operations; data sources communicate with concrete systems.
++- SSOT is one authoritative owner for a particular data set, not “always use Room.”
++- A read strategy must define latency, freshness, failure, and offline behavior.
++- A write strategy must define when success occurs and how partial failure is repaired.
++- Cache and persistence answer different questions.
++- Freshness is a product policy; refresh is the work that applies it.
++- Local-first reads expose local storage while remote refresh updates that storage.
++- Offline writes require durable intent, retry, idempotency, and conflict semantics.
++- Model boundaries protect different contracts only when their isolation justifies mapping cost.
++- Repository size follows cohesive ownership and policy, not tables or endpoints.
+diff --git a/content/android/app-architecture/android-data-layer-repositories-and-synchronization/topic.yaml b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/topic.yaml
+new file mode 100644
+index 0000000..ddfaf4f
+--- /dev/null
++++ b/content/android/app-architecture/android-data-layer-repositories-and-synchronization/topic.yaml
+@@ -0,0 +1,54 @@
++id: android-data-layer-repositories-and-synchronization
++title: Android Data Layer, Repositories, and Synchronization
++track: android
++section: app-architecture
++difficulty: foundation
++status: review
++estimated_minutes: 150
++content_version: 1
++prerequisites:
++  - android-app-architecture-foundations
++  - android-ui-layer-and-unidirectional-data-flow
++learning_outcomes:
++  - Explain the responsibilities and boundaries of the Data layer.
++  - Distinguish repositories from data sources.
++  - Identify the authoritative owner for a piece of application data.
++  - Trace read and write paths across local and remote sources.
++  - Compare network-first, cache-first, and local-first read strategies.
++  - Evaluate freshness, refresh, and invalidation policies.
++  - Design a basic offline-capable synchronization flow.
++  - Analyze retry, conflict, and partial-failure behavior.
++  - Justify model boundaries across transport, persistence, application, and UI concerns.
++  - Evaluate repository granularity and responsibility leaks.
++tags:
++  - data-layer
++  - repositories
++  - data-sources
++  - single-source-of-truth
++  - synchronization
++  - offline-first
++references:
++  - title: Guide to app architecture
++    url: https://developer.android.com/topic/architecture
++    type: official-docs
++    author: Android Developers
++    accessed_on: '2026-07-23'
++  - title: Data layer
++    url: https://developer.android.com/topic/architecture/data-layer
++    type: official-docs
++    author: Android Developers
++    accessed_on: '2026-07-23'
++  - title: Build an offline-first app
++    url: https://developer.android.com/topic/architecture/data-layer/offline-first
++    type: official-docs
++    author: Android Developers
++    accessed_on: '2026-07-23'
++  - title: Recommendations for Android architecture
++    url: https://developer.android.com/topic/architecture/recommendations
++    type: official-docs
++    author: Android Developers
++    accessed_on: '2026-07-23'
++summary: A responsibility-first guide to repository boundaries, source-of-truth decisions, freshness, and local/remote synchronization in Android applications.
++android_connections:
++  - Android applications often coordinate persistent local data with remote or platform data sources under unreliable connectivity.
++  - Repository boundaries let UI and optional Domain code use application data without depending on storage or transport APIs.
+diff --git a/content/reports/task-012.3-android-data-layer-repositories-and-synchronization-implementation.md b/content/reports/task-012.3-android-data-layer-repositories-and-synchronization-implementation.md
+new file mode 100644
+index 0000000..36f6dfd
+--- /dev/null
++++ b/content/reports/task-012.3-android-data-layer-repositories-and-synchronization-implementation.md
+@@ -0,0 +1,108 @@
++# Task 012.3 — Android Data Layer, Repositories, and Synchronization implementation report
++
++## Final result
++
++**PASS**
++
++Task 012.3 adds the third production topic package in `review`, with the
++Task 012.1 foundations topic and Task 012.2 UI-layer topic as prerequisites.
++No production mapping, competency, learning-sequence, schema, or validator
++change was made.
++
++## Files
++
++Created the six canonical files under
++`content/android/app-architecture/android-data-layer-repositories-and-synchronization/`
++and this report. Updated `README.md`, `docs/PROJECT_STATE.md`,
++`docs/ROADMAP.md`, and the Task 012.3 status.
++
++## Metadata
++
++- ID: `android-data-layer-repositories-and-synchronization`
++- difficulty/status: `foundation` / `review`
++- estimated time/version: 150 minutes / 1
++- prerequisites: `android-app-architecture-foundations` and
++  `android-ui-layer-and-unidirectional-data-flow`
++
++## Educational design decisions
++
++- The theory follows the required 21-section sequence and treats repository,
++  source, and synchronization diagrams as conceptual responsibility flows.
++- Repositories expose application operations and own source selection,
++  freshness, synchronization, and application-level error policy. Data sources
++  communicate with one concrete system.
++- SSOT is defined per data set and may be remote, durable local storage, or
++  repository-owned memory. A cache is not automatically authoritative.
++- Network-first, cache-first, and local-first reads are compared through
++  latency, freshness, fallback, offline behavior, invalidation, and
++  synchronization cost.
++- Remote-first, optimistic, and offline-queued writes include partial failure,
++  retry classification, idempotency, rollback, pending state, and conflict
++  semantics.
++- Transport, persistence, application, and UI models are separated only when
++  different contracts justify their mapping cost.
++- Practice contains five complete architecture exercises. The test contains
++  exactly twelve questions, all five supported types, scenarios, two code
++  analyses, and valid constructed-answer rubrics.
++- Primary sources are four canonical official Android Developers pages checked
++  on 2026-07-23.
++
++## Validation
++
++```text
++python -B scripts/validate_content.py
++PASS — 3 topic packages, 2 templates, 4 schema fixtures
++
++python -B scripts/validate_competencies.py
++PASS — 2 source packages, 1 canonical package, 1 learning-sequence package,
++0 competency-to-topic mapping packages, 2 templates, 41 schema fixtures
++
++python -B -m unittest discover
++PASS — 107 tests
++
++git diff --check
++PASS
++```
++
++Encoding audit: all new and modified Markdown/YAML files decode as strict
++UTF-8, contain no BOM, and contain no known mojibake or Unicode replacement
++characters. The six topic files are present and the test contains exactly
++twelve questions. A separate repository-wide audit scanned 136 Markdown/YAML
++files and found nine pre-existing mojibake occurrences in
++`competency-topic-mappings/reports/task-011-minimal-competency-topic-mapping-model-implementation.md`.
++That protected, out-of-scope Task 011 report was not modified.
++
++## Deferred work
++
++Editorial approval/publication, further production topics, production
++competency-to-topic mappings, API-specific persistence or networking topics,
++and Android client/runtime synchronization remain deferred.
++
++## Git status
++
++The literal final `git status --short` output is recorded here after
++intent-to-add and review-diff generation:
++
++```text
++ M README.md
++ A content/android/app-architecture/android-data-layer-repositories-and-synchronization/cheat-sheet.md
++ A content/android/app-architecture/android-data-layer-repositories-and-synchronization/interview.md
++ A content/android/app-architecture/android-data-layer-repositories-and-synchronization/practice.md
++ A content/android/app-architecture/android-data-layer-repositories-and-synchronization/test.yaml
++ A content/android/app-architecture/android-data-layer-repositories-and-synchronization/theory.md
++ A content/android/app-architecture/android-data-layer-repositories-and-synchronization/topic.yaml
++ A content/reports/task-012.3-android-data-layer-repositories-and-synchronization-implementation.md
++ M docs/PROJECT_STATE.md
++ M docs/ROADMAP.md
++ A tasks/012.3-android-data-layer-repositories-and-synchronization.md
++?? 012.3-review.diff
++```
++
++Intent-to-add is used only to make new files visible in the normal repository
++diff. No file content is staged, and no commit was created.
++
++## Recommended commit message
++
++```text
++feat(content): add Android data layer topic
++```
+diff --git a/docs/PROJECT_STATE.md b/docs/PROJECT_STATE.md
+index a5a4012..75ffbb6 100644
+--- a/docs/PROJECT_STATE.md
++++ b/docs/PROJECT_STATE.md
+@@ -38,6 +38,9 @@ The repository currently provides:
+ - the second production educational topic package,
+   `android-ui-layer-and-unidirectional-data-flow`, in `review`, with the
+   foundations topic as its prerequisite.
++- the third production educational topic package,
++  `android-data-layer-repositories-and-synchronization`, in `review`, with the
++  foundations and UI-layer topics as prerequisites.
+ 
+ ## Completed tasks
+ 
+@@ -57,6 +60,7 @@ The repository currently provides:
+ - **Task 011 — DONE:** Implemented the separate competency-to-topic mapping model without creating a production mapping.
+ - **Task 012.1 — DONE:** Added the first production topic as the architecture foundations baseline.
+ - **Task 012.2 — DONE:** Added the second production topic for the Android UI layer and Unidirectional Data Flow.
++- **Task 012.3 — DONE:** Added the third production topic for the Android Data layer, repositories, and synchronization.
+ 
+ ## Current focus
+ 
+@@ -78,7 +82,11 @@ but there are no production mapping packages. The first production educational
+ topic, `android-app-architecture-foundations` version 1, now exists in `review`.
+ It remains the architectural and editorial foundation for the second production
+ topic, `android-ui-layer-and-unidirectional-data-flow` version 1, which also
+-exists in `review`. Production competency-to-topic mappings remain deferred.
++exists in `review`. The third production topic,
++`android-data-layer-repositories-and-synchronization` version 1, deepens Data
++ownership, repository boundaries, and synchronization and also remains in
++`review`. Tasks 012.1–012.3 form the current Android app architecture
++foundation. Production competency-to-topic mappings remain deferred.
+ 
+ ## Next planned tasks
+ 
+@@ -87,7 +95,7 @@ The immediate planned sequence is:
+ 1. Review the first learning sequence as an editorial package without treating
+    its stage order as canonical competency relations.
+ 2. Review the first production educational topic as an editorial package.
+-3. Author further production Android topics after Task 012.2.
++3. Author further production Android topics after Task 012.3.
+ 4. Author production competency-to-topic mappings against exact reviewed topic
+    and canonical package versions without treating topics as sequence nodes.
+ 5. Generate the first content catalog when real content justifies it.
+diff --git a/docs/ROADMAP.md b/docs/ROADMAP.md
+index ac720d3..a5165f3 100644
+--- a/docs/ROADMAP.md
++++ b/docs/ROADMAP.md
+@@ -57,6 +57,9 @@ Implemented foundations:
+ - the second production educational topic package,
+   `android-ui-layer-and-unidirectional-data-flow`, in `review`, continuing the
+   foundations topic with focused UI-layer and UDF coverage.
++- the third production educational topic package,
++  `android-data-layer-repositories-and-synchronization`, in `review`, completing
++  the current three-topic architecture foundation with Data-layer coverage.
+ 
+ Remaining Phase 2 milestones:
+ 
+@@ -67,9 +70,10 @@ Remaining Phase 2 milestones:
+ 
+ Goal: make the repository useful for real learning without an application.
+ 
+-The foundations topic remains the authoring baseline, and Task 012.2 adds the
+-second production topic for UI-layer and UDF reasoning. Further production
+-topics and production mappings remain deferred.
++Tasks 012.1–012.3 form the current Android app architecture foundation:
++architecture fundamentals, UI-layer and UDF reasoning, and Data-layer
++repository and synchronization reasoning. Further production topics and
++production mappings remain deferred.
+ 
+ Deliverables:
+ 
+diff --git a/tasks/012.3-android-data-layer-repositories-and-synchronization.md b/tasks/012.3-android-data-layer-repositories-and-synchronization.md
+new file mode 100644
+index 0000000..3ebb406
+--- /dev/null
++++ b/tasks/012.3-android-data-layer-repositories-and-synchronization.md
+@@ -0,0 +1,290 @@
++# Task 012.3 --- Android Data Layer, Repositories, and Synchronization
++
++Status: DONE
++
++## Objective
++
++Create the repository's third production educational topic package.
++
++The topic must teach how the Android Data layer provides application
++data through repositories, coordinates local and remote data sources,
++defines a Single Source of Truth (SSOT), handles caching and
++synchronization, and isolates the rest of the application from storage
++and transport details.
++
++The topic builds on:
++
++-   Task 012.1 --- Android App Architecture Foundations
++-   Task 012.2 --- Android UI Layer and Unidirectional Data Flow
++
++------------------------------------------------------------------------
++
++## Scope
++
++Create exactly one production topic package:
++
++`content/android/app-architecture/android-data-layer-repositories-and-synchronization/`
++
++The package must contain exactly:
++
++-   topic.yaml
++-   theory.md
++-   cheat-sheet.md
++-   practice.md
++-   interview.md
++-   test.yaml
++
++------------------------------------------------------------------------
++
++## Topic metadata
++
++-   **id:** android-data-layer-repositories-and-synchronization
++-   **track:** android
++-   **section:** app-architecture
++-   **difficulty:** foundation
++-   **status:** review
++-   **content_version:** 1
++-   **estimated_minutes:** 150
++
++### Prerequisites
++
++-   android-app-architecture-foundations
++-   android-ui-layer-and-unidirectional-data-flow
++
++------------------------------------------------------------------------
++
++## Educational goal
++
++Teach the learner to reason about:
++
++-   Data layer responsibilities
++-   Repository responsibilities
++-   Data sources
++-   Local vs remote sources
++-   Single Source of Truth
++-   Read and write paths
++-   Caching
++-   Synchronization
++-   Offline-capable architectures
++-   Data freshness
++-   Conflict handling
++-   Mapping between transport, persistence, domain and UI models
++
++The topic must focus on architectural responsibilities rather than
++Retrofit, Room, SQL or HTTP APIs.
++
++------------------------------------------------------------------------
++
++## Required conceptual model
++
++``` text
++UI / Domain
++     ↓
++ Repository
++     ↓
++Data source coordination
++ ↙               ↘
++Local          Remote
++     ↓
++Application data
++```
++
++Also explain local-first synchronization:
++
++``` text
++Remote
++   ↓
++Persist locally
++   ↓
++Observe local storage
++   ↓
++Expose updated application data
++```
++
++Clarify that these are conceptual responsibility flows, not mandatory
++class diagrams.
++
++------------------------------------------------------------------------
++
++## Learning outcomes
++
++The learner should be able to:
++
++-   explain Data layer responsibilities;
++-   distinguish repositories from data sources;
++-   identify the SSOT;
++-   analyze read and write paths;
++-   compare cache-first, network-first and local-first strategies;
++-   explain synchronization trade-offs;
++-   identify responsibility leaks;
++-   design a basic offline-capable architecture.
++
++------------------------------------------------------------------------
++
++## Required theory structure
++
++1.  Why the Data layer exists
++2.  Repository responsibilities
++3.  Data sources
++4.  Repository vs Data source
++5.  Data ownership
++6.  Single Source of Truth
++7.  Read paths
++8.  Write paths
++9.  Caching
++10. Data freshness
++11. Refresh strategies
++12. Offline-first architectures
++13. Synchronization
++14. Conflict handling
++15. Error boundaries
++16. Model mapping
++17. Repository granularity
++18. Android examples
++19. Common mistakes
++20. Trade-offs
++21. Summary
++
++------------------------------------------------------------------------
++
++## Required coverage
++
++The topic must explain:
++
++-   Repository responsibilities
++-   Local and remote data sources
++-   SSOT
++-   Cache vs persistence
++-   Network-first
++-   Cache-first
++-   Local-first
++-   Synchronization
++-   Retry
++-   Conflict resolution
++-   Data freshness
++-   DTO ↔ Entity ↔ Domain ↔ UI mapping
++
++Do not prescribe a single architecture as universally correct.
++
++------------------------------------------------------------------------
++
++## Kotlin examples
++
++Include at least:
++
++``` kotlin
++interface UserRepository {
++    fun observeUser(id: String): Flow<User?>
++    suspend fun refreshUser(id: String)
++    suspend fun updateUserName(id: String, name: String)
++}
++```
++
++Include a repository coordinating both local and remote sources.
++
++------------------------------------------------------------------------
++
++## Practice
++
++Create **at least five** exercises:
++
++1.  Responsibility classification
++2.  Repository vs wrapper
++3.  Choosing the SSOT
++4.  Broken synchronization
++5.  Model-boundary analysis
++
++Each exercise must include:
++
++-   task
++-   expected reasoning
++-   reviewer guidance
++
++------------------------------------------------------------------------
++
++## Interview
++
++Include:
++
++-   foundational questions
++-   scenario questions
++-   trade-off questions
++
++Cover:
++
++-   repositories
++-   data sources
++-   SSOT
++-   caching
++-   synchronization
++-   offline-first
++-   mapping
++-   repository granularity
++
++------------------------------------------------------------------------
++
++## Test
++
++Create exactly **12** questions using supported repository question
++types.
++
++Must include:
++
++-   scenario questions
++-   code-analysis questions
++-   SSOT
++-   cache vs persistence
++-   synchronization
++-   repository responsibilities
++
++------------------------------------------------------------------------
++
++## Out of scope
++
++Do not:
++
++-   modify competencies;
++-   modify learning sequences;
++-   teach Retrofit APIs;
++-   teach Room APIs;
++-   teach Flow in depth;
++-   teach dependency injection;
++-   teach MVI libraries.
++
++------------------------------------------------------------------------
++
++## Documentation
++
++Update:
++
++-   README.md
++-   docs/PROJECT_STATE.md
++-   docs/ROADMAP.md
++
++------------------------------------------------------------------------
++
++## Validation
++
++Run:
++
++``` bash
++python -B scripts/validate_content.py
++python -B scripts/validate_competencies.py
++python -B -m unittest discover
++git diff --check
++```
++
++Verify UTF-8 encoding and absence of mojibake.
++
++------------------------------------------------------------------------
++
++## Acceptance criteria
++
++-   One production topic package created.
++-   Six canonical files.
++-   Metadata valid.
++-   Documentation synchronized.
++-   Validation passes.
++-   No competency changes.
++-   No learning-sequence changes.
++-   Status remains `review`.

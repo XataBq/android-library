@@ -1,0 +1,54 @@
+id: android-data-layer-repositories-and-synchronization
+title: Android Data Layer, Repositories, and Synchronization
+track: android
+section: app-architecture
+difficulty: foundation
+status: review
+estimated_minutes: 150
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-ui-layer-and-unidirectional-data-flow
+learning_outcomes:
+  - Explain the responsibilities and boundaries of the Data layer.
+  - Distinguish repositories from data sources.
+  - Identify the authoritative owner for a piece of application data.
+  - Trace read and write paths across local and remote sources.
+  - Compare network-first, cache-first, and local-first read strategies.
+  - Evaluate freshness, refresh, and invalidation policies.
+  - Design a basic offline-capable synchronization flow.
+  - Analyze retry, conflict, and partial-failure behavior.
+  - Justify model boundaries across transport, persistence, application, and UI concerns.
+  - Evaluate repository granularity and responsibility leaks.
+tags:
+  - data-layer
+  - repositories
+  - data-sources
+  - single-source-of-truth
+  - synchronization
+  - offline-first
+references:
+  - title: Guide to app architecture
+    url: https://developer.android.com/topic/architecture
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Data layer
+    url: https://developer.android.com/topic/architecture/data-layer
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Build an offline-first app
+    url: https://developer.android.com/topic/architecture/data-layer/offline-first
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Recommendations for Android architecture
+    url: https://developer.android.com/topic/architecture/recommendations
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+summary: A responsibility-first guide to repository boundaries, source-of-truth decisions, freshness, and local/remote synchronization in Android applications.
+android_connections:
+  - Android applications often coordinate persistent local data with remote or platform data sources under unreliable connectivity.
+  - Repository boundaries let UI and optional Domain code use application data without depending on storage or transport APIs.

@@ -1,0 +1,237 @@
+topic_id: android-data-layer-repositories-and-synchronization
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: repository-primary-responsibility
+    type: single-choice
+    prompt: Which responsibility most clearly belongs to a repository?
+    difficulty: foundation
+    points: 1
+    explanation: A repository owns application-level access and coordination policy. A source performs operations against one concrete system, while UI owners handle presentation.
+    options:
+      - id: render-error-message
+        text: Format and render a localized error message.
+      - id: parse-http-body
+        text: Parse the wire response from one HTTP service.
+      - id: choose-authoritative-read
+        text: Decide how local and remote user data become one authoritative application view.
+      - id: launch-picker
+        text: Launch an Android document picker.
+    correct_option_id: choose-authoritative-read
+
+  - id: data-source-responsibilities
+    type: multiple-choice
+    prompt: Which are appropriate responsibilities for a data source? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: A data source performs source-specific operations and translates that system's representation or failure. Cross-source fallback and application freshness policy belong to the repository.
+    options:
+      - id: execute-service-request
+        text: Execute a request against one remote service.
+      - id: observe-database-record
+        text: Observe records from one local database.
+      - id: choose-cache-fallback
+        text: Decide when the entire application should fall back from remote to cached data.
+      - id: parse-source-record
+        text: Parse the representation produced by its concrete source.
+      - id: define-product-freshness
+        text: Define how old every product value may be before use.
+    correct_option_ids:
+      - execute-service-request
+      - observe-database-record
+      - parse-source-record
+
+  - id: ssot-always-database
+    type: true-false
+    prompt: Single Source of Truth always means that a local database is authoritative.
+    difficulty: foundation
+    points: 1
+    explanation: SSOT is one authoritative owner for a particular data set. Depending on lifetime and correctness requirements, it may be a database, remote service, or repository-owned memory.
+    correct_answer: false
+
+  - id: cache-versus-persistence
+    type: single-choice
+    prompt: Which statement correctly distinguishes caching from persistence?
+    difficulty: foundation
+    points: 1
+    explanation: Cache describes the purpose and validity of a reusable copy; persistence describes survival across a lifetime boundary. A disk cache can be persistent without being authoritative.
+    options:
+      - id: cache-always-memory
+        text: A cache is always in memory, while persistence is always a database.
+      - id: persistence-always-ssot
+        text: Anything persisted to disk is automatically the SSOT.
+      - id: separate-properties
+        text: A cached copy may be persistent, but its validity and authority are separate decisions.
+      - id: identical-concepts
+        text: Cache and persistence are two names for the same responsibility.
+    correct_option_id: separate-properties
+
+  - id: offline-feed-read-strategy
+    type: single-choice
+    prompt: A feed must display previously downloaded items immediately without connectivity, observe later changes, and refresh remotely when possible. Which read path best matches those requirements?
+    difficulty: foundation
+    points: 2
+    explanation: A local-first path gives consumers one observable source and makes remote results visible by persisting them locally. It still requires freshness and synchronization policy.
+    options:
+      - id: ui-races-sources
+        text: Let UI request local and remote values and render whichever returns last.
+      - id: network-only
+        text: Block every read on a successful remote request.
+      - id: local-observe-refresh-persist
+        text: Observe local data; refresh remotely; persist the response locally.
+      - id: memory-without-policy
+        text: Keep the latest response in an unbounded process cache with no invalidation.
+    correct_option_id: local-observe-refresh-persist
+
+  - id: freshness-policy-signals
+    type: multiple-choice
+    prompt: Which questions belong in a data freshness policy? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: Freshness policy defines invalidation, acceptable age, usability of stale data, and refresh triggers. A network connection does not itself prove data is stale or a refresh will succeed.
+    options:
+      - id: invalidation-event
+        text: Which event or version marks the value stale?
+      - id: acceptable-age
+        text: How long may the value remain useful?
+      - id: stale-usable
+        text: May stale data remain visible when refresh fails?
+      - id: network-means-fresh
+        text: Should connectivity automatically mark every cached value fresh?
+      - id: refresh-trigger
+        text: What triggers refresh or permits the user to force it?
+    correct_option_ids:
+      - invalidation-event
+      - acceptable-age
+      - stale-usable
+      - refresh-trigger
+
+  - id: compare-read-strategies
+    type: free-text
+    prompt: Compare network-first, cache-first, and local-first reads for a product catalog. Recommend one for a catalog that must open offline but whose price must be confirmed before checkout.
+    difficulty: foundation
+    points: 4
+    explanation: A strong answer compares failure and freshness behavior, then allows catalog display and checkout confirmation to use different policies.
+    rubric:
+      - criterion: Compares network-first latency, freshness, fallback, and offline limitations.
+        points: 1
+      - criterion: Explains cache-first speed plus invalidation or stale-data risk.
+        points: 1
+      - criterion: Explains local-first observation, offline benefit, and synchronization cost.
+        points: 1
+      - criterion: Justifies local-first catalog display with separate remote price confirmation at checkout.
+        points: 1
+    sample_answer: Network-first favors current remote data but delays or fails offline. Cache-first is fast if age and invalidation are defined. Local-first exposes a stable stored catalog and refreshes it through synchronization. I would use local-first for browsing, mark freshness, and require a remote price confirmation for checkout because display availability and purchase authority are different requirements.
+
+  - id: analyze-competing-read-paths
+    type: code-analysis
+    prompt: Identify three responsibility or consistency problems and propose a corrected read and refresh flow.
+    difficulty: foundation
+    points: 4
+    explanation: UI coordinates concrete sources, two results compete as truths, and remote data bypasses persistence. A repository should own policy and expose one application path.
+    language: kotlin
+    code: |
+      fun loadUser(id: String) {
+          launch { render(api.getUser(id).toUiModel()) }
+          launch { render(database.getUser(id).toUiModel()) }
+      }
+
+      fun refresh(id: String) {
+          render(api.getUser(id).toUiModel())
+      }
+    rubric:
+      - criterion: Identifies UI dependence on concrete remote and local sources.
+        points: 1
+      - criterion: Identifies the race between two independently rendered truths.
+        points: 1
+      - criterion: Identifies that refresh bypasses the local authoritative path or persistence.
+        points: 1
+      - criterion: Proposes UI observing repository data while repository refresh persists remote results locally.
+        points: 1
+    sample_answer: The UI owns source selection and can render older data last. Refresh creates a second path and never updates storage. UI should observe the repository's application model. The repository observes local data, fetches remotely on refresh, maps and persists the response, and local observation publishes the update.
+
+  - id: analyze-broken-write-retry
+    type: code-analysis
+    prompt: Analyze the retry and rollback risks, then state what the repository contract must add.
+    difficulty: foundation
+    points: 4
+    explanation: The code loses operation identity and previous-version context. A lost response can duplicate a write, and rollback can overwrite a newer edit.
+    language: kotlin
+    code: |
+      suspend fun rename(id: String, name: String) {
+          val old = local.readName(id)
+          local.writeName(id, name)
+          try {
+              remote.updateName(id, name)
+          } catch (error: Exception) {
+              retryQueue.add { remote.updateName(id, name) }
+              local.writeName(id, old)
+          }
+      }
+    rubric:
+      - criterion: Identifies that all failures are treated as retryable and the queued intent is not durable or explicit.
+        points: 1
+      - criterion: Identifies duplicate-effect risk after a lost response and asks for idempotency or operation identity.
+        points: 1
+      - criterion: Identifies that rollback may erase a newer concurrent edit.
+        points: 1
+      - criterion: Proposes explicit pending status, version/conflict policy, and terminal failure visibility.
+        points: 1
+    sample_answer: The repository must classify failures, persist promised queued intent, and attach an operation ID that the remote side can deduplicate. The pending edit needs a version, so rejection cannot blindly restore old over newer data. It should expose pending, conflicted, or terminal failure state and reconcile ambiguous success.
+
+  - id: model-boundary-decision
+    type: single-choice
+    prompt: A service allows a missing display name, storage requires sync metadata, application rules require a validated name, and UI needs localized text. Which modeling decision is best?
+    difficulty: foundation
+    points: 2
+    explanation: The constraints and change rates differ enough to justify explicit mappings. This does not imply that every project always needs four models.
+    options:
+      - id: one-global-mutable-model
+        text: Use one mutable service-shaped class everywhere so no mapping is needed.
+      - id: separate-real-boundaries
+        text: Separate transport, persistence, application, and presentation models where those constraints diverge.
+      - id: repository-localizes
+        text: Put localized UI strings in the repository's persistent entity.
+      - id: ui-validates-source
+        text: Let every screen reinterpret source nullability independently.
+    correct_option_id: separate-real-boundaries
+
+  - id: safe-synchronization-properties
+    type: multiple-choice
+    prompt: Which properties make a retryable offline write flow safer? Select all that apply.
+    difficulty: foundation
+    points: 2
+    explanation: Durable intent, operation identity, failure classification, and conflict metadata make interruption and replay explicit. Connectivity does not guarantee completion.
+    options:
+      - id: durable-intent
+        text: Persist the pending operation for the lifetime promised to the user.
+      - id: operation-identity
+        text: Give the write an identity or idempotency contract.
+      - id: retry-classification
+        text: Distinguish transient failures from validation or authorization failures.
+      - id: version-metadata
+        text: Keep version or revision information needed for conflicts.
+      - id: connectivity-equals-success
+        text: Mark every queued write successful as soon as connectivity returns.
+    correct_option_ids:
+      - durable-intent
+      - operation-identity
+      - retry-classification
+      - version-metadata
+
+  - id: repository-granularity
+    type: free-text
+    prompt: A single AppRepository contains users, payments, catalog, analytics, and device settings, while screens still coordinate several of its methods to preserve invariants. Propose repository boundaries and explain how you would avoid replacing one god repository with endpoint-shaped wrappers.
+    difficulty: foundation
+    points: 4
+    explanation: Strong boundaries follow cohesive data ownership and policy. Higher-level coordination may depend on focused repositories when one invariant genuinely spans them.
+    rubric:
+      - criterion: Identifies unrelated responsibilities and change reasons in the current repository.
+        points: 1
+      - criterion: Proposes cohesive boundaries based on application data and policy rather than endpoints or tables.
+        points: 1
+      - criterion: Places a cross-data invariant in an explicit higher-level repository or Domain operation with clear dependency direction.
+        points: 1
+      - criterion: Explains when a thin repository is acceptable and how cycles or competing ownership are avoided.
+        points: 1
+    sample_answer: I would separate cohesive areas such as Users, Payments, Catalog, and Settings, while analytics may be an application service rather than shared data. A checkout operation that needs catalog and payment rules can coordinate focused boundaries in an explicit higher-level operation. Each repository must own real application policy or a stable boundary, not mirror one endpoint. Dependencies stay acyclic and each data set has one owner.
