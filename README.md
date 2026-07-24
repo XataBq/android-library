@@ -16,7 +16,7 @@ Developers source packages, version 2 canonical Android app architecture
 competency set remain in `review`. The first learning sequence has machine
 status `approved`, is conceptually `accepted`, and is not published.
 
-Tasks 012.1–012.3 and Tasks 016–022 form the current ten-topic Learning
+Tasks 012.1–012.3 and Tasks 016–023 form the current eleven-topic Learning
 Content MVP foundation:
 
 - Architecture Foundations;
@@ -28,9 +28,10 @@ Content MVP foundation:
 - Kotlin Coroutines Foundations;
 - Kotlin Structured Concurrency and Supervision;
 - Kotlin Flow and Reactive Streams;
-- Android Navigation Architecture.
+- Android Navigation Architecture;
+- Android Networking Architecture.
 
-All ten production educational topics remain in `review`. Competency-to-topic
+All eleven production educational topics remain in `review`. Competency-to-topic
 mapping infrastructure exists, but no production mapping packages exist.
 There is also no generated catalog, web client, user database, synchronized
 progress, AI tutor, Android client, or CI workflow yet.

@@ -1,0 +1,225 @@
+topic_id: android-networking-architecture
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: preserve-network-layer-boundary
+    type: single-choice
+    prompt: >
+      A ViewModel currently receives a Retrofit service and exposes
+      Response<ProfileDto> in UI state. Which refactoring establishes the
+      intended boundary?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Data owns service declarations, raw responses, DTOs, serialization, and
+      mapping. A repository exposes stable application models or failures to
+      ViewModel and optional Domain callers.
+    options:
+      - id: repository-contract
+        text: Confine the service to a remote source and expose Profile through a repository contract.
+      - id: response-use-case
+        text: Move Response<ProfileDto> unchanged into a use case.
+      - id: dto-ui-state
+        text: Keep ProfileDto in UI state but rename it Profile.
+      - id: global-client
+        text: Give every screen one global HTTP client and URL builder.
+    correct_option_id: repository-contract
+
+  - id: separate-dto-domain
+    type: single-choice
+    prompt: >
+      The API adds nullable wire fields and a new enum value. What design best
+      protects application invariants?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      DTOs represent the evolving wire contract. A Data-layer mapper handles
+      nullability and unknown values deliberately, validates required data,
+      and constructs the stable application model.
+    options:
+      - id: map-at-data-boundary
+        text: Update the DTO and map it to a validated domain/application model in Data.
+      - id: reuse-everywhere
+        text: Reuse the nullable DTO directly in Repository, ViewModel, and UI.
+      - id: default-all
+        text: Convert every missing value to zero or empty text automatically.
+      - id: ignore-response
+        text: Ignore the new response and keep displaying the old mutable object.
+    correct_option_id: map-at-data-boundary
+
+  - id: reason-about-idempotency
+    type: single-choice
+    prompt: >
+      A payment POST times out after upload, so the client cannot tell whether
+      the server created the payment. Which retry design is strongest?
+    difficulty: junior
+    points: 1
+    explanation: >
+      The outcome is ambiguous. Retry should rely on an API-supported
+      idempotency key or operation identity and reconciliation, not merely on
+      the POST method or timeout category.
+    options:
+      - id: identity-and-reconcile
+        text: Use a stable operation ID/idempotency key and reconcile the server outcome.
+      - id: retry-forever
+        text: Repeat immediately until one response succeeds.
+      - id: post-never
+        text: Never retry or reconcile any POST under any API contract.
+      - id: change-to-get
+        text: Rename the operation GET so it becomes safe.
+    correct_option_id: identity-and-reconcile
+
+  - id: classify-network-failures
+    type: multiple-choice
+    prompt: >
+      Which two pairs must remain distinct long enough for correct policy?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Owner cancellation is control flow, unlike timeout, and malformed
+      successful content is different from a declared authorization response.
+      Collapsing either pair loses retry and presentation meaning.
+    options:
+      - id: cancellation-timeout
+        text: Cancellation versus timeout.
+      - id: malformed-forbidden
+        text: Malformed 2xx body versus HTTP 403.
+      - id: dns-unknown-host
+        text: DNS lookup failure versus UnknownHostException naming for the same observed category.
+      - id: repository-data
+        text: Repository interface versus application data model.
+    correct_option_ids:
+      - cancellation-timeout
+      - malformed-forbidden
+
+  - id: preserve-cancellation
+    type: single-choice
+    prompt: >
+      A repository translates expected network exceptions around a suspend
+      service call. How should CancellationException be handled?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Cancellation represents the owner's request to stop work and should
+      normally propagate. Broad catches must rethrow it before translating
+      expected transport failures.
+    options:
+      - id: rethrow
+        text: Rethrow it and let structured cancellation end the operation.
+      - id: retry
+        text: Retry it as a transient server failure.
+      - id: ui-error
+        text: Convert it to a permanent “No internet” message.
+      - id: ignore
+        text: Ignore it and continue the network call detached from its owner.
+    correct_option_id: rethrow
+
+  - id: design-timeout-retry
+    type: single-choice
+    prompt: >
+      A GET endpoint occasionally times out. Which policy is most defensible?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Use endpoint-appropriate finite timeout budgets and a bounded transient
+      retry policy with capped backoff/jitter under the caller's lifetime.
+      Idempotency permits reasoning about repetition but does not require it.
+    options:
+      - id: bounded-policy
+        text: Set deliberate timeouts and allow bounded transient retries with backoff.
+      - id: no-timeout
+        text: Remove every timeout so the first request eventually finishes.
+      - id: instant-loop
+        text: Retry every exception immediately without an attempt limit.
+      - id: connectivity-gate
+        text: Retry only while a connectivity Boolean is true, ignoring call results.
+    correct_option_id: bounded-policy
+
+  - id: distinguish-auth-components
+    type: single-choice
+    prompt: >
+      Which division between interceptor and authenticator is appropriate?
+    difficulty: junior
+    points: 1
+    explanation: >
+      An interceptor can attach a current credential snapshot. An authenticator
+      reacts to a challenge and must either produce a bounded retried request
+      or stop, without recursive refresh.
+    options:
+      - id: attach-versus-challenge
+        text: Interceptor attaches the token; authenticator handles a bounded 401 challenge.
+      - id: both-business
+        text: Both implement feature business rules and UI navigation.
+      - id: logging-refresh
+        text: Logging interceptor refreshes the token for every request.
+      - id: repository-authenticator
+        text: Every repository creates a new authenticator and client per call.
+    correct_option_id: attach-versus-challenge
+
+  - id: coordinate-token-refresh
+    type: single-choice
+    prompt: >
+      Five concurrent requests receive 401 for the same expired token. What
+      should the refresh design do?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Single-flight coordination lets one refresh serve all waiters. The
+      coordinator rechecks the stored token, publishes one outcome, prevents
+      recursive refresh, and invalidates the session if refresh fails.
+    options:
+      - id: single-flight
+        text: Run one refresh for the failed token and share its bounded outcome.
+      - id: five-refreshes
+        text: Run five refreshes and let the last token overwrite the others.
+      - id: recursive
+        text: Use the same authenticated client so refresh 401 recursively refreshes.
+      - id: infinite-chain
+        text: Return retried requests without inspecting prior response attempts.
+    correct_option_id: single-flight
+
+  - id: choose-cache-offline-model
+    type: single-choice
+    prompt: >
+      A feed must open offline and refresh when possible. Which source design is
+      strongest?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A repository can expose locally persisted application data as source of
+      truth and coordinate remote refresh/freshness. HTTP cache is useful but
+      does not replace database queries, application ownership, or sync policy.
+    options:
+      - id: local-source-of-truth
+        text: Observe local persisted data and let Repository coordinate remote refresh.
+      - id: http-cache-only
+        text: Treat any HTTP disk cache as the complete offline application model.
+      - id: boolean-first
+        text: Show no data unless connectivity state first reports connected.
+      - id: ui-race
+        text: Let UI race network DTOs and database entities independently.
+    correct_option_id: local-source-of-truth
+
+  - id: design-paged-transfer
+    type: multiple-choice
+    prompt: >
+      Which two practices preserve correctness for pagination and large file
+      transfer?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Pagination needs server-defined continuation state, stable identity,
+      deduplication, and explicit end/refresh semantics. Large transfers need
+      streaming, cancellation, partial-file ownership, and bounded memory.
+    options:
+      - id: cursor-deduplicate
+        text: Persist or track the server cursor with stable IDs and deduplicate pages.
+      - id: stream-cleanup
+        text: Stream files and define cancellation plus partial-file cleanup.
+      - id: ui-page-counter
+        text: Store only a page integer in a composable and assume ordering never changes.
+      - id: whole-file-memory
+        text: Read every download into one byte array before writing it.
+    correct_option_ids:
+      - cursor-deduplicate
+      - stream-cleanup

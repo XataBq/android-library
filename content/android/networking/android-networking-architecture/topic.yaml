@@ -1,0 +1,140 @@
+id: android-networking-architecture
+title: Android Networking Architecture
+track: android
+section: networking
+difficulty: foundation
+status: review
+estimated_minutes: 240
+content_version: 1
+prerequisites:
+  - android-data-layer-repositories-and-synchronization
+  - android-domain-layer-and-use-cases
+  - android-viewmodel-and-ui-state
+  - kotlin-coroutines-foundations
+  - kotlin-structured-concurrency-and-supervision
+  - kotlin-flow-and-reactive-streams
+learning_outcomes:
+  - Explain HTTP requests and responses through methods, targets, headers, status, and representations.
+  - Use safe and idempotent method semantics when reasoning about retries.
+  - Interpret status-code classes together with the API contract.
+  - Keep service interfaces, HTTP clients, DTOs, serialization, and transport failures inside the Data layer.
+  - Design a remote data source that confines raw network-library types.
+  - Separate wire DTOs from application and presentation models.
+  - Map missing, nullable, malformed, and evolving payload fields without violating domain invariants.
+  - Expose stable repository contracts to UI, ViewModel, and optional Domain callers.
+  - Distinguish connection, DNS, timeout, TLS, cancellation, HTTP, serialization, API, and domain failures.
+  - Preserve CancellationException while translating expected networking failures.
+  - Configure connect, read, write, and whole-call timeout policies deliberately.
+  - Design bounded retry around failure type, idempotency, backoff, jitter, and operation identity.
+  - Separate request decoration in interceptors from authentication challenge handling.
+  - Coordinate concurrent token refresh without recursive refresh or duplicate requests.
+  - Explain TLS server identity, certificate chains, hostname validation, and trust configuration.
+  - Treat certificate pinning as an advanced operational trade-off rather than a default.
+  - Distinguish HTTP caching from repository or database caching and offline-first coordination.
+  - Explain why connectivity signals do not guarantee endpoint reachability.
+  - Design page, offset, and cursor pagination with refresh, deduplication, cancellation, and end detection.
+  - Stream large uploads and downloads with bounded memory, progress, cancellation, and storage ownership.
+  - Log request identifiers and timings without leaking tokens, credentials, or personal data.
+  - Test service, serialization, mapper, data-source, repository, retry, authentication, and cancellation boundaries.
+tags:
+  - android
+  - networking
+  - http
+  - repositories
+  - serialization
+  - cancellation
+  - authentication
+  - tls
+references:
+  - title: RFC 9110 — HTTP Semantics
+    url: https://www.rfc-editor.org/rfc/rfc9110.html
+    type: specification
+    author: IETF
+    accessed_on: '2026-07-24'
+  - title: RFC 9111 — HTTP Caching
+    url: https://www.rfc-editor.org/rfc/rfc9111.html
+    type: specification
+    author: IETF
+    accessed_on: '2026-07-24'
+  - title: Guide to app architecture — Data layer
+    url: https://developer.android.com/topic/architecture/data-layer
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Connect to the network
+    url: https://developer.android.com/develop/connectivity/network-ops/connecting
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Read network state
+    url: https://developer.android.com/develop/connectivity/network-ops/reading-network-state
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Network security configuration
+    url: https://developer.android.com/privacy-and-security/security-config
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Security with network protocols
+    url: https://developer.android.com/privacy-and-security/security-ssl
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Retrofit repository
+    url: https://github.com/square/retrofit
+    type: repository
+    author: Square
+    accessed_on: '2026-07-24'
+  - title: Retrofit Response API
+    url: https://square.github.io/retrofit/2.x/retrofit/retrofit2/Response.html
+    type: official-docs
+    author: Square
+    accessed_on: '2026-07-24'
+  - title: OkHttpClient API
+    url: https://square.github.io/okhttp/5.x/okhttp/okhttp3/-ok-http-client/
+    type: official-docs
+    author: Square
+    accessed_on: '2026-07-24'
+  - title: OkHttp Interceptor API
+    url: https://square.github.io/okhttp/5.x/okhttp/okhttp3/-interceptor/
+    type: official-docs
+    author: Square
+    accessed_on: '2026-07-24'
+  - title: OkHttp Authenticator API
+    url: https://square.github.io/okhttp/5.x/okhttp/okhttp3/-authenticator/
+    type: official-docs
+    author: Square
+    accessed_on: '2026-07-24'
+  - title: MockWebServer API
+    url: https://square.github.io/okhttp/5.x/mockwebserver3/mockwebserver3/-mock-web-server/
+    type: official-docs
+    author: Square
+    accessed_on: '2026-07-24'
+  - title: Kotlin serialization
+    url: https://kotlinlang.org/docs/serialization.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Coroutine cancellation and timeouts
+    url: https://kotlinlang.org/docs/cancellation-and-timeouts.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Paging library overview
+    url: https://developer.android.com/topic/libraries/architecture/paging/v3-overview
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Page from network and database
+    url: https://developer.android.com/topic/libraries/architecture/paging/v3-network-db
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: A boundary-first guide to HTTP, DTO mapping, resilient repository networking, authentication, TLS, caching, pagination, file transfer, and layered tests.
+android_connections:
+  - UI and ViewModel depend on repository contracts rather than Retrofit, OkHttp, raw responses, or DTOs.
+  - Data-layer remote sources own Android and library-specific network behavior.
+  - Repository coordination decides how remote, local, cached, and offline data become application data.
+  - Owner-scoped coroutines cancel suspend network calls and must preserve CancellationException.
+  - Android Network Security Configuration expresses platform trust and cleartext policy without leaking into domain models.
