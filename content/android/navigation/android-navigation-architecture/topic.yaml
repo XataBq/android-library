@@ -1,0 +1,127 @@
+id: android-navigation-architecture
+title: Android Navigation Architecture
+track: android
+section: navigation
+difficulty: foundation
+status: review
+estimated_minutes: 210
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-ui-layer-and-unidirectional-data-flow
+  - android-viewmodel-and-ui-state
+  - android-lifecycle-and-state-restoration
+  - kotlin-flow-and-reactive-streams
+learning_outcomes:
+  - Explain navigation as back-stack state rather than a collection of screen-changing commands.
+  - Distinguish a destination, route, graph, back-stack entry, and current destination.
+  - Keep NavController and framework navigation execution in the UI or navigation host.
+  - Model business decisions and presentation navigation requests without making repositories navigate.
+  - Predict push, pop, top-entry, removal, and recreation effects on navigation state.
+  - Distinguish system Back from hierarchical Up behavior.
+  - Pass small route inputs and reload authoritative data by stable identifier.
+  - Use type-safe route APIs when supported by the installed Navigation version.
+  - Place back-stack, saved, presentation, and application data in their responsible owners.
+  - Choose an explicit delivery and acknowledgement policy for one-off navigation effects.
+  - Apply popUpTo, inclusive, launchSingleTop, saveState, and restoreState intentionally.
+  - Use nested graphs for navigation structure without equating them automatically with business modules.
+  - Select destination, graph, or Activity ViewModel scope from the required lifetime.
+  - Preserve independent histories for top-level destinations with multiple back stacks.
+  - Compare saved-state results, Fragment Result API, shared ViewModel, callbacks, and repository-mediated results.
+  - Validate explicit deep links, implicit deep links, and reconstructed routes.
+  - Treat app links and exported entry points as untrusted inputs requiring authorization.
+  - Rebuild screen data after process recreation from small saved inputs and repositories.
+  - Keep Compose and Fragment navigation behind testable UI boundaries.
+  - Test graphs, back stacks, results, and deep links independently from visual rendering.
+tags:
+  - android
+  - navigation
+  - architecture
+  - back-stack
+  - deep-links
+  - app-links
+  - viewmodel
+  - testing
+references:
+  - title: Navigation overview
+    url: https://developer.android.com/guide/navigation
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Navigation with Compose
+    url: https://developer.android.com/develop/ui/compose/navigation
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Type safety in Kotlin DSL and Navigation Compose
+    url: https://developer.android.com/guide/navigation/design/type-safety
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Migrate to type-safe navigation
+    url: https://developer.android.com/guide/navigation/type-safe-destinations
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Nested graphs
+    url: https://developer.android.com/guide/navigation/design/nested-graphs
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Support multiple back stacks
+    url: https://developer.android.com/guide/navigation/backstack/multi-back-stacks
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Create a deep link for a destination
+    url: https://developer.android.com/guide/navigation/design/deep-link
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: About App Links
+    url: https://developer.android.com/training/app-links/about
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Navigate to a destination
+    url: https://developer.android.com/guide/navigation/use-graph/navigate
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Interact programmatically with the Navigation component
+    url: https://developer.android.com/guide/navigation/use-graph/programmatic
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Communicate with fragments
+    url: https://developer.android.com/guide/fragments/communicate
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test Navigation
+    url: https://developer.android.com/guide/navigation/testing
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test Navigation with Compose
+    url: https://developer.android.com/guide/navigation/testing/compose
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Save UI states
+    url: https://developer.android.com/topic/libraries/architecture/saving-states
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Unsafe use of deep links
+    url: https://developer.android.com/privacy-and-security/risks/unsafe-use-of-deeplinks
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: An ownership-first guide to Android navigation state, routes, scopes, results, external entry points, restoration, and architecture-focused testing.
+android_connections:
+  - A UI or navigation host owns NavController and executes framework navigation.
+  - ViewModel may expose presentation intent or an explicitly governed effect but never retains NavController.
+  - NavBackStackEntry supplies lifecycle, saved state, and ViewModel ownership for one entry.
+  - Repositories remain authoritative owners of application data reconstructed from route identifiers.
+  - Compose and Fragment destinations share the same ownership model despite different APIs.

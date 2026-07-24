@@ -65,8 +65,8 @@ case requires them.
 Purpose: make the repository useful as a standalone learning product before
 building a client.
 
-The implemented baseline is the nine-topic Learning Content MVP foundation
-from Tasks 012.1–012.3 and Tasks 016–021. All nine topics remain in `review`:
+The implemented baseline is the ten-topic Learning Content MVP foundation
+from Tasks 012.1–012.3 and Tasks 016–022. All ten topics remain in `review`:
 
 - Architecture Foundations (`android-app-architecture-foundations`);
 - UI Layer and UDF (`android-ui-layer-and-unidirectional-data-flow`);
@@ -79,15 +79,15 @@ from Tasks 012.1–012.3 and Tasks 016–021. All nine topics remain in `review`
 - Kotlin Coroutines Foundations (`kotlin-coroutines-foundations`);
 - Kotlin Structured Concurrency and Supervision
   (`kotlin-structured-concurrency-and-supervision`);
-- Kotlin Flow and Reactive Streams (`kotlin-flow-and-reactive-streams`).
+- Kotlin Flow and Reactive Streams (`kotlin-flow-and-reactive-streams`);
+- Android Navigation Architecture (`android-navigation-architecture`).
 
 Structured Concurrency and Supervision is classified editorially as
 **Junior Core — advanced foundation**. The Junior Core target is exactly 17
 mandatory topics. Kotlin Flow and Reactive Streams is mandatory Junior Core
-topic 9. Nine topics currently exist as complete production packages in
-`review`; eight remain:
+topic 9, and Android Navigation Architecture is mandatory topic 10. Ten topics
+currently exist as complete production packages in `review`; seven remain:
 
-10. Android Navigation Architecture
 11. Android Networking Architecture
 12. Dependency Injection and Scoping
 13. Android Testing Foundations
@@ -116,7 +116,6 @@ Target deliverables:
 
 Future content planning candidates, without approved task numbers:
 
-- Android Navigation Architecture;
 - Android Networking Architecture;
 - Dependency Injection and Scoping;
 - Android Testing Foundations;

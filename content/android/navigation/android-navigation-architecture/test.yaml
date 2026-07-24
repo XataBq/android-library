@@ -1,0 +1,224 @@
+topic_id: android-navigation-architecture
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: choose-navigation-owner
+    type: single-choice
+    prompt: >
+      An asynchronous save completes in a ViewModel and should open a receipt.
+      Which design preserves navigation ownership?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      The use case returns an outcome, ViewModel may expose a presentation
+      effect with an explicit delivery policy, and active UI executes
+      navigation using its current controller.
+    options:
+      - id: ui-executes
+        text: ViewModel exposes the outcome or effect; active UI calls NavController.
+      - id: repository-executes
+        text: Repository receives NavController and navigates after persistence.
+      - id: viewmodel-stores-controller
+        text: ViewModel stores the Activity NavController across recreation.
+      - id: global-event-bus
+        text: Every layer posts route strings to one global replaying bus.
+    correct_option_id: ui-executes
+
+  - id: predict-popped-owner
+    type: single-choice
+    prompt: >
+      A product destination is permanently popped from the back stack. What
+      should happen to its destination-scoped ViewModel?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A back-stack entry is an owner. Permanently popping it ends that owner
+      and clears its destination-scoped ViewModels; merely covering it would
+      not have the same effect.
+    options:
+      - id: cleared-with-entry
+        text: It is cleared when the owning entry is removed.
+      - id: retained-by-route
+        text: It remains forever because its route still exists in the graph.
+      - id: serialized-entirely
+        text: Android serializes the complete ViewModel into the back stack.
+      - id: moved-to-repository
+        text: NavController moves the ViewModel into Repository ownership.
+    correct_option_id: cleared-with-entry
+
+  - id: design-route-argument
+    type: single-choice
+    prompt: >
+      Order detail needs current order data and must support process
+      recreation. Which argument contract is strongest?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A small stable ID reconstructs the destination. The Repository reloads
+      authoritative data and separately enforces access; a copied mutable
+      entity may be stale and too large.
+    options:
+      - id: stable-id
+        text: Pass a validated order ID and reload the order from Repository.
+      - id: mutable-order
+        text: Pass the complete mutable Order graph to avoid Repository access.
+      - id: repository-instance
+        text: Pass the Repository instance as a route argument.
+      - id: credentials-url
+        text: Put the order and access token into a deep-link URL.
+    correct_option_id: stable-id
+
+  - id: choose-viewmodel-scope
+    type: single-choice
+    prompt: >
+      Address, payment, and confirmation share an editable checkout draft that
+      must clear when checkout is abandoned. Which scope best matches?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A checkout-graph-scoped ViewModel shares presentation state among its
+      child destinations and is cleared when that graph entry is popped.
+      Durable cart and order data still belong in repositories.
+    options:
+      - id: checkout-graph
+        text: Scope the ViewModel to the checkout navigation graph.
+      - id: application
+        text: Scope it to the process Application forever.
+      - id: each-destination
+        text: Create unrelated copies in every destination with no shared owner.
+      - id: repository-ui-state
+        text: Move every editable UI field into a Repository singleton.
+    correct_option_id: checkout-graph
+
+  - id: clear-completed-login
+    type: single-choice
+    prompt: >
+      After successful login, Back must not return to login and opening Home
+      twice must be avoided. Which policy expresses that history?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Navigate to Home, pop up to the login graph inclusively, and use
+      single-top behavior. Inclusive removal clears the completed flow;
+      single-top avoids another Home only when Home is already top.
+    options:
+      - id: inclusive-login-single-top
+        text: Navigate Home with popUpTo login graph inclusive and launchSingleTop.
+      - id: push-only
+        text: Push Home and retain every login entry underneath.
+      - id: finish-repository
+        text: Ask Repository to finish the Activity.
+      - id: replay-home
+        text: Replay the Home route indefinitely from a global event stream.
+    correct_option_id: inclusive-login-single-top
+
+  - id: preserve-top-level-history
+    type: single-choice
+    prompt: >
+      A user opens Explore detail, switches to Profile, then returns to
+      Explore. Product requires the detail to remain. What should navigation
+      preserve?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Top-level destinations need independent saved histories. State is saved
+      when switching, restored on return, and single-top behavior prevents
+      duplicate roots. Reselect behavior remains a product decision.
+    options:
+      - id: independent-stacks
+        text: Save and restore independent top-level histories without duplicate roots.
+      - id: one-new-root
+        text: Push a fresh Explore root on every tab selection.
+      - id: mirror-viewmodel
+        text: Mirror every back-stack entry in an Activity ViewModel.
+      - id: discard-controller
+        text: Recreate the NavController on every switch.
+    correct_option_id: independent-stacks
+
+  - id: choose-result-owner
+    type: single-choice
+    prompt: >
+      An address picker returns one small address ID to the previous
+      destination; it does not persist the selection. Which contract fits?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A previous-entry SavedStateHandle result is a small one-time navigation
+      result. The receiver must consume it once. Repository is appropriate
+      only if the selection becomes durable application data.
+    options:
+      - id: saved-state-result
+        text: Set a previous-entry SavedStateHandle result and consume it once.
+      - id: global-entity
+        text: Put the full Address entity in a global mutable singleton.
+      - id: database-always
+        text: Persist every picker hover as authoritative application data.
+      - id: controller-viewmodel
+        text: Store NavController in both destination ViewModels.
+    correct_option_id: saved-state-result
+
+  - id: validate-deep-link
+    type: single-choice
+    prompt: >
+      An implicit deep link contains an order ID with an unsupported format.
+      What should happen before destination construction?
+    difficulty: junior
+    points: 1
+    explanation: >
+      External route input is untrusted. Validate scheme, host, path, version,
+      and bounded argument format, then reject unsupported input rather than
+      letting route matching imply validity.
+    options:
+      - id: reject-invalid
+        text: Reject the link before navigation and show a safe fallback.
+      - id: trust-match
+        text: Trust it because an intent filter matched.
+      - id: deserialize-anything
+        text: Deserialize arbitrary objects from the URL.
+      - id: skip-to-internal
+        text: Open any internal route whose name resembles the path.
+    correct_option_id: reject-invalid
+
+  - id: authorize-exported-entry
+    type: single-choice
+    prompt: >
+      A verified App Link reaches an exported order Activity with a valid order
+      ID. What security check is still required?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Verification associates the website and app; it does not authorize the
+      current user for a resource. Authentication and resource authorization
+      remain required after validating the route.
+    options:
+      - id: resource-authorization
+        text: Authenticate as needed and verify the current user may read that order.
+      - id: none-verified
+        text: None; App Link verification proves resource access.
+      - id: route-is-permission
+        text: Treat successful typed-route decoding as authorization.
+      - id: hide-toolbar
+        text: Hide Up navigation so unauthorized users cannot leave.
+    correct_option_id: resource-authorization
+
+  - id: restore-after-process-death
+    type: single-choice
+    prompt: >
+      Android recreates a conversation destination after process death. Which
+      restoration design is accurate?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Navigation and SavedStateHandle can restore eligible entries and small
+      identifiers. New owners reload authoritative data. The old ViewModel,
+      coroutine jobs, heap objects, and network calls do not survive.
+    options:
+      - id: id-and-reload
+        text: Restore the conversation ID and reload current data from Repository.
+      - id: whole-process
+        text: Expect the old ViewModel and all jobs to continue.
+      - id: bundle-repository
+        text: Serialize the Repository and database connection into saved state.
+      - id: no-restoration
+        text: Navigation can never reconstruct any entry after process death.
+    correct_option_id: id-and-reload
