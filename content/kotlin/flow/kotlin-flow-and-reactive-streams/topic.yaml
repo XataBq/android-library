@@ -1,0 +1,111 @@
+id: kotlin-flow-and-reactive-streams
+title: Kotlin Flow and Reactive Streams
+track: kotlin
+section: flow
+difficulty: foundation
+status: review
+estimated_minutes: 210
+content_version: 1
+prerequisites:
+  - kotlin-coroutines-foundations
+  - kotlin-structured-concurrency-and-supervision
+learning_outcomes:
+  - Distinguish a one-shot suspend result from an asynchronous stream of values.
+  - Explain cold and hot stream behavior and predict when upstream work starts.
+  - Build and collect a cold Flow with cancellation-aware suspending code.
+  - Distinguish intermediate pipeline operators from terminal collection operators.
+  - Use map, filter, transform, and onEach according to their contracts.
+  - Explain Flow context preservation and place flowOn at the responsible upstream boundary.
+  - Translate expected upstream failures without swallowing cancellation or downstream exceptions.
+  - Apply bounded retry with explicit failure, attempt, backoff, and ownership policy.
+  - Select buffer, conflate, or collectLatest according to value-loss and cancellation semantics.
+  - Distinguish combine, zip, and merge through snapshot, pairing, and interleaving behavior.
+  - Use flatMapLatest when a new selector makes previous stream work obsolete.
+  - Distinguish StateFlow, SharedFlow, and Channel delivery contracts.
+  - Model current observable state with an immutable StateFlow.
+  - Configure SharedFlow replay, buffer, overflow, and subscriber timing deliberately.
+  - Explain Channel rendezvous, buffering, and competing-receiver behavior.
+  - Convert cold streams with stateIn or shareIn under an explicit owner scope.
+  - Select Eagerly, Lazily, or WhileSubscribed from actual sharing lifetime requirements.
+  - Collect Android UI streams with repeatOnLifecycle or collectAsStateWithLifecycle.
+  - Preserve Data, optional Domain, ViewModel, and UI ownership across Flow boundaries.
+  - Test finite cold streams and infinite hot streams deterministically.
+  - Recognize duplicate cold collection, global event buses, mutable-flow exposure, and unbounded retry.
+  - Justify a reactive pipeline from its start, cancellation, loss, sharing, and delivery semantics.
+tags:
+  - kotlin
+  - flow
+  - reactive-streams
+  - stateflow
+  - sharedflow
+  - channels
+  - android
+  - lifecycle
+references:
+  - title: Asynchronous Flow
+    url: https://kotlinlang.org/docs/flow.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Flow API
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Flow catch operator
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/catch.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: StateFlow API
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: SharedFlow API
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-shared-flow/
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: stateIn operator
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/state-in.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: shareIn operator
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/share-in.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Channels
+    url: https://kotlinlang.org/docs/channels.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: StateFlow and SharedFlow
+    url: https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Use Kotlin coroutines with lifecycle-aware components
+    url: https://developer.android.com/topic/libraries/architecture/coroutines?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Use Kotlin coroutines with lifecycle-aware components in Views
+    url: https://developer.android.com/topic/libraries/architecture/views/coroutines-views
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Testing Kotlin flows on Android
+    url: https://developer.android.com/kotlin/flow/test?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: An ownership-first guide to cold and hot Flow semantics, operators, sharing, lifecycle-aware collection, architecture boundaries, and deterministic tests.
+android_connections:
+  - ViewModel-owned StateFlow exposes presentation state while repositories retain ownership of application data.
+  - Fragment Views collect with viewLifecycleOwner and repeatOnLifecycle so collection follows the rendered View lifetime.
+  - Compose collects observable state with collectAsStateWithLifecycle.
+  - Data and optional Domain layers expose immutable Flow contracts without depending on UI lifecycle types.
+  - stateIn and shareIn require scopes whose lifetimes match the state or shared resource they own.

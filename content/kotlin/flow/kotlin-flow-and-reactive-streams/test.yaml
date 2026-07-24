@@ -1,0 +1,230 @@
+topic_id: kotlin-flow-and-reactive-streams
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: choose-flow-or-suspend
+    type: single-choice
+    prompt: >
+      A repository operation fetches one immutable receipt and has no updates
+      after completion. Which public contract best communicates its semantics?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A suspend function represents one asynchronous completion. Flow should be
+      selected when zero or more values over time are part of the contract, not
+      merely because implementation work is asynchronous.
+    options:
+      - id: suspend-result
+        text: A suspend function returning Receipt.
+      - id: cold-flow-result
+        text: A cold Flow that emits the receipt once.
+      - id: stateflow-result
+        text: A StateFlow initialized with a fabricated empty receipt.
+      - id: sharedflow-result
+        text: A replaying SharedFlow owned by a global scope.
+    correct_option_id: suspend-result
+
+  - id: predict-cold-collections
+    type: single-choice
+    prompt: >
+      A cold Flow performs a network request inside flow builder code. Two
+      independent collectors collect it without sharing. How many upstream
+      executions should the design expect?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A cold Flow starts its upstream independently for each collector.
+      Therefore two collectors normally trigger two executions unless a
+      responsible owner deliberately shares the upstream.
+    options:
+      - id: none-until-hot
+        text: None, because only hot flows execute.
+      - id: one-global
+        text: One, because a Flow caches its first execution automatically.
+      - id: two-independent
+        text: Two, one for each collector.
+      - id: scheduler-dependent
+        text: An unpredictable number determined only by the dispatcher.
+    correct_option_id: two-independent
+
+  - id: reason-about-flowon
+    type: single-choice
+    prompt: >
+      A pipeline maps raw records, calls flowOn(Dispatchers.Default), maps them
+      to UI models, and is collected on Main. Which statement is correct?
+    difficulty: junior
+    points: 1
+    explanation: >
+      flowOn changes the execution context of the upstream portion before it.
+      Operators after flowOn and the collector retain the downstream collection
+      context.
+    options:
+      - id: all-default
+        text: Every operator and the collector run on Default.
+      - id: upstream-default-downstream-main
+        text: The raw-record mapping is upstream on Default; downstream mapping and collection remain on Main.
+      - id: only-collector-default
+        text: Only the collector moves to Default.
+      - id: no-context-effect
+        text: flowOn changes no execution context.
+    correct_option_id: upstream-default-downstream-main
+
+  - id: locate-catch-boundary
+    type: single-choice
+    prompt: >
+      In source.map(A).catch(handler).map(B).collect(C), which failure can the
+      shown catch operator intercept?
+    difficulty: junior
+    points: 1
+    explanation: >
+      catch is transparent to downstream failures. It can intercept failures
+      from source and map(A), but failures from map(B) or collector C propagate
+      downstream.
+    options:
+      - id: upstream-map-a
+        text: A failure from source or map(A).
+      - id: downstream-map-b
+        text: Only a failure from map(B).
+      - id: collector-c
+        text: Only a failure thrown by collector C.
+      - id: every-stage
+        text: Failures from every stage including the collector.
+    correct_option_id: upstream-map-a
+
+  - id: choose-throughput-policy
+    type: multiple-choice
+    prompt: >
+      Which two choices preserve the stated semantics when a producer is faster
+      than a consumer?
+    difficulty: junior
+    points: 1
+    explanation: >
+      buffer is suitable when every value matters but bounded overlap is
+      acceptable. conflate is suitable only when intermediate state snapshots
+      may be skipped because the latest value supersedes them.
+    options:
+      - id: buffer-audit-records
+        text: Use a bounded buffer when every ordered audit record must be processed.
+      - id: conflate-ui-state
+        text: Conflate rapidly changing UI state when only the latest snapshot matters.
+      - id: collectlatest-payments
+        text: Use collectLatest for payment commands that must all complete.
+      - id: conflate-migrations
+        text: Conflate database migration steps to reduce latency.
+    correct_option_ids:
+      - buffer-audit-records
+      - conflate-ui-state
+
+  - id: choose-combine-or-zip
+    type: single-choice
+    prompt: >
+      User state and settings state must form one UI snapshot that updates when
+      either source changes. Which operator matches this contract?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      combine emits after both sources have values and recomputes from their
+      latest values whenever either changes. zip would consume one value from
+      each source as positional pairs.
+    options:
+      - id: combine-latest
+        text: combine
+      - id: zip-pairs
+        text: zip
+      - id: merge-untyped
+        text: merge
+      - id: collect-latest-only
+        text: collectLatest
+    correct_option_id: combine-latest
+
+  - id: predict-flatmaplatest
+    type: single-choice
+    prompt: >
+      A search query Flow uses flatMapLatest to collect repository results.
+      What happens to the previous result Flow when a new query arrives?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      flatMapLatest cancels the previous inner collection and switches to the
+      Flow produced for the newest outer value. The repository work must
+      cooperate with that cancellation. Current API documentation marks
+      flatMapLatest as ExperimentalCoroutinesApi; callers must verify and apply
+      the opt-in required by their installed kotlinx.coroutines version.
+    options:
+      - id: previous-cancelled
+        text: Its collection is cancelled as obsolete.
+      - id: previous-buffered
+        text: It is buffered and completed before the new query starts.
+      - id: previous-merged
+        text: It is merged with the new result Flow.
+      - id: previous-persisted
+        text: It automatically moves to an application scope.
+    correct_option_id: previous-cancelled
+
+  - id: distinguish-hot-primitives
+    type: multiple-choice
+    prompt: >
+      Which statements correctly distinguish StateFlow, SharedFlow, and
+      Channel?
+    difficulty: junior
+    points: 1
+    explanation: >
+      StateFlow exposes current state, SharedFlow broadcasts configured
+      emissions to subscribers, and Channel receivers normally compete for
+      sent elements. These delivery contracts are not interchangeable.
+    options:
+      - id: state-current
+        text: StateFlow always exposes a current value.
+      - id: shared-broadcast
+        text: SharedFlow broadcasts emissions to active subscribers.
+      - id: channel-broadcast
+        text: Multiple Channel receivers each receive every element.
+      - id: state-event-queue
+        text: StateFlow guarantees delivery of every transient event.
+    correct_option_ids:
+      - state-current
+      - shared-broadcast
+
+  - id: own-sharing-scope
+    type: single-choice
+    prompt: >
+      A ViewModel converts an expensive cold UI-state Flow with stateIn. Which
+      design is required for correct ownership?
+    difficulty: junior
+    points: 1
+    explanation: >
+      stateIn starts a sharing coroutine in the supplied scope. The scope must
+      match the presentation-state lifetime, SharingStarted must reflect
+      subscriber policy, and initialValue must be truthful.
+    options:
+      - id: viewmodel-owned-truthful
+        text: Use a ViewModel-owned scope, intentional SharingStarted policy, and truthful initial state.
+      - id: global-fabricated
+        text: Use GlobalScope and a fabricated content value so loading is hidden.
+      - id: repository-ui-scope
+        text: Pass a Fragment LifecycleOwner into the repository.
+      - id: no-owner-needed
+        text: stateIn owns itself and needs no lifecycle decision.
+    correct_option_id: viewmodel-owned-truthful
+
+  - id: collect-fragment-state
+    type: single-choice
+    prompt: >
+      A Fragment renders ViewModel StateFlow into its View hierarchy. Which
+      collection approach matches the View lifecycle?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Fragment View work belongs to viewLifecycleOwner. repeatOnLifecycle
+      cancels the child collection below the active state and restarts it when
+      the View becomes active again.
+    options:
+      - id: view-repeat
+        text: Collect inside viewLifecycleOwner.repeatOnLifecycle.
+      - id: fragment-global
+        text: Collect in GlobalScope when the Fragment is constructed.
+      - id: repository-lifecycle
+        text: Let the repository observe the Fragment lifecycle.
+      - id: plain-fragment-launch
+        text: Launch one permanent collector in the Fragment scope regardless of View destruction.
+    correct_option_id: view-repeat
