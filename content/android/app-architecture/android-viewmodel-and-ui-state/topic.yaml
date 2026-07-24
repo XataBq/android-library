@@ -1,0 +1,83 @@
+id: android-viewmodel-and-ui-state
+title: Android ViewModel and UI State
+track: android
+section: app-architecture
+difficulty: foundation
+status: review
+estimated_minutes: 180
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-ui-layer-and-unidirectional-data-flow
+  - android-data-layer-repositories-and-synchronization
+  - android-domain-layer-and-use-cases
+learning_outcomes:
+  - Explain ViewModel as a scoped screen-level state holder and UI-scenario coordinator.
+  - Select an appropriate ViewModelStoreOwner for screen, destination, graph, or Activity scope.
+  - Distinguish configuration change, owner removal, and process death.
+  - Design immutable, coherent UI state with explicit ownership.
+  - Choose between one state object and multiple independent state streams.
+  - Distinguish StateFlow, SharedFlow, Channel, and cold Flow contracts.
+  - Model user actions, durable outcomes, and transient effects deliberately.
+  - Apply atomic state updates and structured ViewModel coroutine ownership.
+  - Prevent duplicate upstream collection with appropriate sharing.
+  - Configure stateIn and SharingStarted according to subscriber behavior.
+  - Keep lifecycle-aware collection in Compose or View UI ownership.
+  - Use SavedStateHandle for small recoverable inputs and reload authoritative data.
+  - Keep Android framework, navigation, Repository, and Domain responsibilities outside ViewModel ownership.
+  - Test ViewModel state transitions, concurrency, restoration, and collection behavior with fakes.
+tags:
+  - app-architecture
+  - viewmodel
+  - ui-state
+  - stateflow
+  - saved-state
+  - lifecycle
+references:
+  - title: ViewModel overview
+    url: https://developer.android.com/topic/libraries/architecture/viewmodel?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: UI layer
+    url: https://developer.android.com/topic/architecture/ui-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: State holders and UI state
+    url: https://developer.android.com/topic/architecture/ui-layer/stateholders?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: UI State production
+    url: https://developer.android.com/topic/architecture/ui-layer/state-production?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Saved State module for ViewModel
+    url: https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Save UI states
+    url: https://developer.android.com/topic/libraries/architecture/saving-states?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Recommendations for Android architecture
+    url: https://developer.android.com/topic/architecture/recommendations?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: stateIn
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/state-in.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+summary: A responsibility-first guide to ViewModel scope, coherent UI state, Flow sharing, lifecycle collection, restoration, and testing.
+android_connections:
+  - ViewModelStoreOwner scope controls how long a ViewModel and its in-memory screen state survive.
+  - ViewModel preserves in-memory state through configuration changes but not system-initiated process death.
+  - SavedStateHandle can retain small recoverable inputs while repositories reload authoritative application data.
+  - Compose and View-based UIs collect state according to their own lifecycle.
+  - ViewModel coordinates UI scenarios without owning Activity, Fragment, View, NavController, or Compose runtime state.

@@ -36,7 +36,7 @@ The repository currently provides:
   production mapping packages;
 - a repository-wide editorial package lifecycle with exact-version promotion
   criteria for all five package domains;
-- four production educational topics in `review`, forming the growing Android
+- five production educational topics in `review`, forming the growing Android
   app architecture foundation:
   - Architecture Foundations
     (`android-app-architecture-foundations`);
@@ -45,7 +45,9 @@ The repository currently provides:
   - Data Layer, Repositories and Synchronization
     (`android-data-layer-repositories-and-synchronization`);
   - Domain Layer and Use Cases
-    (`android-domain-layer-and-use-cases`).
+    (`android-domain-layer-and-use-cases`);
+  - ViewModel and UI State
+    (`android-viewmodel-and-ui-state`).
 
 ## Completed tasks
 
@@ -92,12 +94,14 @@ The repository currently provides:
   Phase 2 without promoting its canonical dependency.
 - **Task 016 — DONE:** Added the fourth production Android architecture topic
   covering the optional Domain layer and focused use cases.
+- **Task 017 — DONE:** Added the fifth production Android architecture topic
+  covering ViewModel scope, UI state, lifecycle, restoration, and testing.
 
 ## Current focus
 
 Phase 3 focuses on producing and reviewing a coherent Learning Content MVP that
-is useful directly from the repository. Tasks 012.1–012.3 and Task 016 provide
-the growing four-topic Android app architecture foundation; all four topic
+is useful directly from the repository. Tasks 012.1–012.3 and Tasks 016–017
+provide the growing five-topic Android app architecture foundation; all five topic
 packages remain in `review`.
 
 The canonical competency model is `ACCEPTED` repository architecture, while
@@ -115,7 +119,7 @@ canonical competency package, topics, or mappings.
 
 The next work is planned, not yet approved as numbered implementation tasks:
 
-1. Review and expand the four-topic Android app architecture foundation toward
+1. Review and expand the five-topic Android app architecture foundation toward
    a coherent 10–15-topic Learning Content MVP.
 2. Create production competency-to-topic mappings against exact reviewed
    package versions.
@@ -125,8 +129,8 @@ The next work is planned, not yet approved as numbered implementation tasks:
    rules, and CI validation.
 5. Proceed toward a stable content compiler and versioned publication bundle.
 
-Candidate future topics include ViewModel and UI State, Android Lifecycle and
-State Restoration, Kotlin Coroutines Foundations,
+Candidate future topics include Android Lifecycle and State Restoration,
+Kotlin Coroutines Foundations,
 Structured Concurrency, Networking Architecture, Dependency Injection,
 Navigation, Testing, and Android Security Foundations. These candidates have no
 assigned task numbers.

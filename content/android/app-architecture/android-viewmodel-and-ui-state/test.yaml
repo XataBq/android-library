@@ -1,0 +1,214 @@
+topic_id: android-viewmodel-and-ui-state
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: configuration-lifetime
+    type: single-choice
+    prompt: >
+      An Activity is recreated for a configuration change and requests the same
+      ViewModel class from its retained ViewModelStore. What should happen?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      The recreated owner receives the retained ViewModel instance and its
+      in-memory state. The new UI instance must collect and render that state.
+    options:
+      - id: retained-instance
+        text: The same ViewModel instance is associated with the recreated owner.
+      - id: savedstate-only
+        text: A new ViewModel is created only from SavedStateHandle.
+      - id: global-singleton
+        text: The process-global ViewModel singleton is returned.
+      - id: activity-retained
+        text: The old Activity instance remains alive inside the ViewModel.
+    correct_option_id: retained-instance
+
+  - id: process-death
+    type: true-false
+    prompt: State stored only in ViewModel memory automatically survives system-initiated process death.
+    difficulty: foundation
+    points: 1
+    explanation: >
+      False. Process death removes the ViewModel and memory. A new instance can
+      use small saved inputs and repositories/persistence to reconstruct state.
+    correct_answer: false
+
+  - id: select-owner
+    type: single-choice
+    prompt: >
+      Three destinations in one checkout graph intentionally share one draft,
+      but unrelated Activity screens must not see it. Which scope best matches?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Navigation-graph scope matches the workflow and avoids broad Activity
+      lifetime and accidental sharing.
+    options:
+      - id: graph
+        text: Scope the ViewModel to the checkout navigation graph.
+      - id: activity
+        text: Scope every ViewModel to the Activity.
+      - id: application
+        text: Store the draft in a process-global ViewModel.
+      - id: each-destination
+        text: Create unrelated instances and synchronize them through events.
+    correct_option_id: graph
+
+  - id: coherent-state
+    type: multiple-choice
+    prompt: Which choices support a coherent screen state contract?
+    difficulty: junior
+    points: 2
+    explanation: >
+      Related values should form atomic snapshots, while independent values may
+      use separate streams. Public mutability and contradictory flags weaken
+      invariants.
+    options:
+      - id: atomic-snapshot
+        text: Keep values that share invariants in one immutable state snapshot.
+      - id: independent-stream
+        text: Use a separate stream when data is genuinely independent and has different consumers.
+      - id: public-mutable
+        text: Expose MutableStateFlow so composables can repair state directly.
+      - id: contradictory-flags
+        text: Permit loading, content, empty, and terminal error to all be true without defined semantics.
+    correct_option_ids:
+      - atomic-snapshot
+      - independent-stream
+
+  - id: state-versus-event
+    type: single-choice
+    prompt: >
+      Order submission completes while the UI collector is temporarily absent.
+      The result must still drive the recreated screen. What is the safest
+      primary representation?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A durable completed state remains available to a new collector. UI can
+      execute navigation with an explicit acknowledgement policy.
+    options:
+      - id: completed-state
+        text: Represent completion in StateFlow-backed UiState.
+      - id: zero-buffer-event
+        text: Emit an unbuffered SharedFlow event and forget the result.
+      - id: nav-controller
+        text: Store NavController in the ViewModel and navigate immediately.
+      - id: global-channel
+        text: Send the result through an application-global Channel.
+    correct_option_id: completed-state
+
+  - id: atomic-update
+    type: code-analysis
+    prompt: Identify the concurrency defect and propose the minimum correction.
+    difficulty: junior
+    points: 3
+    explanation: >
+      Separate reads followed by assignment can overwrite a concurrent change.
+      Atomic update protects the transformation, while request ordering still
+      requires an explicit policy.
+    language: kotlin
+    code: |
+      fun startRefresh() {
+          val before = _uiState.value
+          _uiState.value = before.copy(refreshing = true)
+      }
+    rubric:
+      - criterion: Identifies a lost-update risk between the read and assignment.
+        points: 1
+      - criterion: Uses _uiState.update with a copy transformation.
+        points: 1
+      - criterion: Notes that atomic update alone does not define latest-wins or serialization.
+        points: 1
+    sample_answer: >
+      Use _uiState.update { it.copy(refreshing = true) }. Define cancellation or
+      serialization separately when several refresh requests can overlap.
+
+  - id: statein-sharing
+    type: multiple-choice
+    prompt: Which statements about stateIn are correct?
+    difficulty: junior
+    points: 2
+    explanation: >
+      stateIn shares one upstream in a scope and retains the latest state.
+      SharingStarted controls activation; it does not provide process
+      persistence or universal error conversion.
+    options:
+      - id: shares-upstream
+        text: It can share one cold upstream among several collectors.
+      - id: start-policy
+        text: SharingStarted controls when the sharing coroutine runs.
+      - id: process-storage
+        text: It persists its value through process death.
+      - id: catches-all
+        text: It automatically turns every upstream exception into an error value.
+    correct_option_ids:
+      - shares-upstream
+      - start-policy
+
+  - id: lifecycle-collection
+    type: single-choice
+    prompt: Who should control lifecycle-aware collection of ViewModel UI state?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      The current Compose or View UI owns lifecycle collection. ViewModel
+      exposes state without retaining a LifecycleOwner.
+    options:
+      - id: ui
+        text: The UI, using lifecycle-aware collection APIs.
+      - id: viewmodel
+        text: The ViewModel, by retaining the Fragment lifecycle.
+      - id: repository
+        text: The Repository, by observing the Activity.
+      - id: application
+        text: An application-global collector.
+    correct_option_id: ui
+
+  - id: savedstate-placement
+    type: multiple-choice
+    prompt: Which values are appropriate SavedStateHandle candidates?
+    difficulty: foundation
+    points: 2
+    explanation: >
+      Small recovery inputs can reconstruct the screen. Large or authoritative
+      data belongs in persistence or Repository ownership and is reloaded.
+    options:
+      - id: route-id
+        text: The ID of the item being displayed.
+      - id: query
+        text: An in-progress search query.
+      - id: bitmap
+        text: A decoded full-resolution bitmap.
+      - id: database-copy
+        text: A complete copy of the Repository database state.
+    correct_option_ids:
+      - route-id
+      - query
+
+  - id: boundary-scenario
+    type: free-text
+    prompt: >
+      A screen loads data through a use case, exposes UI state, and navigates
+      after success. Assign responsibilities to ViewModel, use case, Repository,
+      and UI, including failure and process recreation.
+    difficulty: junior
+    points: 4
+    explanation: >
+      ViewModel coordinates and exposes screen state; Domain owns the operation;
+      Repository owns data; UI collects and navigates. Recovery uses saved
+      inputs plus current repository data.
+    rubric:
+      - criterion: Assigns screen state, actions, and outcome mapping to ViewModel.
+        points: 1
+      - criterion: Assigns reusable operation rules to the use case and data/source ownership to Repository.
+        points: 1
+      - criterion: Keeps lifecycle collection and NavController execution in UI.
+        points: 1
+      - criterion: Uses small saved recovery inputs and reloads authoritative data after process death.
+        points: 1
+    sample_answer: >
+      UI sends an action and collects state. ViewModel invokes the use case and
+      records loading, success, or error. The use case applies the operation;
+      Repository owns data. UI navigates from the completed state. After process
+      death, a saved ID reconstructs the request and current data is reloaded.
