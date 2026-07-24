@@ -1,157 +1,272 @@
 # Project Roadmap
 
-This roadmap describes product development, not the educational competency roadmap.
+This roadmap describes product development, not the educational competency
+roadmap. Phase deliverables are planning boundaries, not approved implementation
+tasks. No dates are assigned.
 
-## Phase 0 — Foundation
-
-**Status: Completed.**
-
-Goal: establish project rules and repository structure.
-
-Deliverables:
-
-- project vision;
-- principles;
-- architecture boundaries;
-- AI collaboration rules;
-- development workflow;
-- initial ADR;
-- task format.
-
-## Phase 1 — Content model
+## Phase 0 — Project Foundation
 
 **Status: Completed.**
 
-Goal: define a stable machine-readable representation of topics.
+Purpose: establish project rules, ownership, architectural boundaries, AI
+collaboration rules, workflow, ADR usage, and task format.
 
-Deliverables:
+## Phase 1 — Structured Content Foundation
 
-- topic metadata schema;
-- test schema;
-- topic templates;
-- sample topic package;
-- validation rules.
+**Status: Completed.**
 
-## Phase 2 — Competency import
+Purpose: define stable machine-readable educational-topic contracts and
+validation infrastructure.
 
-**Status: Current; not completed.**
+Implemented:
 
-Goal: import coherent, provenance-preserving source publications, normalize
-their evidence into canonical competencies, and establish the reviewed basis
-for a future learning graph.
+- topic metadata and test schemas;
+- the canonical topic package structure;
+- templates and fixtures;
+- repository-local schema and semantic content validation;
+- prerequisite cycle detection;
+- validator unit tests.
 
-Implemented foundations:
+## Phase 2 — Canonical Knowledge Foundation
 
-- source package and source-item model;
-- two external source packages in `review`;
-- accepted canonical competency model and registry validation;
-- one version 2 canonical set normalized across both sources in `review`;
-- a cross-source model review and completed architecture acceptance decision;
-- canonical competency relation research, with production relations deferred;
-- a minimal ordered-stage learning-sequence model;
-- one Android app architecture foundations sequence in `review`;
-- separate competency-to-topic mapping schema, validation, fixtures, and
-  authoring documentation, with no production mapping packages;
-- the first production educational topic package,
-  `android-app-architecture-foundations`, in `review` as an editorial baseline;
-- the second production educational topic package,
-  `android-ui-layer-and-unidirectional-data-flow`, in `review`, continuing the
-  foundations topic with focused UI-layer and UDF coverage.
-- the third production educational topic package,
-  `android-data-layer-repositories-and-synchronization`, in `review`, completing
-  the current three-topic architecture foundation with Data-layer coverage.
+**Status: Near completion.**
 
-Remaining Phase 2 milestones:
+Purpose: create a provenance-preserving and source-independent knowledge
+foundation.
 
-- review the first learning sequence without treating its stage order as
-  canonical competency relations.
+Implemented:
 
-## Phase 3 — Content repository MVP
+- a competency source model;
+- two Android Developers source packages in `review`;
+- the canonical competency model, accepted as repository architecture;
+- the version 2 Android app architecture competency set in `review`;
+- evidence references and a normalization workflow;
+- canonical relation research, with production relations deferred;
+- a minimal learning-sequence model;
+- the first learning sequence in `review`;
+- competency-to-topic mapping infrastructure, with no production mapping
+  packages.
 
-Goal: make the repository useful for real learning without an application.
+Architecture acceptance does not approve source, canonical competency, or
+learning-sequence packages.
 
-Tasks 012.1–012.3 form the current Android app architecture foundation:
-architecture fundamentals, UI-layer and UDF reasoning, and Data-layer
-repository and synchronization reasoning. Further production topics and
-production mappings remain deferred.
+Remaining:
 
-Deliverables:
+- complete editorial review of the first learning sequence;
+- define explicit promotion criteria for `review`, `accepted`, and `published`;
+- formally close Phase 2;
+- keep canonical competency relations deferred unless a real use case requires
+  them.
 
-- first 10–15 reviewed topics;
-- production mappings from canonical competencies to authored topics using the
-  implemented mapping contract;
-- catalog generation;
-- content validation;
-- internal link checking;
-- usable Markdown navigation.
+## Phase 3 — Learning Content MVP
 
-## Phase 4 — Web MVP
+**Status: Current.**
 
-Goal: provide a read-only and locally stateful learning interface.
+Purpose: make the repository useful as a standalone learning product before
+building a client.
 
-Deliverables:
+The implemented baseline is the three-topic Android app architecture
+foundation from Tasks 012.1–012.3. All three topics remain in `review`:
 
-- topic catalog;
-- roadmap visualization;
-- topic page;
-- Markdown rendering;
-- tests;
-- local progress;
-- search.
+- Architecture Foundations (`android-app-architecture-foundations`);
+- UI Layer and UDF (`android-ui-layer-and-unidirectional-data-flow`);
+- Data Layer, Repositories and Synchronization
+  (`android-data-layer-repositories-and-synchronization`).
 
-## Phase 5 — Synchronized progress
+Target deliverables:
 
-Goal: provide accounts and persistent progress.
+- 10–15 reviewed production topics;
+- one coherent reviewed learning path;
+- production competency-to-topic mappings;
+- a generated topic catalog;
+- usable Markdown navigation;
+- internal link validation;
+- source and reference audit;
+- freshness metadata;
+- a CI workflow;
+- editorial release rules.
 
-Deliverables:
+Future content planning candidates, without approved task numbers:
 
-- authentication;
-- database;
-- attempt history;
-- mastery model;
-- review queue;
-- synchronization.
+- Domain Layer and Use Cases;
+- ViewModel and UI State;
+- Android Lifecycle and State Restoration;
+- Kotlin Coroutines Foundations;
+- Structured Concurrency;
+- Networking Architecture;
+- Dependency Injection;
+- Navigation;
+- Testing;
+- Android Security Foundations.
 
-## Phase 6 — AI tutor
+## Phase 4 — Content Automation and Compiler
 
-Goal: support open-answer assessment and guided explanations.
+**Status: Planned.**
 
-Deliverables:
+Purpose: transform repository-authored Markdown and YAML into stable,
+machine-readable publication artifacts.
 
-- rubric-based answer evaluation;
-- interview mode;
-- additional question generation;
-- weak-area explanations;
-- usage and safety constraints.
+Planned deliverables:
 
-## Phase 7 — Android client
+- generated catalog;
+- content compiler;
+- normalized JSON bundle;
+- versioned content releases;
+- content and asset manifests;
+- checksums;
+- search index;
+- prerequisite graph export;
+- competency coverage export;
+- CI build artifacts;
+- publication validation.
 
-Goal: provide an offline-first mobile client.
+Conceptual flow:
 
-Deliverables:
+```text
+Markdown / YAML
+        ↓
+Validation
+        ↓
+Content compiler
+        ↓
+Versioned bundle
+        ↓
+Web / Android / Telegram / AI
+```
 
-- Compose UI;
-- Room cache;
+Clients should consume stable publication contracts rather than repository file
+paths.
+
+## Phase 5 — Distribution MVP
+
+**Status: Planned.**
+
+Purpose: validate real demand and content usefulness through lightweight
+distribution channels.
+
+Planned web capabilities:
+
+- topic catalog and topic pages;
+- prerequisite navigation;
+- theory and cheat-sheet rendering;
+- tests and search;
+- anonymous or local progress;
+- analytics and feedback.
+
+Planned Telegram experiments:
+
+- generated drafts and short topic series;
+- quizzes and a question of the day;
+- links to web content;
+- publication analytics.
+
+Candidate validation metrics include topic views, completion, test attempts,
+return rate, topic-to-topic navigation, and Telegram-to-web conversion. These
+metrics are not yet collected and do not imply product validation.
+
+## Phase 6 — User Platform and Synchronized Progress
+
+**Status: Planned.**
+
+Purpose: introduce persistent personal learning state.
+
+Planned deliverables:
+
+- authentication and a user database;
+- topic progress, attempts, and answers;
+- competency mastery and weak areas;
+- review queue, bookmarks, and notes;
 - synchronization;
-- topic reading;
-- tests and review queue;
-- notifications;
-- offline access.
+- product-event analytics.
 
-## Phase 8 — Custom backend
+Data ownership:
 
-Goal: introduce a Kotlin backend only when product requirements justify replacing or extending the initial backend solution.
+```text
+Git = source of truth for canonical content
+Database = source of truth for user state
+```
 
-Possible deliverables:
+This roadmap does not define a database schema.
 
-- Ktor service;
-- PostgreSQL;
-- OpenAPI;
-- authentication integration;
-- Docker;
-- integration tests;
-- observability.
+## Phase 7 — AI Learning Services
+
+**Status: Planned.**
+
+Purpose: support guided explanations, assessment, interview practice, and
+personalization.
+
+Planned deliverables:
+
+- retrieval over exact content versions and bounded AI context;
+- guided explanations and free-text answer evaluation;
+- rubric-based assessment and interview simulation;
+- weak-area recommendations and additional question generation;
+- safety and cost constraints;
+- evaluation datasets and answer-quality monitoring.
+
+NotebookLM export packages, audio summaries, slides, and generated
+visualizations are optional future integration or export outputs. No such
+integration currently exists. AI-generated output is derived presentation
+content and must not automatically modify or become canonical knowledge.
+
+## Phase 8 — Android Client
+
+**Status: Planned.**
+
+Purpose: provide an offline-first mobile learning client.
+
+Planned deliverables:
+
+- Compose UI and Room storage;
+- content-bundle and progress synchronization;
+- topic reader, tests, and review queue;
+- notifications, offline assets, and structured visualizations.
+
+The client should consume stable publication contracts.
+
+## Phase 9 — Monetization Experiments
+
+**Status: Planned; experiments may begin earlier.**
+
+Purpose: test willingness to pay before building large commercial
+infrastructure.
+
+Candidate experiments:
+
+- paid interview-preparation pack;
+- AI interview subscription;
+- premium learning paths;
+- paid intensive;
+- corporate onboarding pilot;
+- content licensing.
+
+Possible experiment outcomes include pricing and conversion measurements,
+willingness-to-pay feedback, basic unit-economics assumptions, and selection of
+a repeatable paid product. Revenue, customers, conversion, willingness to pay,
+and market validation have not been established.
+
+## Phase 10 — B2B Platform and Custom Backend
+
+**Status: Deferred until justified.**
+
+Purpose: add organization-specific capabilities only when validated product
+requirements require them.
+
+Possible future capabilities:
+
+- private knowledge spaces and source packages;
+- corporate competency models, role matrices, and team analytics;
+- white-label clients and advanced permissions;
+- private AI services, an integration API, and SLA requirements;
+- a Kotlin/Ktor backend, PostgreSQL, OpenAPI, Docker, integration tests, and
+  observability.
+
+A custom backend is not a goal by itself.
 
 ## Current phase
 
-**Phase 2 — Competency import**
+**Phase 3 — Learning Content MVP**
+
+Phase 2 is near completion and remains open for editorial review of the first
+learning sequence, explicit package-promotion criteria, and formal phase
+closure.
