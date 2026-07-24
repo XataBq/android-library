@@ -1,0 +1,220 @@
+topic_id: android-local-persistence-with-room
+content_version: 1
+passing_score_percent: 75
+questions:
+  - id: separate-entity-and-domain
+    type: multiple-choice
+    prompt: Which changes are strong reasons to keep a Room entity separate from the domain model?
+    difficulty: foundation
+    points: 3
+    explanation: Persistent columns and domain meaning can evolve independently. Mapping protects application invariants and prevents a database migration from automatically becoming a network or UI rewrite. Separate classes are justified by boundaries, not by a rule that every table needs ceremony.
+    options:
+      - id: persisted-legacy
+        text: A legacy nullable column must remain readable while the domain requires a validated non-null value.
+      - id: domain-value-object
+        text: The domain uses ProjectId and Instant while SQLite stores TEXT and epoch milliseconds.
+      - id: same-private-shape
+        text: A tiny private table and internal application value have intentionally identical stable meaning.
+      - id: ui-loading
+        text: The screen needs loading and refresh state that do not belong in a persisted row.
+    correct_option_ids:
+      - persisted-legacy
+      - domain-value-object
+      - ui-loading
+
+  - id: choose-keys-and-indices
+    type: code-analysis
+    prompt: Review this membership entity for identity, constraints, and query performance.
+    difficulty: junior
+    points: 5
+    explanation: A membership is naturally identified by the project/user pair. A surrogate row ID alone permits duplicates unless another unique constraint exists. Foreign keys and indices should follow deletion semantics and actual lookups, not annotation volume.
+    language: kotlin
+    code: |-
+      @Entity
+      data class MembershipEntity(
+          @PrimaryKey(autoGenerate = true) val rowId: Long = 0,
+          val projectId: String,
+          val userId: String,
+          val role: String,
+      )
+    rubric:
+      - criterion: Identifies that duplicate project/user memberships are currently possible.
+        points: 1
+      - criterion: Proposes a composite primary key or unique index on projectId and userId.
+        points: 1
+      - criterion: Defines foreign keys and deliberate deletion behavior for project and user.
+        points: 1
+      - criterion: Adds an index for the reverse user-to-project lookup or other demonstrated hot query.
+        points: 1
+      - criterion: Rejects indexing every column and explains write/storage cost.
+        points: 1
+    sample_answer: Use projectId and userId as a composite primary key, or retain the surrogate key plus a unique composite index. Add foreign keys whose cascade/restrict behavior matches product deletion, and index userId if the app lists projects by user. The composite key already supports project-prefix lookup; role needs an index only if measured queries filter by it.
+
+  - id: choose-suspend-or-flow
+    type: multiple-choice
+    prompt: Which DAO return shapes match their intended semantics?
+    difficulty: foundation
+    points: 3
+    explanation: Suspend represents one bounded operation or snapshot. Flow represents a cold observable query that Room reruns after referenced-table invalidation; it is not a durable event log and can emit semantically equal results.
+    options:
+      - id: rename-suspend
+        text: A one-time rename mutation returns a suspend affected-row count.
+      - id: list-flow
+        text: A screen's current ordered project list is exposed as Flow of list.
+      - id: audit-flow
+        text: Every write is inferred exactly once from ordinary query Flow emissions as a durable audit log.
+      - id: snapshot-suspend
+        text: A one-time export reads a suspend snapshot.
+    correct_option_ids:
+      - rename-suspend
+      - list-flow
+      - snapshot-suspend
+
+  - id: place-transaction-boundary
+    type: single-choice
+    prompt: A refresh fetches a remote snapshot and must atomically replace server-owned local rows. Where should the transaction begin?
+    difficulty: junior
+    points: 2
+    explanation: Network work cannot be rolled back by SQLite and has unbounded latency. Fetch and validate/map first, then use a short database transaction only for the local multi-step commit.
+    options:
+      - id: around-network
+        text: Begin before the HTTP request and commit after every remote and local operation.
+      - id: local-commit
+        text: Fetch and map remotely, then transactionally replace only the local rows.
+      - id: mutex-only
+        text: Replace the database transaction with a coroutine Mutex.
+      - id: screen-transaction
+        text: Let the ViewModel open a transaction around repository.refresh().
+    correct_option_id: local-commit
+
+  - id: model-project-label-relation
+    type: single-choice
+    prompt: Projects and labels are many-to-many, and duplicate assignment is invalid. Which schema best encodes the relationship?
+    difficulty: foundation
+    points: 2
+    explanation: A junction table with both foreign keys and a composite primary key encodes many-to-many identity and prevents duplicates. Arrays or JSON sacrifice relational constraints and queryability.
+    options:
+      - id: junction
+        text: A project_label table with projectId and labelId foreign keys as a composite primary key.
+      - id: project-json
+        text: A JSON array of full label objects in every project row.
+      - id: duplicate-label
+        text: A copied label row for each project without a stable label identity.
+      - id: ui-map
+        text: No persistent relation; reconstruct assignments from current screen state.
+    correct_option_id: junction
+
+  - id: evaluate-type-converter
+    type: multiple-choice
+    prompt: Which values are reasonable type-converter candidates, assuming their stored representations and migrations are documented?
+    difficulty: foundation
+    points: 3
+    explanation: A converter is suitable for a cohesive value that belongs in one column. Relational collections and queryable nested objects generally need tables and keys rather than opaque serialization.
+    options:
+      - id: instant
+        text: An Instant represented as epoch milliseconds.
+      - id: stable-status
+        text: A status value represented by a stable persisted code with an evolution policy.
+      - id: project-graph
+        text: A project plus all tasks and memberships serialized as one JSON column.
+      - id: identifier
+        text: A validated ProjectId represented as TEXT.
+    correct_option_ids:
+      - instant
+      - stable-status
+      - identifier
+
+  - id: design-migration-strategy
+    type: free-text
+    prompt: Version 4 renames a column, splits one legacy value into two required columns, and adds a unique index. Design the migration and its evidence.
+    difficulty: junior
+    points: 6
+    explanation: Rename metadata alone cannot infer semantic splitting and invalid legacy values. A safe migration defines transformation/backfill policy, preserves identities and constraints, recreates indices, and tests representative old data plus every supported path.
+    rubric:
+      - criterion: Distinguishes the inferable rename from the semantic split/backfill.
+        points: 1
+      - criterion: Chooses manual SQL or a manual portion for the semantic transformation.
+        points: 1
+      - criterion: Defines policy for null, empty, malformed, or ambiguous legacy values.
+        points: 1
+      - criterion: Preserves primary/foreign keys and creates the required unique index.
+        points: 1
+      - criterion: Seeds an exported old schema and asserts transformed data and final schema.
+        points: 1
+      - criterion: Covers every supported migration chain and compares with a fresh install.
+        points: 1
+    sample_answer: >-
+      Use a reviewed rename specification only for the true rename, but
+      perform the split in a manual migration: create a new table, copy each
+      row through an approved deterministic backfill policy, preserve IDs,
+      rebuild constraints and the unique index, then replace the old table.
+      Seed version-3 rows for every edge case, run the exact migration path,
+      assert values and schema, and test all older supported chains plus a
+      fresh version-4 database.
+
+  - id: reject-destructive-fallback
+    type: single-choice
+    prompt: An app update lacks a migration for user-authored offline notes. What is the correct response?
+    difficulty: foundation
+    points: 2
+    explanation: Destructive fallback converts a missing path into deletion. User-authored authoritative local data is not disposable; implement and test a preserving migration or block the release while resolving the path.
+    options:
+      - id: preserve
+        text: Add and test a data-preserving migration before release.
+      - id: fallback
+        text: Enable fallbackToDestructiveMigration so startup never fails.
+      - id: reinstall
+        text: Ask every user to reinstall and recreate notes.
+      - id: clear-on-error
+        text: Catch the open error and delete the database silently.
+    correct_option_id: preserve
+
+  - id: design-local-source-of-truth
+    type: free-text
+    prompt: Design a local-first repository that renders cached articles immediately, refreshes remotely, and preserves local bookmarks.
+    difficulty: junior
+    points: 6
+    explanation: Room can own the locally observable copy while the repository owns freshness, remote coordination, field ownership, errors, and conflicts. Network work happens before a bounded transaction that merges server and local-only state.
+    rubric:
+      - criterion: Exposes a mapped DAO Flow through the repository as the local observable source.
+        points: 1
+      - criterion: Defines fresh, stale, empty, refreshing, and refresh-failure behavior.
+        points: 1
+      - criterion: Fetches and maps remotely before opening a local transaction.
+        points: 1
+      - criterion: Merges server-owned article fields without overwriting local bookmarks.
+        points: 1
+      - criterion: Defines deletion/tombstone and conflict/retry policy.
+        points: 1
+      - criterion: Separates repository-policy fakes from real DAO/transaction/invalidation tests.
+        points: 1
+    sample_answer: Observe the ordered local query and map entities to application articles. Emit cached content immediately with freshness metadata, start an owned refresh when policy says stale, fetch and validate remotely, then in a short transaction merge server fields and deletions while retaining local bookmark columns. A refresh error remains alongside stale content. Test policy with fakes and use Room for query, merge, rollback, and invalidation behavior.
+
+  - id: audit-testing-and-performance
+    type: code-analysis
+    prompt: Identify the correctness and performance risks and propose focused evidence.
+    difficulty: junior
+    points: 6
+    explanation: Whole-table loading, Kotlin filtering/sorting, and one query per row grow poorly and bypass SQL/index strengths. Repair must preserve ordering and relation meaning, then prove both query behavior and measured plan/runtime.
+    language: kotlin
+    code: |-
+      val visible = dao.loadEveryTask()
+          .filter { it.projectId == projectId && !it.archived }
+          .sortedBy { it.position }
+      val labels = visible.associateWith { task ->
+          dao.labelsForTask(task.id)
+      }
+    rubric:
+      - criterion: Moves project/archive filtering and deterministic ordering into a parameterized SQL query.
+        points: 1
+      - criterion: Selects only required rows/columns and uses bounded pagination for large lists.
+        points: 1
+      - criterion: Replaces N+1 label reads with a join/projection or justified transactional relation.
+        points: 1
+      - criterion: Adds only query-supported indices and checks EXPLAIN QUERY PLAN.
+        points: 1
+      - criterion: Tests ordering, page boundaries, duplicates, empty relations, and constraints with real Room.
+        points: 1
+      - criterion: Measures representative data/device SQLite and closes isolated databases.
+        points: 1
+    sample_answer: Define one ordered query filtered by project and archived state, returning a focused paged projection. Fetch labels in a join or bounded relation query rather than once per task. Add a composite index only if the measured query plan uses it. Use real Room tests for ordering and relationships, then record query count, plan, rows, and timing on representative device SQLite.

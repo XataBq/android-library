@@ -1,0 +1,153 @@
+id: android-local-persistence-with-room
+title: Local Persistence with Room
+track: android
+section: data
+difficulty: foundation
+status: review
+estimated_minutes: 240
+content_version: 1
+prerequisites:
+  - android-data-layer-repositories-and-synchronization
+  - android-domain-layer-and-use-cases
+  - android-viewmodel-and-ui-state
+  - kotlin-coroutines-foundations
+  - kotlin-flow-and-reactive-streams
+  - android-networking-architecture
+  - android-dependency-injection-and-scoping
+  - android-testing-foundations
+  - android-security-foundations
+learning_outcomes:
+  - Explain when local persistence is justified and when memory or saved state is sufficient.
+  - Explain Room's role as an abstraction over SQLite without hiding relational design.
+  - Design entities with deliberate nullability, defaults, names, and schema stability.
+  - Distinguish database entities, network DTOs, domain models, and UI models.
+  - Design use-case-oriented DAO contracts instead of exposing generic CRUD.
+  - Select suspend and Flow-returning DAO methods according to one-shot or observable semantics.
+  - Explain invalidation-driven observable query re-execution and collection ownership.
+  - Use transactions for bounded multi-step atomic database work.
+  - Distinguish database transactions from coroutine Mutex synchronization.
+  - Model one-to-one, one-to-many, and many-to-many relationships deliberately.
+  - Use foreign keys, junction tables, embedded objects, and projections according to query needs.
+  - Use type converters only for values that belong in one column.
+  - Select stable natural, surrogate, remote, composite, and temporary identities.
+  - Add uniqueness and indices according to constraints and measured query patterns.
+  - Own one process-level Room database through dependency injection without leaking Activity Context.
+  - Explain schema versions, exported schemas, migration paths, and release discipline.
+  - Design and test manual migrations that preserve and transform existing data.
+  - Explain auto-migration capabilities, version requirements, and ambiguity limits.
+  - Restrict destructive migration to explicitly disposable data.
+  - Coordinate local and remote sources through explicit repository source-of-truth and freshness policy.
+  - Model pending writes, synchronization state, idempotency, and conflict decisions.
+  - Test and measure DAO, transaction, migration, repository, performance, security, and backup behavior.
+tags:
+  - android
+  - room
+  - sqlite
+  - persistence
+  - data-layer
+  - migrations
+  - offline-first
+  - flow
+references:
+  - title: Save data in a local database using Room
+    url: https://developer.android.com/training/data-storage/room
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Save data using SQLite
+    url: https://developer.android.com/training/data-storage/sqlite
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Define data using Room entities
+    url: https://developer.android.com/training/data-storage/room/defining-data
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Access data using Room DAOs
+    url: https://developer.android.com/training/data-storage/room/accessing-data
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Write asynchronous DAO queries
+    url: https://developer.android.com/training/data-storage/room/async-queries
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Room Transaction API
+    url: https://developer.android.com/reference/androidx/room/Transaction
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Choose relationship types between objects
+    url: https://developer.android.com/training/data-storage/room/relationships
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Define and query one-to-many relationships
+    url: https://developer.android.com/training/data-storage/room/relationships/one-to-many
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Define and query many-to-many relationships
+    url: https://developer.android.com/training/data-storage/room/relationships/many-to-many
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Reference complex data using Room
+    url: https://developer.android.com/training/data-storage/room/referencing-data
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Room Upsert API
+    url: https://developer.android.com/reference/androidx/room/Upsert
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Migrate your Room database
+    url: https://developer.android.com/training/data-storage/room/migrating-db-versions
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Room AutoMigration API
+    url: https://developer.android.com/reference/androidx/room/AutoMigration
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: MigrationTestHelper API
+    url: https://developer.android.com/reference/androidx/room/testing/MigrationTestHelper
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test and debug your database
+    url: https://developer.android.com/training/data-storage/room/testing-db
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Best practices for SQLite performance
+    url: https://developer.android.com/topic/performance/sqlite-performance-best-practices
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Data layer
+    url: https://developer.android.com/topic/architecture/data-layer
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Data and file storage overview
+    url: https://developer.android.com/training/data-storage
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Security recommendations for backups
+    url: https://developer.android.com/privacy-and-security/risks/backup-best-practices
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: A data-modeling and ownership guide to Room entities, DAO contracts, Flow observation, transactions, relations, migrations, offline coordination, and verification.
+android_connections:
+  - Room keeps durable structured data independent from Activity, Fragment, ViewModel, and process lifetimes.
+  - Repositories expose application models and own local/remote policy while Room entities and DAOs remain in the Data layer.
+  - Flow DAO queries can feed repository streams while lifecycle-aware collection remains owned by ViewModel and UI scopes.
+  - Dependency injection owns one application-context database instance per process and supplies focused DAOs or local sources.
+  - Android backup, app-private storage, process death, and device SQLite versions affect persistence policy and testing.

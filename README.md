@@ -16,7 +16,7 @@ Developers source packages, version 2 canonical Android app architecture
 competency set remain in `review`. The first learning sequence has machine
 status `approved`, is conceptually `accepted`, and is not published.
 
-Tasks 012.1–012.3 and Tasks 016–026 form the current fourteen-topic Learning
+Tasks 012.1–012.3 and Tasks 016–027 form the current fifteen-topic Learning
 Content MVP foundation:
 
 - Architecture Foundations;
@@ -32,9 +32,10 @@ Content MVP foundation:
 - Android Networking Architecture;
 - Android Dependency Injection and Scoping;
 - Android Testing Foundations;
-- Android Security Foundations.
+- Android Security Foundations;
+- Local Persistence with Room.
 
-All fourteen production educational topics remain in `review`. Competency-to-topic
+All fifteen production educational topics remain in `review`. Competency-to-topic
 mapping infrastructure exists, but no production mapping packages exist.
 There is also no generated catalog, web client, user database, synchronized
 progress, AI tutor, Android client, or CI workflow yet.

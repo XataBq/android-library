@@ -65,8 +65,8 @@ case requires them.
 Purpose: make the repository useful as a standalone learning product before
 building a client.
 
-The implemented baseline is the fourteen-topic Learning Content MVP foundation
-from Tasks 012.1–012.3 and Tasks 016–026. All fourteen topics remain in `review`:
+The implemented baseline is the fifteen-topic Learning Content MVP foundation
+from Tasks 012.1–012.3 and Tasks 016–027. All fifteen topics remain in `review`:
 
 - Architecture Foundations (`android-app-architecture-foundations`);
 - UI Layer and UDF (`android-ui-layer-and-unidirectional-data-flow`);
@@ -85,7 +85,8 @@ from Tasks 012.1–012.3 and Tasks 016–026. All fourteen topics remain in `rev
 - Android Dependency Injection and Scoping
   (`android-dependency-injection-and-scoping`);
 - Android Testing Foundations (`android-testing-foundations`);
-- Android Security Foundations (`android-security-foundations`).
+- Android Security Foundations (`android-security-foundations`);
+- Local Persistence with Room (`android-local-persistence-with-room`).
 
 Structured Concurrency and Supervision is classified editorially as
 **Junior Core — advanced foundation**. The Junior Core target is exactly 17
@@ -93,10 +94,10 @@ mandatory topics. Kotlin Flow and Reactive Streams is mandatory Junior Core
 topic 9, Android Navigation Architecture is mandatory topic 10, and Android
 Networking Architecture is mandatory topic 11. Dependency Injection and
 Scoping is mandatory topic 12, Android Testing Foundations is mandatory topic
-13, and Android Security Foundations is mandatory topic 14. Fourteen topics
-currently exist as complete production packages in `review`; three remain:
+13, Android Security Foundations is mandatory topic 14, and Local Persistence
+with Room is mandatory topic 15. Fifteen topics currently exist as complete
+production packages in `review`; two remain:
 
-15. Local Persistence with Room
 16. Background Work and WorkManager
 17. Compose Foundations
 
@@ -120,7 +121,6 @@ Target deliverables:
 
 Future content planning candidates, without approved task numbers:
 
-- Local Persistence with Room;
 - Background Work and WorkManager;
 - Compose Foundations.
 
