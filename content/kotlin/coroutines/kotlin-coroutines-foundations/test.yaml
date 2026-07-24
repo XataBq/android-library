@@ -1,0 +1,217 @@
+topic_id: kotlin-coroutines-foundations
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: coroutine-versus-thread
+    type: single-choice
+    prompt: Which statement best distinguishes a coroutine from a thread?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A coroutine is a cancellable computation that can suspend. A JVM thread
+      executes its running segments; the coroutine does not own that thread.
+    options:
+      - id: computation-resource
+        text: A coroutine is a suspendable computation; a thread is an execution resource.
+      - id: lightweight-thread
+        text: A coroutine is exactly a thread with a smaller stack.
+      - id: no-thread
+        text: Coroutine code executes without any thread.
+      - id: dispatcher-thread
+        text: Every dispatcher is one dedicated thread.
+    correct_option_id: computation-resource
+
+  - id: suspend-meaning
+    type: multiple-choice
+    prompt: Which statements about a suspend function are correct?
+    difficulty: foundation
+    points: 2
+    explanation: >
+      Suspend permits suspension and calls to suspend APIs. It neither starts a
+      coroutine nor guarantees background or non-blocking implementation.
+    options:
+      - id: may-suspend
+        text: It may pause and later resume before returning.
+      - id: calls-suspend
+        text: It can call other suspend functions.
+      - id: always-io
+        text: It automatically switches to Dispatchers.IO.
+      - id: converts-blocking
+        text: It automatically converts blocking APIs into suspending APIs.
+    correct_option_ids:
+      - may-suspend
+      - calls-suspend
+
+  - id: scope-owner
+    type: single-choice
+    prompt: >
+      A screen starts work that is useful only while its ViewModel exists.
+      Which ownership decision is sound?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      viewModelScope matches the UI-scenario owner and is cancelled when the
+      ViewModel is cleared.
+    options:
+      - id: viewmodel
+        text: Launch it in viewModelScope.
+      - id: global
+        text: Launch it in GlobalScope so lifecycle cannot cancel it.
+      - id: repository-scope
+        text: Create a new unmanaged scope inside each Repository call.
+      - id: dispatcher-owner
+        text: Treat Dispatchers.IO as its lifetime owner.
+    correct_option_id: viewmodel
+
+  - id: dispatcher-selection
+    type: multiple-choice
+    prompt: Which dispatcher selections are justified?
+    difficulty: foundation
+    points: 2
+    explanation: >
+      Main owns UI-confined work, Default suits CPU computation, and IO
+      isolates blocking I/O. Dispatchers are policies rather than fixed threads.
+    options:
+      - id: main-ui
+        text: Main for updating Android presentation state.
+      - id: default-cpu
+        text: Default for a substantial CPU calculation.
+      - id: io-pure
+        text: IO for every pure mapping function regardless of cost.
+      - id: unconfined-ui
+        text: Unconfined as the default for UI rendering.
+    correct_option_ids:
+      - main-ui
+      - default-cpu
+
+  - id: builder-choice
+    type: single-choice
+    prompt: >
+      Two independent repositories return values needed for one result and
+      should overlap. Which design best expresses that?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Two sibling async children in coroutineScope expose Deferred results and
+      retain parent ownership. Immediate await would remove the overlap.
+    options:
+      - id: sibling-async
+        text: Start both with sibling async calls, then await both.
+      - id: immediate-await
+        text: Start and immediately await the first async before starting the second.
+      - id: two-global
+        text: Launch both in GlobalScope and ignore their results.
+      - id: two-withcontext
+        text: Call two withContext blocks sequentially and call that concurrent.
+    correct_option_id: sibling-async
+
+  - id: sequential-dependency
+    type: true-false
+    prompt: >
+      If loadDetails requires the ID returned by loadHeader, wrapping both calls
+      in async is automatically safer and faster than sequential calls.
+    difficulty: foundation
+    points: 1
+    explanation: >
+      False. The dependency imposes order. Concurrency is deliberate only for
+      independent work and does not inherently improve correctness or speed.
+    correct_answer: false
+
+  - id: blocking-suspending
+    type: single-choice
+    prompt: >
+      A suspend Repository function directly calls blocking file I/O while its
+      caller is on Main. What is the key problem and correction?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Suspend does not transform blocking I/O. The implementation should use a
+      suspending client or isolate the blocking call on an appropriate
+      dispatcher, keeping the public contract main-safe.
+    options:
+      - id: isolate-blocking
+        text: Move the blocking integration off Main inside the implementation.
+      - id: add-suspend
+        text: The suspend modifier already prevents Main from blocking.
+      - id: async-main
+        text: Wrap it in async on Main and immediately await.
+      - id: sleep-first
+        text: Call Thread.sleep before reading so scheduling can catch up.
+    correct_option_id: isolate-blocking
+
+  - id: cooperative-cancellation
+    type: code-analysis
+    prompt: Identify the cancellation defect and give a minimum correction.
+    difficulty: junior
+    points: 2
+    explanation: >
+      A CPU loop with no suspension or explicit check may continue after its
+      Job is cancelled. Periodic ensureActive or yield makes it cooperative.
+    language: kotlin
+    code: |
+      suspend fun hash(values: IntArray): Long {
+          var result = 0L
+          for (value in values) {
+              result = result * 31 + value
+          }
+          return result
+      }
+    rubric:
+      - criterion: Identifies that the CPU loop does not observe cancellation.
+        points: 1
+      - criterion: Adds a periodic ensureActive or yield check in an appropriate context.
+        points: 1
+    sample_answer: >
+      Run substantial CPU work in an appropriate context and call
+      ensureActive() periodically inside the loop so Job cancellation stops it.
+
+  - id: preserve-cancellation
+    type: single-choice
+    prompt: >
+      Code catches Exception around a suspend call and converts every failure
+      into Empty. What must it do for CancellationException?
+    difficulty: junior
+    points: 1
+    explanation: >
+      CancellationException carries cooperative cancellation and must be
+      rethrown before translating expected failures.
+    options:
+      - id: rethrow
+        text: Catch and rethrow CancellationException before handling expected failures.
+      - id: empty
+        text: Convert cancellation to Empty so the caller sees success.
+      - id: retry
+        text: Retry forever after cancellation.
+      - id: handler
+        text: Add CoroutineExceptionHandler and keep swallowing cancellation.
+    correct_option_id: rethrow
+
+  - id: architecture-scenario
+    type: free-text
+    prompt: >
+      A ViewModel loads data through a use case; the Data implementation wraps a
+      blocking legacy client. Assign scope, suspend contracts, dispatcher
+      choice, cancellation, and test responsibility.
+    difficulty: junior
+    points: 5
+    explanation: >
+      ViewModel owns UI work, Domain exposes the operation, Data makes blocking
+      integration main-safe, cancellation remains connected, and tests replace
+      owned dispatching with a shared virtual-time scheduler.
+    rubric:
+      - criterion: Launches UI-scenario work in viewModelScope.
+        points: 1
+      - criterion: Keeps a focused suspend contract across ViewModel, Domain, and Data boundaries.
+        points: 1
+      - criterion: Moves blocking legacy work off Main inside the Data implementation.
+        points: 1
+      - criterion: Preserves parent cancellation and does not swallow CancellationException.
+        points: 1
+      - criterion: Uses runTest and controlled test dispatching without real sleeps.
+        points: 1
+    sample_answer: >
+      ViewModel launches in viewModelScope and calls a focused suspend use case.
+      The Repository implementation isolates the legacy blocking call on an
+      injected IO-capable dispatcher. No unmanaged scope is created, so
+      ViewModel cancellation reaches the call. Tests use runTest and a
+      TestDispatcher sharing the test scheduler.

@@ -36,8 +36,8 @@ The repository currently provides:
   production mapping packages;
 - a repository-wide editorial package lifecycle with exact-version promotion
   criteria for all five package domains;
-- six production educational topics in `review`, forming the growing Android
-  app architecture foundation:
+- seven production educational topics in `review`, forming the growing
+  Learning Content MVP foundation:
   - Architecture Foundations
     (`android-app-architecture-foundations`);
   - UI Layer and UDF
@@ -49,7 +49,9 @@ The repository currently provides:
   - ViewModel and UI State
     (`android-viewmodel-and-ui-state`);
   - Lifecycle and State Restoration
-    (`android-lifecycle-and-state-restoration`).
+    (`android-lifecycle-and-state-restoration`);
+  - Kotlin Coroutines Foundations
+    (`kotlin-coroutines-foundations`).
 
 ## Completed tasks
 
@@ -101,13 +103,16 @@ The repository currently provides:
 - **Task 018 — DONE:** Added the sixth production Android architecture topic
   covering component lifecycles, saved state, process recreation, navigation
   ownership, and Binder transport limits.
+- **Task 019 — DONE:** Added the seventh production topic covering Kotlin
+  coroutine execution, suspension, dispatchers, cancellation, Android scope
+  ownership, layer boundaries, and virtual-time testing.
 
 ## Current focus
 
 Phase 3 focuses on producing and reviewing a coherent Learning Content MVP that
-is useful directly from the repository. Tasks 012.1–012.3 and Tasks 016–018
-provide the growing six-topic Android app architecture foundation; all six
-topic packages remain in `review`.
+is useful directly from the repository. Tasks 012.1–012.3 and Tasks 016–019
+provide the growing seven-topic foundation; all seven topic packages remain in
+`review`.
 
 The canonical competency model is `ACCEPTED` repository architecture, while
 both source packages and the version 2 canonical competency package remain in
@@ -124,7 +129,7 @@ canonical competency package, topics, or mappings.
 
 The next work is planned, not yet approved as numbered implementation tasks:
 
-1. Review and expand the six-topic Android app architecture foundation toward
+1. Review and expand the seven-topic Learning Content MVP foundation toward
    a coherent 10–15-topic Learning Content MVP.
 2. Create production competency-to-topic mappings against exact reviewed
    package versions.
@@ -134,10 +139,9 @@ The next work is planned, not yet approved as numbered implementation tasks:
    rules, and CI validation.
 5. Proceed toward a stable content compiler and versioned publication bundle.
 
-Candidate future topics include Kotlin Coroutines Foundations, Structured
-Concurrency, Networking Architecture, Dependency Injection, Navigation,
-Testing, and Android Security Foundations. These candidates have no assigned
-task numbers.
+Candidate future topics include Structured Concurrency, Networking
+Architecture, Dependency Injection, Navigation, Testing, and Android Security
+Foundations. These candidates have no assigned task numbers.
 
 ## Known non-goals and deferred work
 

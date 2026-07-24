@@ -1,0 +1,83 @@
+id: kotlin-coroutines-foundations
+title: Kotlin Coroutines Foundations
+track: kotlin
+section: coroutines
+difficulty: foundation
+status: review
+estimated_minutes: 180
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-viewmodel-and-ui-state
+  - android-lifecycle-and-state-restoration
+learning_outcomes:
+  - Distinguish a cancellable coroutine computation from the thread that executes it.
+  - Explain suspension, continuation, and resumption without assuming background execution.
+  - Distinguish CoroutineScope, CoroutineContext, Job, Dispatcher, and Thread responsibilities.
+  - Explain why every coroutine lifetime needs a deliberate owner.
+  - Select Main, Default, or IO according to UI, CPU, and blocking-work requirements.
+  - Use launch for owned work and async for deliberate concurrent results.
+  - Use withContext for sequential context changes without creating detached work.
+  - Distinguish sequential, concurrent, and potentially parallel execution.
+  - Distinguish thread blocking from coroutine suspension.
+  - Design CPU work and exception handling to cooperate with cancellation.
+  - Explain foundational parent-child completion, cancellation, and failure behavior.
+  - Bind Android coroutine work to ViewModel, lifecycle, or Compose ownership.
+  - Preserve UI, Domain, and Data layer boundaries across suspend contracts.
+  - Test delay, ordering, concurrency, and cancellation with controlled virtual time.
+  - Recognize unmanaged scopes, forgotten Deferred values, blocking Main, and swallowed cancellation.
+tags:
+  - kotlin
+  - coroutines
+  - concurrency
+  - cancellation
+  - android
+  - testing
+references:
+  - title: Coroutines basics
+    url: https://kotlinlang.org/docs/coroutines-basics.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Coroutine context and dispatchers
+    url: https://kotlinlang.org/docs/coroutine-context-and-dispatchers.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Cancellation and timeouts
+    url: https://kotlinlang.org/docs/cancellation-and-timeouts.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Coroutine exceptions handling
+    url: https://kotlinlang.org/docs/exception-handling.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Best practices for coroutines in Android
+    url: https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Use Kotlin coroutines with lifecycle-aware components
+    url: https://developer.android.com/topic/libraries/architecture/views/coroutines-views?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: ViewModel overview
+    url: https://developer.android.com/topic/libraries/architecture/viewmodel?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Testing Kotlin coroutines on Android
+    url: https://developer.android.com/kotlin/coroutines/test?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: A responsibility-first foundation for coroutine execution, suspension, dispatchers, cancellation, Android scopes, layer boundaries, and virtual-time tests.
+android_connections:
+  - Android UI work must not block the Main thread.
+  - ViewModel and lifecycle scopes bind coroutine cancellation to UI ownership.
+  - Data implementations select appropriate execution for blocking or CPU-intensive work.
+  - Suspend and Flow contracts cross layers without exposing thread management to UI.
+  - Correctly scoped coroutine cancellation follows the lifecycle owner.

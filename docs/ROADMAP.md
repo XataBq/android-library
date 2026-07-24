@@ -65,8 +65,8 @@ case requires them.
 Purpose: make the repository useful as a standalone learning product before
 building a client.
 
-The implemented baseline is the six-topic Android app architecture foundation
-from Tasks 012.1–012.3 and Tasks 016–018. All six topics remain in `review`:
+The implemented baseline is the seven-topic Learning Content MVP foundation
+from Tasks 012.1–012.3 and Tasks 016–019. All seven topics remain in `review`:
 
 - Architecture Foundations (`android-app-architecture-foundations`);
 - UI Layer and UDF (`android-ui-layer-and-unidirectional-data-flow`);
@@ -75,7 +75,8 @@ from Tasks 012.1–012.3 and Tasks 016–018. All six topics remain in `review`:
 - Domain Layer and Use Cases (`android-domain-layer-and-use-cases`);
 - ViewModel and UI State (`android-viewmodel-and-ui-state`);
 - Lifecycle and State Restoration
-  (`android-lifecycle-and-state-restoration`).
+  (`android-lifecycle-and-state-restoration`);
+- Kotlin Coroutines Foundations (`kotlin-coroutines-foundations`).
 
 Target deliverables:
 
@@ -92,7 +93,6 @@ Target deliverables:
 
 Future content planning candidates, without approved task numbers:
 
-- Kotlin Coroutines Foundations;
 - Structured Concurrency;
 - Networking Architecture;
 - Dependency Injection;
