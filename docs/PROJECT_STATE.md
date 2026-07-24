@@ -36,7 +36,7 @@ The repository currently provides:
   production mapping packages;
 - a repository-wide editorial package lifecycle with exact-version promotion
   criteria for all five package domains;
-- thirteen production educational topics in `review`, forming the growing
+- fourteen production educational topics in `review`, forming the growing
   Learning Content MVP foundation:
   - Architecture Foundations
     (`android-app-architecture-foundations`);
@@ -63,7 +63,9 @@ The repository currently provides:
   - Android Dependency Injection and Scoping
     (`android-dependency-injection-and-scoping`);
   - Android Testing Foundations
-    (`android-testing-foundations`).
+    (`android-testing-foundations`);
+  - Android Security Foundations
+    (`android-security-foundations`).
 
 ## Completed tasks
 
@@ -136,20 +138,22 @@ The repository currently provides:
 - **Task 025 — DONE:** Added the thirteenth production topic covering
   risk-based test boundaries, deliberate doubles, deterministic coroutine and
   Flow tests, Android integration seams, UI behavior, and isolation.
+- **Task 026 — DONE:** Added the fourteenth production topic covering threat
+  modeling, Android entry points, identity and authorization, storage,
+  network, WebView, leakage, build, integrity, and security testing.
 
 ## Current focus
 
 Phase 3 focuses on producing and reviewing a coherent Learning Content MVP that
-is useful directly from the repository. Tasks 012.1–012.3 and Tasks 016–025
-provide the growing thirteen-topic foundation; all thirteen topic packages remain in
+is useful directly from the repository. Tasks 012.1–012.3 and Tasks 016–026
+provide the growing fourteen-topic foundation; all fourteen topic packages remain in
 `review`.
 
 Structured Concurrency and Supervision is recorded editorially as
 **Junior Core — advanced foundation**. The Junior Core target is exactly 17
-mandatory topics. Thirteen currently exist as complete production packages in
-`review`; four remain:
+mandatory topics. Fourteen currently exist as complete production packages in
+`review`; three remain:
 
-14. Android Security Foundations
 15. Local Persistence with Room
 16. Background Work and WorkManager
 17. Compose Foundations
@@ -173,7 +177,7 @@ canonical competency package, topics, or mappings.
 
 The next work is planned, not yet approved as numbered implementation tasks:
 
-1. Review and expand the thirteen existing production packages toward the exact
+1. Review and expand the fourteen existing production packages toward the exact
    17-topic mandatory Junior Core target.
 2. Create production competency-to-topic mappings against exact reviewed
    package versions.
@@ -183,9 +187,9 @@ The next work is planned, not yet approved as numbered implementation tasks:
    rules, and CI validation.
 5. Proceed toward a stable content compiler and versioned publication bundle.
 
-The four remaining mandatory topics are Android Security Foundations, Local
-Persistence with Room, Background Work and WorkManager, and Compose
-Foundations. These topics have no assigned task numbers.
+The three remaining mandatory topics are Local Persistence with Room,
+Background Work and WorkManager, and Compose Foundations. These topics have no
+assigned task numbers.
 
 ## Known non-goals and deferred work
 

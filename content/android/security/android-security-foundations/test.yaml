@@ -1,0 +1,213 @@
+topic_id: android-security-foundations
+content_version: 1
+passing_score_percent: 75
+questions:
+  - id: build-lightweight-threat-model
+    type: free-text
+    prompt: A new feature imports account statements from another app. Outline a lightweight threat model before choosing controls.
+    difficulty: foundation
+    points: 5
+    explanation: Security controls follow from assets, entry points, attacker capabilities, trust boundaries, impacts, and owned residual risks. Starting with a favorite control can miss the actual abuse path.
+    rubric:
+      - criterion: Names protected assets and confidentiality, integrity, privacy, or availability goals.
+        points: 1
+      - criterion: Identifies the exported entry point and caller-controlled Intent or document values.
+        points: 1
+      - criterion: States attacker capabilities and trust boundaries without assuming all external callers are trusted.
+        points: 1
+      - criterion: Proposes layered validation, authentication, authorization, minimization, and safe-failure controls.
+        points: 1
+      - criterion: Adds negative tests, residual risk, and control owners.
+        points: 1
+    sample_answer: Protect statement content, account identity, and the import action. Model an arbitrary installed app controlling the Intent and referenced document across an exported-component boundary. Minimize exposure, validate grants and bounded content, establish the session, authorize the target account on the server, retain only needed data, and fail without disclosure. Test hostile inputs and record compromised-device residual risk and owners.
+
+  - id: secure-exported-component
+    type: multiple-choice
+    prompt: An exported service is intentionally callable by partner apps and triggers account synchronization. Which controls remain necessary?
+    difficulty: junior
+    points: 4
+    explanation: Exposure, caller restriction, request validation, and resource authorization address different boundaries. A signature permission can narrow callers but cannot make arbitrary extras safe or grant product access.
+    options:
+      - id: explicit-export
+        text: Declare export and any caller permission explicitly, then inspect the merged manifest.
+      - id: validate-request
+        text: Validate action, identifiers, sizes, and other caller-controlled fields before side effects.
+      - id: authorize-account
+        text: Authorize the authenticated subject and requested account at the trusted service.
+      - id: trust-extras
+        text: Trust all extras because the component is explicit and permission-protected.
+    correct_option_ids:
+      - explicit-export
+      - validate-request
+      - authorize-account
+
+  - id: validate-payment-deep-link
+    type: code-analysis
+    prompt: Identify the security boundary failures in this deep-link handler and describe a safe flow.
+    difficulty: junior
+    points: 6
+    explanation: A verified App Link establishes association, not trustworthy parameters, authentication, authorization, payment state, or replay protection. Parsing must precede navigation, and the server must provide current authorized operation state.
+    language: kotlin
+    code: |-
+      fun open(uri: Uri) {
+          val paymentId = uri.getQueryParameter("id")!!
+          val amount = uri.getQueryParameter("amount")!!.toLong()
+          api.confirmPayment(paymentId, amount)
+          navigator.open(uri.getQueryParameter("returnTo")!!)
+      }
+    rubric:
+      - criterion: Validates allowlisted HTTPS host/path, bounded ID shape, parameter count, and malformed input.
+        points: 1
+      - criterion: Removes sensitive or authoritative amount and credentials from the URL.
+        points: 1
+      - criterion: Establishes authentication independently from App Link verification.
+        points: 1
+      - criterion: Requires server authorization for subject, payment, amount, state, and expiry.
+        points: 1
+      - criterion: Adds one-time/replay handling and prevents automatic execution on link open.
+        points: 1
+      - criterion: Removes or allowlists the redirect and defines safe fallbacks.
+        points: 1
+    sample_answer: Parse only the expected HTTPS host and path into a bounded payment ID, then show a safe pending screen. If signed out, authenticate and resume by ID. Fetch the authoritative payment from the server, which authorizes ownership and state, then confirm through a replay-safe operation after explicit user action. Never accept amount or credentials from the URL and never navigate to an arbitrary return target.
+
+  - id: distinguish-security-decisions
+    type: multiple-choice
+    prompt: Which statements correctly distinguish authentication and resource authorization?
+    difficulty: foundation
+    points: 3
+    explanation: Identity evidence and local risk controls are inputs, while authorization is the resource-and-action decision. Protected server work must be authorized by the trusted service for the current request.
+    options:
+      - id: session-authenticates
+        text: A valid session can identify the subject but does not alone grant every resource action.
+      - id: server-authorizes
+        text: The server should authorize subject, action, resource, and current state for each protected request.
+      - id: biometric-authorizes
+        text: A successful biometric prompt authorizes every transfer for the remote account.
+      - id: app-link-authorizes
+        text: Verified App Link association authorizes access to the linked record.
+    correct_option_ids:
+      - session-authenticates
+      - server-authorizes
+
+  - id: choose-least-permission
+    type: single-choice
+    prompt: A feature needs the user to select one PDF for a one-time import. What is the strongest default design?
+    difficulty: foundation
+    points: 2
+    explanation: A system document picker gives user-mediated access to the selected item and usually avoids broad storage permission. The returned URI and content still require validation.
+    options:
+      - id: system-picker
+        text: Use the system document picker, accept only PDF intent types, and validate the returned URI and bytes.
+      - id: all-files
+        text: Request all-files access at startup and scan the device.
+      - id: storage-forever
+        text: Request broad storage access once and cache the grant forever.
+      - id: public-path
+        text: Ask the user to type an absolute filesystem path.
+    correct_option_id: system-picker
+
+  - id: design-storage-and-keystore
+    type: multiple-choice
+    prompt: Which statements form a sound storage and Android Keystore design?
+    difficulty: junior
+    points: 4
+    explanation: Keystore protects cryptographic keys under device-dependent capabilities. Data classification, minimization, private storage, authenticated encryption, backup, invalidation, and recovery remain separate design decisions.
+    options:
+      - id: classify-minimize
+        text: Classify sensitivity and lifetime, minimize retained data, and keep app-only sensitive files in internal app-specific storage.
+      - id: keys-not-blobs
+        text: Keep encryption keys in Keystore and store versioned authenticated ciphertext separately.
+      - id: plan-failure
+        text: Plan key invalidation, restore, rotation, migration, and unrecoverable ciphertext.
+      - id: token-as-key
+        text: Insert the raw refresh-token string into Keystore as if it were a cryptographic key.
+    correct_option_ids:
+      - classify-minimize
+      - keys-not-blobs
+      - plan-failure
+
+  - id: evaluate-apk-secret
+    type: single-choice
+    prompt: A vendor API requires an authoritative shared secret, and the mobile app calls it directly. Which redesign addresses the actual boundary?
+    difficulty: junior
+    points: 2
+    explanation: Values distributed in an APK are extractable regardless of resource, BuildConfig, native, encoded, or obfuscated placement. An authoritative secret belongs on a trusted service; exposed client identifiers should be deliberately restricted.
+    options:
+      - id: server-mediation
+        text: Keep the vendor secret on a backend that authenticates and authorizes app requests, issuing narrowly scoped results.
+      - id: native-secret
+        text: Move the same secret to a native library.
+      - id: split-secret
+        text: Split the secret across resources and BuildConfig.
+      - id: obfuscate-secret
+        text: Rely on code obfuscation to make the secret confidential.
+    correct_option_id: server-mediation
+
+  - id: assess-tls-pinning
+    type: multiple-choice
+    prompt: Which release network-security decisions are defensible?
+    difficulty: junior
+    points: 4
+    explanation: Platform certificate and hostname validation plus explicit cleartext and debug separation are the baseline. Current Android guidance cautions against default pinning; an exception needs operational recovery as well as a threat model.
+    options:
+      - id: platform-validation
+        text: Preserve system certificate-chain and hostname validation and disable cleartext for sensitive hosts.
+      - id: debug-isolation
+        text: Put a development CA only in debug overrides and inspect the release artifact.
+      - id: reviewed-pinning
+        text: If a concrete threat justifies pinning, define backup pins, expiry, rotation, monitoring, staged rollout, and recovery.
+      - id: trust-all
+        text: Use a trust-all manager so certificate rotation cannot cause outages.
+    correct_option_ids:
+      - platform-validation
+      - debug-isolation
+      - reviewed-pinning
+
+  - id: harden-webview-and-leakage
+    type: code-analysis
+    prompt: Analyze this support-screen setup and identify the minimum safe redesign and leakage controls.
+    difficulty: junior
+    points: 5
+    explanation: Arbitrary WebView content combined with JavaScript, file access, and a native bridge crosses an unsafe origin-to-native boundary. Logging the URL can also disclose query secrets. A safer external-browser boundary or tightly controlled WebView is required.
+    language: kotlin
+    code: |-
+      webView.settings.javaScriptEnabled = true
+      webView.settings.allowFileAccess = true
+      webView.addJavascriptInterface(AccountBridge(session), "account")
+      logger.info("opening=${intent.data}")
+      webView.loadUrl(intent.data.toString())
+    rubric:
+      - criterion: Prefers a browser or Custom Tab for untrusted support content.
+        points: 1
+      - criterion: If WebView remains, allowlists controlled HTTPS origins and validates every navigation.
+        points: 1
+      - criterion: Disables unused JavaScript, file/content access, mixed content, and removes the unsafe native bridge.
+        points: 1
+      - criterion: Redacts URL queries, tokens, cookies, personal data, analytics, and crash output.
+        points: 1
+      - criterion: Adds off-origin, bridge, file-access, cache, and release-configuration tests.
+        points: 1
+    sample_answer: Open untrusted support pages in a browser or Custom Tab. If a controlled WebView is mandatory, allowlist owned HTTPS origins, validate navigation, disable unused features, and never expose account methods to navigable content. Log only a bounded route category, not the URL or session material, and test hostile navigation plus the packaged release configuration.
+
+  - id: plan-defense-in-depth-tests
+    type: free-text
+    prompt: Design a focused defense-in-depth test portfolio for a release with exported links, permissions, local sessions, backups, WebView, notifications, dependencies, and integrity signals.
+    difficulty: junior
+    points: 7
+    explanation: Security evidence comes from several focused boundaries and the packaged artifact. No single scanner, obfuscator, biometric prompt, App Link, or integrity verdict proves authorization or overall security.
+    rubric:
+      - criterion: Tests hostile exported component and link inputs separately from association and server authorization.
+        points: 1
+      - criterion: Tests permission denial/revocation and useful fallback behavior.
+        points: 1
+      - criterion: Tests storage, token expiry/logout, backup/restore, key invalidation, and cleanup.
+        points: 1
+      - criterion: Tests invalid TLS/cleartext/debug CA isolation and unsafe WebView origins/features.
+        points: 1
+      - criterion: Audits logs, analytics, crash reports, screenshots/recents, clipboard, notifications, and temp files.
+        points: 1
+      - criterion: Reviews dependency verification/scanning and the merged signed release artifact.
+        points: 1
+      - criterion: Binds integrity to a server request, uses tiered risk response, and keeps authorization independent.
+        points: 1
+    sample_answer: Combine parser and component tests, server authorization/replay tests, permission-state tests, storage/session/restore tests, invalid-network and WebView-origin tests, and leakage inspection. Verify dependencies and inspect the packaged release manifest/configuration. Verify fresh request-bound integrity signals server-side as one tiered risk input, not authorization. Assign residual risks and remediation owners.

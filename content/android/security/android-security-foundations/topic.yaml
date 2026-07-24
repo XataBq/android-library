@@ -1,0 +1,167 @@
+id: android-security-foundations
+title: Android Security Foundations
+track: android
+section: security
+difficulty: foundation
+status: review
+estimated_minutes: 240
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-data-layer-repositories-and-synchronization
+  - android-lifecycle-and-state-restoration
+  - android-navigation-architecture
+  - android-networking-architecture
+  - android-dependency-injection-and-scoping
+  - android-testing-foundations
+learning_outcomes:
+  - Define confidentiality, integrity, availability, privacy, authenticity, and accountability goals for an Android feature.
+  - Identify assets, attackers, entry points, trust boundaries, and abuse cases with a lightweight threat model.
+  - Apply defense in depth without treating any client-side control as absolute.
+  - Distinguish authentication, authorization, operating-system permissions, and risk signals.
+  - Minimize Android component exposure and validate every externally supplied value.
+  - Handle intents, deep links, and verified App Links as untrusted requests until application policy accepts them.
+  - Request the least Android permission at the moment its protected capability is needed.
+  - Select private storage according to data sensitivity, sharing, lifetime, backup, and deletion requirements.
+  - Explain what Android Keystore protects and what it cannot protect.
+  - Use encryption at rest as one layer with explicit key, plaintext, metadata, migration, and recovery policy.
+  - Explain why secrets embedded in an APK are extractable and move authoritative secrets to trusted systems.
+  - Preserve platform TLS validation and configure Android network trust deliberately.
+  - Evaluate certificate pinning only against a concrete threat model and operational recovery plan.
+  - Design token and session handling around server-side authorization, expiry, revocation, and redaction.
+  - Use biometrics or device credentials for local user-presence and key-use gates without treating them as remote authorization.
+  - Harden WebView boundaries or replace them with a safer external-browser flow.
+  - Prevent sensitive-data leakage through logs, analytics, crash reports, clipboard, screenshots, recents, notifications, and temporary files.
+  - Configure and test backup and restore policy for sensitive and session-bound data.
+  - Reduce build, dependency, signing, and release-configuration risk.
+  - Treat app and device integrity verdicts as replay-bound risk inputs rather than authorization decisions.
+  - Design negative security tests for components, links, permissions, storage, network trust, logs, and restoration.
+  - Recognize security anti-patterns and maintain a repeatable review checklist.
+tags:
+  - android
+  - security
+  - threat-modeling
+  - authorization
+  - permissions
+  - keystore
+  - network-security
+  - webview
+  - privacy
+references:
+  - title: Security checklist
+    url: https://developer.android.com/privacy-and-security/security-tips
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Improve your app security
+    url: https://developer.android.com/privacy-and-security/security-best-practices
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Activity manifest element
+    url: https://developer.android.com/guide/topics/manifest/activity-element
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Request runtime permissions
+    url: https://developer.android.com/training/permissions/requesting
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: About App Links
+    url: https://developer.android.com/training/app-links/about
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test App Links
+    url: https://developer.android.com/training/app-links/test-applinks
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Data and file storage overview
+    url: https://developer.android.com/training/data-storage
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Access app-specific files
+    url: https://developer.android.com/training/data-storage/app-specific
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Android Keystore system
+    url: https://developer.android.com/privacy-and-security/keystore
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Network security configuration
+    url: https://developer.android.com/privacy-and-security/security-config
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Security with network protocols
+    url: https://developer.android.com/privacy-and-security/security-ssl
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Show a biometric authentication dialog
+    url: https://developer.android.com/identity/sign-in/biometric-auth
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Unsafe file inclusion in WebView
+    url: https://developer.android.com/privacy-and-security/risks/webview-unsafe-file-inclusion
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Insecure WebView native bridges
+    url: https://developer.android.com/privacy-and-security/risks/insecure-webview-native-bridges
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Log information disclosure
+    url: https://developer.android.com/privacy-and-security/risks/log-info-disclosure
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Secure clipboard handling
+    url: https://developer.android.com/privacy-and-security/risks/secure-clipboard-handling
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Secure sensitive activities
+    url: https://developer.android.com/security/fraud-prevention/activities
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Create a notification
+    url: https://developer.android.com/develop/ui/compose/notifications/create-notification
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Security recommendations for backups
+    url: https://developer.android.com/privacy-and-security/risks/backup-best-practices
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Overview of the Play Integrity API
+    url: https://developer.android.com/google/play/integrity/overview
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Verifying dependencies
+    url: https://docs.gradle.org/current/userguide/dependency_verification.html
+    type: official-docs
+    author: Gradle
+    accessed_on: '2026-07-24'
+  - title: OWASP Mobile Application Security Verification Standard
+    url: https://mas.owasp.org/MASVS/
+    type: specification
+    author: OWASP Foundation
+    accessed_on: '2026-07-24'
+summary: A threat-model-driven guide to Android component, data, identity, network, build, privacy, and verification boundaries.
+android_connections:
+  - Android application components and links are operating-system entry points whose exposure and input contracts must be explicit.
+  - Repositories retain data ownership while enforcing local storage, network, token, and redaction policy at trusted boundaries.
+  - Navigation validates route shape, while session and resource authorization remain application and server responsibilities.
+  - Dependency injection makes security-sensitive clients, clocks, token stores, and policy boundaries explicit and testable.
+  - Lifecycle and restoration behavior affect screenshots, recents, clipboard, sessions, backups, and cleanup.
