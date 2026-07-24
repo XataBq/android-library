@@ -65,8 +65,8 @@ case requires them.
 Purpose: make the repository useful as a standalone learning product before
 building a client.
 
-The implemented baseline is the seven-topic Learning Content MVP foundation
-from Tasks 012.1–012.3 and Tasks 016–019. All seven topics remain in `review`:
+The implemented baseline is the eight-topic Learning Content MVP foundation
+from Tasks 012.1–012.3 and Tasks 016–020. All eight topics remain in `review`:
 
 - Architecture Foundations (`android-app-architecture-foundations`);
 - UI Layer and UDF (`android-ui-layer-and-unidirectional-data-flow`);
@@ -76,11 +76,33 @@ from Tasks 012.1–012.3 and Tasks 016–019. All seven topics remain in `review
 - ViewModel and UI State (`android-viewmodel-and-ui-state`);
 - Lifecycle and State Restoration
   (`android-lifecycle-and-state-restoration`);
-- Kotlin Coroutines Foundations (`kotlin-coroutines-foundations`).
+- Kotlin Coroutines Foundations (`kotlin-coroutines-foundations`);
+- Kotlin Structured Concurrency and Supervision
+  (`kotlin-structured-concurrency-and-supervision`).
+
+Structured Concurrency and Supervision is classified editorially as
+**Junior Core — advanced foundation**. The Junior Core target is exactly 17
+mandatory topics. Eight currently exist as complete production packages in
+`review`; nine remain:
+
+9. Kotlin Flow and Reactive Streams
+10. Android Navigation Architecture
+11. Android Networking Architecture
+12. Dependency Injection and Scoping
+13. Android Testing Foundations
+14. Android Security Foundations
+15. Local Persistence with Room
+16. Background Work and WorkManager
+17. Compose Foundations
+
+The final Junior/Middle boundary is deferred until the full Junior Core is
+implemented and reviewed. This is a project curriculum decision rather than a
+universal industry grading claim; no grading schema is introduced.
 
 Target deliverables:
 
-- 10–15 reviewed production topics;
+- exactly 17 mandatory Junior Core topics implemented and reviewed as
+  production packages;
 - one coherent reviewed learning path;
 - production competency-to-topic mappings;
 - a generated topic catalog;
@@ -93,12 +115,15 @@ Target deliverables:
 
 Future content planning candidates, without approved task numbers:
 
-- Structured Concurrency;
-- Networking Architecture;
-- Dependency Injection;
-- Navigation;
-- Testing;
-- Android Security Foundations.
+- Kotlin Flow and Reactive Streams;
+- Android Navigation Architecture;
+- Android Networking Architecture;
+- Dependency Injection and Scoping;
+- Android Testing Foundations;
+- Android Security Foundations;
+- Local Persistence with Room;
+- Background Work and WorkManager;
+- Compose Foundations.
 
 ## Phase 4 — Content Automation and Compiler
 

@@ -1,0 +1,82 @@
+id: kotlin-structured-concurrency-and-supervision
+title: Kotlin Structured Concurrency and Supervision
+track: kotlin
+section: coroutines
+difficulty: middle
+status: review
+estimated_minutes: 180
+content_version: 1
+prerequisites:
+  - kotlin-coroutines-foundations
+learning_outcomes:
+  - Explain structured concurrency through explicit ownership, bounded lifetime, and observable completion.
+  - Read a Job tree and predict parent and child completion.
+  - Distinguish downward cancellation from upward non-cancellation failure.
+  - Predict sibling cancellation in a regular Job hierarchy.
+  - Use coroutineScope for fail-fast concurrent aggregation.
+  - Use supervisorScope for deliberately isolated child failures.
+  - Distinguish a lexical supervisorScope from a long-lived SupervisorJob scope.
+  - Select fail-fast or best-effort execution according to result invariants.
+  - Model partial success explicitly without hiding child failures.
+  - Retain and observe every result-producing Deferred.
+  - Keep cancellation distinct from application failure.
+  - Apply withTimeout and withTimeoutOrNull without detached child work.
+  - Perform cleanup in finally and restrict NonCancellable to mandatory suspending cleanup.
+  - Assign external and application scopes to explicit long-lived owners.
+  - Select WorkManager when work must be reliably scheduled beyond an in-process owner.
+  - Test completion, propagation, supervision, timeout, cleanup, and partial results deterministically.
+tags:
+  - kotlin
+  - coroutines
+  - structured-concurrency
+  - supervision
+  - cancellation
+  - android
+references:
+  - title: Coroutines basics
+    url: https://kotlinlang.org/docs/coroutines-basics.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Coroutine exceptions handling
+    url: https://kotlinlang.org/docs/exception-handling.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Cancellation and timeouts
+    url: https://kotlinlang.org/docs/cancellation-and-timeouts.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: CoroutineScope API
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-scope/
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: supervisorScope API
+    url: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/supervisor-scope.html
+    type: official-docs
+    author: Kotlin
+    accessed_on: '2026-07-24'
+  - title: Best practices for coroutines in Android
+    url: https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Testing Kotlin coroutines on Android
+    url: https://developer.android.com/kotlin/coroutines/test?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Task scheduling with WorkManager
+    url: https://developer.android.com/develop/background-work/background-tasks/persistent?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: An ownership-first guide to Job trees, fail-fast and supervised concurrency, partial success, timeout, cleanup, long-lived Android work, and deterministic tests.
+android_connections:
+  - ViewModel-owned Job trees cancel screen work when the ViewModel is cleared.
+  - Supervision can isolate independent UI sections only when every failure is observed and represented.
+  - Application scopes require explicit process-lifetime ownership and do not provide durable scheduling.
+  - WorkManager is the boundary for reliable work that must persist beyond ordinary in-process coroutine ownership.
+  - Data and Domain operations expose completion and cancellation through bounded suspend contracts.

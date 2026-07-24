@@ -1,0 +1,161 @@
+topic_id: kotlin-structured-concurrency-and-supervision
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: explicit-owner
+    type: single-choice
+    prompt: What is the central structured-concurrency ownership rule?
+    difficulty: junior
+    points: 1
+    explanation: Child work belongs to an explicit bounded owner whose completion includes the subtree.
+    options:
+      - id: bounded-tree
+        text: Every child belongs to a scope with an observable lifetime.
+      - id: dispatcher-owner
+        text: A dispatcher owns every Job it schedules.
+      - id: global-default
+        text: GlobalScope is the implicit owner.
+    correct_option_id: bounded-tree
+
+  - id: parent-completion
+    type: true-false
+    prompt: A coroutineScope returns normally as soon as its block reaches the last statement, even while children remain active.
+    difficulty: junior
+    points: 1
+    explanation: False. The scope waits for all owned children before normal completion.
+    correct_answer: false
+
+  - id: downward-cancellation
+    type: single-choice
+    prompt: What normally happens when a regular parent Job is cancelled?
+    difficulty: junior
+    points: 1
+    explanation: Parent cancellation recursively requests cancellation of its child subtree.
+    options:
+      - id: children-cancel
+        text: Its children are cancelled.
+      - id: siblings-only
+        text: Only its siblings are cancelled.
+      - id: no-effect
+        text: Child Jobs are unaffected.
+    correct_option_id: children-cancel
+
+  - id: regular-child-failure
+    type: single-choice
+    prompt: One child throws a non-cancellation exception in a regular scope while a sibling is active. What is expected?
+    difficulty: middle
+    points: 1
+    explanation: The failure cancels the parent, which cancels the sibling, and the scope fails.
+    options:
+      - id: fail-fast
+        text: Parent and sibling are cancelled and the scope fails.
+      - id: ignore
+        text: Failure is silently ignored.
+      - id: sibling-success
+        text: Sibling always completes before failure is reported.
+    correct_option_id: fail-fast
+
+  - id: coroutine-scope-policy
+    type: multiple-choice
+    prompt: Which statements describe coroutineScope?
+    difficulty: junior
+    points: 2
+    explanation: It is a bounded lexical fail-fast scope that waits for children and inherits caller cancellation.
+    options:
+      - id: waits
+        text: It waits for owned children.
+      - id: caller-cancels
+        text: Caller cancellation reaches its children.
+      - id: persistent
+        text: It persists work across process death.
+      - id: ignores-failure
+        text: It automatically suppresses child failure.
+    correct_option_ids:
+      - waits
+      - caller-cancels
+
+  - id: supervisor-scope-policy
+    type: multiple-choice
+    prompt: Which statements describe supervisorScope?
+    difficulty: middle
+    points: 2
+    explanation: Direct child failures are isolated, but waiting, downward cancellation, and error observation remain.
+    options:
+      - id: isolate-sibling
+        text: One direct child failure need not cancel siblings.
+      - id: observe
+        text: Failed child outcomes must still be handled.
+      - id: no-caller-cancel
+        text: Caller cancellation cannot cancel children.
+      - id: no-wait
+        text: The scope returns before children finish.
+    correct_option_ids:
+      - isolate-sibling
+      - observe
+
+  - id: supervisor-job-owner
+    type: single-choice
+    prompt: Which is a sound use of SupervisorJob?
+    difficulty: middle
+    points: 1
+    explanation: It can define an explicitly managed long-lived scope with independent direct children.
+    options:
+      - id: application-owner
+        text: An application-owned scope that is injected and cancelled by its owner.
+      - id: arbitrary-child
+        text: Add a fresh SupervisorJob to every launch to detach it.
+      - id: suppress-all
+        text: Use it so failures never need handling.
+    correct_option_id: application-owner
+
+  - id: select-policy
+    type: single-choice
+    prompt: A dashboard has independent weather and recommendations widgets. One may fail while the other remains useful. Which policy fits?
+    difficulty: middle
+    points: 1
+    explanation: Bounded supervision plus explicit per-widget outcomes implements honest best-effort behavior.
+    options:
+      - id: supervised-partial
+        text: Supervise, await every child, and model each outcome.
+      - id: regular-ignore
+        text: Use regular scope and ignore whichever failure appears.
+      - id: global
+        text: Launch both globally and return immediately.
+    correct_option_id: supervised-partial
+
+  - id: timeout-cleanup
+    type: multiple-choice
+    prompt: Which timeout and cleanup rules are sound?
+    difficulty: middle
+    points: 2
+    explanation: Timeout cancels lexical children; cleanup belongs in finally and NonCancellable must remain narrow.
+    options:
+      - id: lexical-cancel
+        text: Children in withTimeout are cancelled with the timed block.
+      - id: narrow-cleanup
+        text: Use a small NonCancellable block only for mandatory suspending cleanup.
+      - id: detached-survives
+        text: Start detached work so it survives timeout unnoticed.
+      - id: whole-operation
+        text: Wrap the entire operation in NonCancellable.
+    correct_option_ids:
+      - lexical-cancel
+      - narrow-cleanup
+
+  - id: android-ownership
+    type: free-text
+    prompt: Assign owners for screen load, in-process cache update that outlives navigation, and reliable sync that must survive process exit.
+    difficulty: middle
+    points: 3
+    explanation: Screen work belongs to ViewModel, disposable process work to an explicit application owner, and reliable persistent scheduling to WorkManager.
+    rubric:
+      - criterion: Assigns screen load to viewModelScope or its bounded child contract.
+        points: 1
+      - criterion: Assigns navigation-independent in-process cache work to an injected application scope.
+        points: 1
+      - criterion: Assigns reliable process-surviving sync to WorkManager or another justified durable scheduler.
+        points: 1
+    sample_answer: >
+      ViewModel owns screen load and cancellation. An injected application scope
+      may own disposable process-lifetime cache work. Reliable reschedulable sync
+      belongs to WorkManager, with persistent inputs rather than an in-memory Job.
