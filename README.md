@@ -16,16 +16,17 @@ Developers source packages, version 2 canonical Android app architecture
 competency set remain in `review`. The first learning sequence has machine
 status `approved`, is conceptually `accepted`, and is not published.
 
-Tasks 012.1–012.3 and Tasks 016–017 form the current five-topic Android app
+Tasks 012.1–012.3 and Tasks 016–018 form the current six-topic Android app
 architecture foundation:
 
 - Architecture Foundations;
 - UI Layer and UDF;
 - Data Layer, Repositories and Synchronization;
 - Domain Layer and Use Cases;
-- ViewModel and UI State.
+- ViewModel and UI State;
+- Lifecycle and State Restoration.
 
-All five production educational topics remain in `review`. Competency-to-topic
+All six production educational topics remain in `review`. Competency-to-topic
 mapping infrastructure exists, but no production mapping packages exist.
 There is also no generated catalog, web client, user database, synchronized
 progress, AI tutor, Android client, or CI workflow yet.

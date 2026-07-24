@@ -65,15 +65,17 @@ case requires them.
 Purpose: make the repository useful as a standalone learning product before
 building a client.
 
-The implemented baseline is the five-topic Android app architecture foundation
-from Tasks 012.1–012.3 and Tasks 016–017. All five topics remain in `review`:
+The implemented baseline is the six-topic Android app architecture foundation
+from Tasks 012.1–012.3 and Tasks 016–018. All six topics remain in `review`:
 
 - Architecture Foundations (`android-app-architecture-foundations`);
 - UI Layer and UDF (`android-ui-layer-and-unidirectional-data-flow`);
 - Data Layer, Repositories and Synchronization
   (`android-data-layer-repositories-and-synchronization`);
 - Domain Layer and Use Cases (`android-domain-layer-and-use-cases`);
-- ViewModel and UI State (`android-viewmodel-and-ui-state`).
+- ViewModel and UI State (`android-viewmodel-and-ui-state`);
+- Lifecycle and State Restoration
+  (`android-lifecycle-and-state-restoration`).
 
 Target deliverables:
 
@@ -90,7 +92,6 @@ Target deliverables:
 
 Future content planning candidates, without approved task numbers:
 
-- Android Lifecycle and State Restoration;
 - Kotlin Coroutines Foundations;
 - Structured Concurrency;
 - Networking Architecture;

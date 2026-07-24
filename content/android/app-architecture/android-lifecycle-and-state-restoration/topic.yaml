@@ -1,0 +1,91 @@
+id: android-lifecycle-and-state-restoration
+title: Android Lifecycle and State Restoration
+track: android
+section: app-architecture
+difficulty: foundation
+status: review
+estimated_minutes: 180
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-ui-layer-and-unidirectional-data-flow
+  - android-data-layer-repositories-and-synchronization
+  - android-domain-layer-and-use-cases
+  - android-viewmodel-and-ui-state
+learning_outcomes:
+  - Distinguish Activity, Fragment, and Fragment View lifecycles and their ownership boundaries.
+  - Explain lifecycle callbacks as state transitions rather than persistence guarantees.
+  - Distinguish configuration change, navigation removal, explicit finish, process termination, and process recreation.
+  - Bind Fragment View work and lifecycle-aware collection to viewLifecycleOwner.
+  - Explain the purpose and limits of onSaveInstanceState and Saved State Registry.
+  - Use SavedStateHandle for small recoverable inputs while repositories retain authoritative data ownership.
+  - Distinguish View hierarchy restoration from application-data persistence.
+  - Select remember, rememberSaveable, and Saver according to required Compose state lifetime.
+  - Reconstruct ViewModel presentation state after process recreation.
+  - Select destination or graph ownership for navigation state and ViewModels.
+  - Compare Fragment Result API, shared ViewModel, and navigation saved-state results.
+  - Explain practical Bundle, Parcel, Binder, Parcelable, and Serializable boundaries.
+  - Prevent TransactionTooLargeException by transporting only small reconstructable values.
+  - Place state according to ownership, scope, size, durability, and reconstructability.
+  - Test recreation and restoration without claiming that recreation fully simulates an OS process kill.
+tags:
+  - app-architecture
+  - lifecycle
+  - saved-state
+  - process-recreation
+  - fragments
+  - compose
+references:
+  - title: The activity lifecycle
+    url: https://developer.android.com/guide/components/activities/activity-lifecycle?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Processes and app lifecycle
+    url: https://developer.android.com/guide/components/activities/process-lifecycle?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Fragment lifecycle
+    url: https://developer.android.com/guide/fragments/lifecycle?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Save UI states
+    url: https://developer.android.com/topic/libraries/architecture/saving-states?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Saved State module for ViewModel
+    url: https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Save UI state in Compose
+    url: https://developer.android.com/develop/ui/compose/state-saving?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Communicate with fragments
+    url: https://developer.android.com/guide/fragments/communicate?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Interact programmatically with the Navigation component
+    url: https://developer.android.com/guide/navigation/use-graph/programmatic?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Parcelables and bundles
+    url: https://developer.android.com/guide/components/activities/parcelables-and-bundles?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+summary: A responsibility-first guide to Android component lifecycles, small saved state, process recreation, navigation ownership, and Binder transport limits.
+android_connections:
+  - Activity, Fragment, and Fragment View lifecycles define different UI ownership boundaries.
+  - ViewModel retains in-memory presentation state through configuration change but not process termination.
+  - SavedStateHandle and saved-state APIs restore small reconstructable state rather than authoritative application data.
+  - Repository and persistent storage retain ownership of durable or authoritative data.
+  - Compose and View-based UI use different restoration APIs under the same ownership and size principles.
+  - Binder transaction size constrains Bundle-based state transport.

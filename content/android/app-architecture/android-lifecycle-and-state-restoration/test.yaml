@@ -1,0 +1,216 @@
+topic_id: android-lifecycle-and-state-restoration
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: fragment-view-owner
+    type: single-choice
+    prompt: >
+      A Fragment remains on the back stack while its View is destroyed. Which
+      owner should a collector that writes to that View use?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      The Fragment View has a shorter lifecycle than the Fragment instance.
+      viewLifecycleOwner stops View-bound delivery when that View is destroyed.
+    options:
+      - id: view-owner
+        text: The Fragment's viewLifecycleOwner.
+      - id: fragment-owner
+        text: The Fragment instance for its entire lifetime.
+      - id: activity-owner
+        text: The host Activity so collection never stops.
+      - id: application-owner
+        text: An application-global lifecycle.
+    correct_option_id: view-owner
+
+  - id: configuration-change
+    type: multiple-choice
+    prompt: Which statements describe a default configuration change?
+    difficulty: foundation
+    points: 2
+    explanation: >
+      UI instances are recreated for the new configuration, while a ViewModel
+      from the same retained logical owner can remain. Old View references must
+      not be retained.
+    options:
+      - id: new-ui
+        text: The old Activity or Fragment View is replaced by a new UI instance.
+      - id: retained-viewmodel
+        text: A correctly scoped ViewModel can be retained for the same logical owner.
+      - id: old-binding
+        text: The retained ViewModel should keep the old binding for the new UI.
+      - id: process-required
+        text: A configuration change necessarily starts a new process.
+    correct_option_ids:
+      - new-ui
+      - retained-viewmodel
+
+  - id: process-recreation
+    type: single-choice
+    prompt: >
+      A background process was terminated and the task is later recreated.
+      Which recovery design is correct?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Process memory and ViewModels are gone. New objects use small captured
+      inputs and current repository data to rebuild presentation state.
+    options:
+      - id: reconstruct
+        text: Create a new ViewModel, restore a small key, and reload data from the Repository.
+      - id: resume-viewmodel
+        text: Resume the old ViewModel and its suspended coroutines.
+      - id: deserialize-screen
+        text: Deserialize the entire old screen graph from a Bundle.
+      - id: wait-destroy
+        text: Depend on the old Activity's onDestroy to finish persistence.
+    correct_option_id: reconstruct
+
+  - id: viewmodel-handle-boundary
+    type: multiple-choice
+    prompt: Which responsibility assignments are appropriate?
+    difficulty: foundation
+    points: 2
+    explanation: >
+      ViewModel owns in-memory presentation state, SavedStateHandle stores
+      small reconstruction inputs, and Repository owns authoritative data.
+    options:
+      - id: ui-state
+        text: ViewModel produces presentation UiState.
+      - id: small-filter
+        text: SavedStateHandle stores a small filter used to rebuild the screen.
+      - id: loaded-database
+        text: SavedStateHandle stores a full database snapshot.
+      - id: repository-in-handle
+        text: SavedStateHandle stores the Repository object.
+    correct_option_ids:
+      - ui-state
+      - small-filter
+
+  - id: save-instance-state
+    type: true-false
+    prompt: >
+      onSaveInstanceState is a guaranteed final callback suitable for completing
+      every durable database or network write before destruction.
+    difficulty: foundation
+    points: 1
+    explanation: >
+      False. It contributes small transient reconstruction state and is not
+      called in every destruction scenario or intended for slow durable work.
+    correct_answer: false
+
+  - id: compose-state
+    type: single-choice
+    prompt: >
+      A query field should survive eligible Activity/process recreation, while
+      a press animation may reset. Which choice best matches?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Small query input is appropriate saveable UI state. The animation is
+      ephemeral and can remain only in the Composition.
+    options:
+      - id: save-query
+        text: Use rememberSaveable for the query and remember for the animation.
+      - id: save-animation
+        text: Use remember for the query and rememberSaveable for every animation frame.
+      - id: database-both
+        text: Persist both in the application database.
+      - id: viewmodel-bitmap
+        text: Encode both as a bitmap in ViewModel.
+    correct_option_id: save-query
+
+  - id: state-placement
+    type: multiple-choice
+    prompt: Select the sound state placements.
+    difficulty: junior
+    points: 2
+    explanation: >
+      Route IDs are compact reconstruction keys, durable auth belongs in a
+      secure data owner, and large pixels should be reloaded by key or URI.
+    options:
+      - id: route-key
+        text: Put a route ID in navigation arguments or SavedStateHandle.
+      - id: auth-storage
+        text: Keep authentication state in an appropriate secure persistent data owner.
+      - id: bitmap-bundle
+        text: Put a full-resolution bitmap in saved instance state.
+      - id: profile-copy
+        text: Duplicate a loaded profile as authoritative data in Bundle and Repository.
+    correct_option_ids:
+      - route-key
+      - auth-storage
+
+  - id: result-mechanism
+    type: single-choice
+    prompt: >
+      Destination B returns one small selected ID to A. The value should be
+      consumed once and is not ongoing shared state. Which is a suitable design?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A Fragment Result or previous NavBackStackEntry SavedStateHandle result
+      fits a small one-time value. A shared ViewModel is for deliberately shared
+      ongoing state, not mandatory result delivery.
+    options:
+      - id: one-time-result
+        text: Use a lifecycle-aware Fragment Result or navigation saved-state result and consume it once.
+      - id: global-viewmodel
+        text: Create an application-global ViewModel event bus.
+      - id: full-object
+        text: Put the complete selected object and image bytes in a Bundle.
+      - id: nav-in-viewmodel
+        text: Store NavController in A's ViewModel and call B directly.
+    correct_option_id: one-time-result
+
+  - id: binder-limit
+    type: multiple-choice
+    prompt: Which statements help explain and prevent TransactionTooLargeException?
+    difficulty: junior
+    points: 2
+    explanation: >
+      Binder constrains the aggregate transaction buffer. Several state
+      contributors can combine, so large data should live outside Bundle
+      transport and be reconstructed by compact keys.
+    options:
+      - id: aggregate
+        text: Inspect arguments, nested Bundles, View state, navigation, and saveable state together.
+      - id: compact-keys
+        text: Store large data in file/database/cache ownership and transport IDs or URIs.
+      - id: parcelable-unlimited
+        text: Marking a value Parcelable removes Binder size constraints.
+      - id: one-extra-only
+        text: Only a single extra larger than the full buffer can trigger the exception.
+    correct_option_ids:
+      - aggregate
+      - compact-keys
+
+  - id: restoration-architecture
+    type: free-text
+    prompt: >
+      Design recovery for a detail screen after background process termination.
+      It has a route ID, filter input, loaded entity, bitmap, and derived UiState.
+      Include ownership and a realistic testing claim.
+    difficulty: junior
+    points: 5
+    explanation: >
+      Recovery creates new owners, restores only compact inputs, reloads
+      authoritative data and large assets, rebuilds UiState, and tests each
+      restoration boundary without equating recreation with a real OS kill.
+    rubric:
+      - criterion: Creates a new ViewModel and restores only the route ID and justified small filter input.
+        points: 1
+      - criterion: Reloads the entity from Repository and the bitmap through file or cache ownership.
+        points: 1
+      - criterion: Rebuilds a truthful derived UiState instead of restoring the old ViewModel object.
+        points: 1
+      - criterion: Handles missing saved state or unavailable data explicitly.
+        points: 1
+      - criterion: Separates recreation tests from a real process-death device or harness claim.
+        points: 1
+    sample_answer: >
+      A new ViewModel reads a saved route ID and small filter, starts in a
+      restoring state, observes the entity from Repository, and loads the image
+      by URI or cache key. Missing IDs and unavailable data become explicit UI
+      states. Unit and recreation tests verify reconstruction, while a separate
+      device or suitable harness is needed for an actual process-kill claim.
