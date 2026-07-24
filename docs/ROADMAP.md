@@ -45,7 +45,8 @@ Implemented:
 - a minimal learning-sequence model;
 - the first learning sequence in `review`;
 - competency-to-topic mapping infrastructure, with no production mapping
-  packages.
+  packages;
+- repository-wide exact-version package lifecycle and promotion criteria.
 
 Architecture acceptance does not approve source, canonical competency, or
 learning-sequence packages.
@@ -53,7 +54,7 @@ learning-sequence packages.
 Remaining:
 
 - complete editorial review of the first learning sequence;
-- define explicit promotion criteria for `review`, `accepted`, and `published`;
+- record its explicit disposition;
 - formally close Phase 2;
 - keep canonical competency relations deferred unless a real use case requires
   them.
@@ -268,5 +269,4 @@ A custom backend is not a goal by itself.
 **Phase 3 — Learning Content MVP**
 
 Phase 2 is near completion and remains open for editorial review of the first
-learning sequence, explicit package-promotion criteria, and formal phase
-closure.
+learning sequence, its explicit disposition, and formal phase closure.

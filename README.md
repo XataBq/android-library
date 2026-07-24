@@ -7,8 +7,8 @@ software engineering.
 
 The active product phase is **Phase 3 — Learning Content MVP**. Phase 2 —
 Canonical Knowledge Foundation is near completion; it still requires editorial
-review of the first learning sequence, explicit package-promotion criteria, and
-formal phase closure.
+review and disposition of the first learning sequence, followed by formal phase
+closure. Repository-wide package promotion criteria are now defined.
 
 The canonical competency model is the repository's `ACCEPTED` architecture.
 Architecture acceptance does not approve editorial packages: the two Android
@@ -52,26 +52,28 @@ The repository will gradually contain:
    and next work.
 4. Read `docs/ROADMAP.md`.
 5. Read `docs/ARCHITECTURE.md`.
-6. Read `docs/DEVELOPMENT_WORKFLOW.md`.
-7. Read `docs/COMPETENCY_SOURCE_MODEL.md` before recording competency sources.
-8. Read the [competency import workflow](docs/COMPETENCY_IMPORT_WORKFLOW.md)
+6. Read the [editorial package lifecycle](docs/EDITORIAL_PACKAGE_LIFECYCLE.md)
+   before reviewing or promoting a versioned package.
+7. Read `docs/DEVELOPMENT_WORKFLOW.md`.
+8. Read `docs/COMPETENCY_SOURCE_MODEL.md` before recording competency sources.
+9. Read the [competency import workflow](docs/COMPETENCY_IMPORT_WORKFLOW.md)
    before importing a source publication.
-9. Read the [canonical competency model](docs/architecture/CANONICAL_COMPETENCY_MODEL.md)
+10. Read the [canonical competency model](docs/architecture/CANONICAL_COMPETENCY_MODEL.md)
    before normalizing source evidence.
-10. Read the [competency normalization workflow](docs/COMPETENCY_NORMALIZATION_WORKFLOW.md)
+11. Read the [competency normalization workflow](docs/COMPETENCY_NORMALIZATION_WORKFLOW.md)
     before adding evidence or canonical competencies.
-11. Read the [learning-sequence model](docs/LEARNING_SEQUENCE_MODEL.md) and
+12. Read the [learning-sequence model](docs/LEARNING_SEQUENCE_MODEL.md) and
     [authoring guide](docs/LEARNING_SEQUENCE_AUTHORING.md) before changing a
     sequence.
-12. Read the [competency-to-topic mapping model](docs/COMPETENCY_TOPIC_MAPPING_MODEL.md)
+13. Read the [competency-to-topic mapping model](docs/COMPETENCY_TOPIC_MAPPING_MODEL.md)
     and [authoring guide](docs/COMPETENCY_TOPIC_MAPPING_AUTHORING.md) before
     creating a future mapping package.
-13. Run `python -B scripts/validate_competencies.py` after changing source,
+14. Run `python -B scripts/validate_competencies.py` after changing source,
     canonical competency, learning-sequence, or competency-to-topic mapping
     packages.
-14. Read `docs/CONTENT_MODEL.md` before authoring educational content.
-15. Run `python -B scripts/validate_content.py` after adding or changing topic
+15. Read `docs/CONTENT_MODEL.md` before authoring educational content.
+16. Run `python -B scripts/validate_content.py` after adding or changing topic
     content.
-16. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and
+17. Read `docs/CONTENT_VALIDATION.md` for content-validator rules and
     diagnostics.
-17. Read `AGENTS.md` before using an AI coding agent.
+18. Read `AGENTS.md` before using an AI coding agent.

@@ -2,13 +2,14 @@
 
 ## Current architectural stage
 
-The repository is currently in **Phase 2 — Competency import**. The repository
-foundation, educational topic contracts, source competency model, and first
-canonical competency model are implemented. Current work focuses on
-provenance-preserving source import, editorial canonicalization, and reviewed
-pedagogical sequences through canonical competencies. Separate
-competency-to-topic mapping infrastructure is implemented for future authored
-topics, without any production mapping packages.
+The active product phase is **Phase 3 — Learning Content MVP**. Phase 2 —
+Canonical Knowledge Foundation remains near completion pending editorial review
+and disposition of the first learning sequence and formal phase closure. The
+repository foundation, educational topic contracts, competency foundations,
+learning-sequence infrastructure, competency-to-topic mapping infrastructure,
+and first three production educational topics are implemented. All existing
+editorial packages remain in `review`, and no production mapping package
+exists.
 
 No production client architecture is considered final yet.
 
@@ -88,8 +89,9 @@ the authored sequence and creates no canonical relation. Canonical competency
 relations remain deferred. Competency-to-topic mapping packages are a separate
 implemented domain that owns versioned many-to-many relationships between
 canonical competencies and topics; no production mapping packages exist yet.
-Educational topics are separately authored learning material; none exist in
-production yet, and they are not generated automatically from competencies.
+Educational topics are separately authored learning material; three production
+topic packages currently exist in `review`, and they are not generated
+automatically from competencies.
 Learner progress is personal state and remains outside competency, sequence,
 mapping, and topic data.
 
@@ -208,6 +210,17 @@ competencies. Both source packages and the canonical competency set remain in
 approve those editorial packages. Canonical relations and competency-to-topic
 production mappings remain deferred; only the separate mapping infrastructure
 is implemented.
+
+## Architecture and package status
+
+Architecture status answers whether a model or decision is the repository's
+approved design. Package editorial status answers whether one exact package
+version has passed content review. Architecture `ACCEPTED`, task `DONE`, and
+publication of a derived artifact do not accept an editorial package.
+
+The repository-wide lifecycle, machine-supported status vocabulary, promotion
+criteria, and human approval authority are defined in
+[`docs/EDITORIAL_PACKAGE_LIFECYCLE.md`](EDITORIAL_PACKAGE_LIFECYCLE.md).
 
 ## Architecture decision records
 

@@ -5,9 +5,10 @@
 **Current phase: Phase 3 — Learning Content MVP**
 
 Phase 2 — Canonical Knowledge Foundation is near completion. It still requires
-editorial review of the first learning sequence, explicit package-promotion
-criteria, and formal phase closure. Moving the active product focus to Phase 3
-does not approve any review-stage package.
+editorial review and disposition of the first learning sequence, followed by
+formal phase closure. Repository-wide package promotion criteria are defined.
+Moving the active product focus to Phase 3 does not approve any review-stage
+package.
 
 ## Completed capabilities
 
@@ -33,6 +34,8 @@ The repository currently provides:
 - the first Android app architecture learning sequence in `review`;
 - separate version 1 competency-to-topic mapping infrastructure, with no
   production mapping packages;
+- a repository-wide editorial package lifecycle with exact-version promotion
+  criteria for all five package domains;
 - three production educational topics in `review`, forming the current Android
   app architecture foundation:
   - Architecture Foundations
@@ -78,6 +81,10 @@ The repository currently provides:
   layer and Unidirectional Data Flow.
 - **Task 012.3 — DONE:** Added the third production topic for the Android Data
   layer, repositories, and synchronization.
+- **Task 013 — DONE:** Reframed the project roadmap around learning content,
+  automation, distribution, product validation, and deferred expansion.
+- **Task 014 — DONE:** Defined the repository-wide editorial package lifecycle
+  and exact-version promotion criteria without promoting any package.
 
 ## Current focus
 
@@ -93,14 +100,14 @@ competency relations are deferred. Competency-to-topic mapping infrastructure
 is implemented, but no production mapping package exists.
 
 Phase 2 remains open for editorial review of the first learning sequence,
-definition of explicit `review`/`accepted`/`published` promotion criteria, and
-formal closure.
+its explicit disposition, and formal closure.
 
 ## Next planned work
 
 The next work is planned, not yet approved as numbered implementation tasks:
 
-1. Complete Phase 2 editorial and package-promotion work.
+1. Complete editorial review and disposition of the first learning sequence,
+   then formally close Phase 2.
 2. Review and expand the three-topic Android app architecture foundation toward
    a coherent 10–15-topic Learning Content MVP.
 3. Create one reviewed learning path and production competency-to-topic
