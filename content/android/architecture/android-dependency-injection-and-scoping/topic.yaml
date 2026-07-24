@@ -1,0 +1,114 @@
+id: android-dependency-injection-and-scoping
+title: Android Dependency Injection and Scoping
+track: android
+section: architecture
+difficulty: foundation
+status: review
+estimated_minutes: 210
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-data-layer-repositories-and-synchronization
+  - android-domain-layer-and-use-cases
+  - android-viewmodel-and-ui-state
+  - android-lifecycle-and-state-restoration
+  - android-navigation-architecture
+  - android-networking-architecture
+learning_outcomes:
+  - Explain dependency injection as explicit object construction, replacement, and ownership.
+  - Apply dependency inversion so policy depends on stable abstractions rather than infrastructure.
+  - Prefer constructor injection for complete objects with visible dependencies.
+  - Identify the application or feature composition root that assembles an object graph.
+  - Trace graph nodes, dependency edges, transitive creation, reuse, and cycles.
+  - Distinguish dependency injection from global service lookup.
+  - Build a small manual dependency container before selecting framework automation.
+  - Explain what compile-time and runtime DI frameworks automate and what architecture decisions remain human-owned.
+  - Distinguish provider, lazy, factory, scoped reuse, and unscoped creation semantics.
+  - Define every scope through an owner, creation boundary, reuse boundary, and destruction boundary.
+  - Explain why an unscoped object still has an owner and finite reachability.
+  - Distinguish process/Application, Activity, Activity-retained, Fragment, ViewModel, and navigation-entry lifetimes.
+  - Inject ViewModel dependencies without retaining Activity, Fragment, View, NavController, or themed Context.
+  - Use SavedStateHandle for restorable inputs and assisted factories for deliberate runtime values.
+  - Use qualifiers for bindings with the same type but different semantics.
+  - Use set or map multibindings for unordered contributions with explicit selection policy.
+  - Keep application, Activity, and themed Context dependencies narrow and correctly scoped.
+  - Detect graph cycles, over-scoping, mutable globals, giant modules, and container leakage.
+  - Replace constructor dependencies directly in unit tests and graph bindings in integration tests.
+  - Keep Domain and repository contracts free from DI-container and Android framework APIs.
+tags:
+  - android
+  - architecture
+  - dependency-injection
+  - dependency-inversion
+  - object-graph
+  - scoping
+  - hilt
+  - testing
+references:
+  - title: Dependency injection in Android
+    url: https://developer.android.com/training/dependency-injection
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Manual dependency injection
+    url: https://developer.android.com/training/dependency-injection/manual
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Dependency injection with Hilt
+    url: https://developer.android.com/training/dependency-injection/hilt-android
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Use Hilt with other Jetpack libraries
+    url: https://developer.android.com/training/dependency-injection/hilt-jetpack
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Hilt testing guide
+    url: https://developer.android.com/training/dependency-injection/hilt-testing
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: ViewModel scoping APIs for Views
+    url: https://developer.android.com/topic/libraries/architecture/views/viewmodel/viewmodel-apis-views
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: ViewModel overview
+    url: https://developer.android.com/topic/libraries/architecture/views/viewmodel
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Dagger developer guide
+    url: https://dagger.dev/dev-guide/
+    type: official-docs
+    author: Google
+    accessed_on: '2026-07-24'
+  - title: Hilt components
+    url: https://dagger.dev/hilt/components.html
+    type: official-docs
+    author: Google
+    accessed_on: '2026-07-24'
+  - title: Hilt ViewModels
+    url: https://dagger.dev/hilt/view-model.html
+    type: official-docs
+    author: Google
+    accessed_on: '2026-07-24'
+  - title: Dagger multibindings
+    url: https://dagger.dev/dev-guide/multibindings.html
+    type: official-docs
+    author: Google
+    accessed_on: '2026-07-24'
+  - title: Dagger assisted injection
+    url: https://dagger.dev/dev-guide/assisted-injection.html
+    type: official-docs
+    author: Google
+    accessed_on: '2026-07-24'
+summary: An ownership-first guide to explicit dependency graphs, composition roots, Android lifetimes, framework automation, binding selection, and isolated tests.
+android_connections:
+  - Application, Activity, Fragment, ViewModelStoreOwner, and NavBackStackEntry provide different graph ownership boundaries.
+  - Hilt components automate Android-aware construction but do not select correct application boundaries or lifetimes.
+  - ViewModels receive repository and use-case contracts without retaining UI framework owners.
+  - Application Context may support Data-layer platform adapters while Activity or themed Context stays UI-scoped.
+  - Test graphs replace bindings without mutating process-global production state.

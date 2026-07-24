@@ -5,7 +5,7 @@
 The active product phase is **Phase 3 — Learning Content MVP**. Phase 2 —
 Canonical Knowledge Foundation is completed. The repository foundation,
 educational topic contracts, competency foundations, learning-sequence
-infrastructure, competency-to-topic mapping infrastructure, and first eleven
+infrastructure, competency-to-topic mapping infrastructure, and first twelve
 production educational topics are implemented. The first learning sequence
 version 1 has machine status `approved` and conceptual state `accepted`; source
 packages, the canonical competency package, and topics remain in `review`. No
@@ -89,7 +89,7 @@ the authored sequence and creates no canonical relation. Canonical competency
 relations remain deferred. Competency-to-topic mapping packages are a separate
 implemented domain that owns versioned many-to-many relationships between
 canonical competencies and topics; no production mapping packages exist yet.
-Educational topics are separately authored learning material; eleven production
+Educational topics are separately authored learning material; twelve production
 topic packages currently exist in `review`, and they are not generated
 automatically from competencies.
 Learner progress is personal state and remains outside competency, sequence,

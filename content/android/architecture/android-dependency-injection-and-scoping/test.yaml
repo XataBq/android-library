@@ -1,0 +1,222 @@
+topic_id: android-dependency-injection-and-scoping
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: choose-constructor-injection
+    type: single-choice
+    prompt: >
+      A use case requires ProfileRepository and Clock. Which design makes the
+      object complete and directly testable?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Constructor parameters expose every required collaborator and allow tests
+      to create the use case with fresh fakes. Hidden lookup makes requirements
+      and ownership implicit.
+    options:
+      - id: constructor
+        text: Require ProfileRepository and Clock in the constructor.
+      - id: global-lookup
+        text: Resolve both from a static container during invoke.
+      - id: mutable-fields
+        text: Leave nullable public fields for callers to assign later.
+      - id: application
+        text: Pass Application and let the use case find everything.
+    correct_option_id: constructor
+
+  - id: distinguish-di-locator
+    type: single-choice
+    prompt: >
+      Which example is service location rather than dependency injection?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A consumer that queries a global container hides its dependencies in its
+      implementation. With DI, the composition root supplies them through the
+      construction contract.
+    options:
+      - id: resolve-inside
+        text: ViewModel calls GlobalServices.resolve<OrderRepository>().
+      - id: constructor-repository
+        text: ViewModel receives OrderRepository in its constructor.
+      - id: factory-runtime-id
+        text: A factory receives an order ID and injected repository.
+      - id: root-builds
+        text: An Activity composition root constructs a screen graph.
+    correct_option_id: resolve-inside
+
+  - id: locate-composition-root
+    type: single-choice
+    prompt: >
+      Where should concrete repository, client, and use-case implementations
+      normally be selected?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A narrow application or feature composition root selects implementations
+      near framework entry. Business objects consume their declared contracts
+      and do not choose infrastructure.
+    options:
+      - id: composition-boundary
+        text: In an application or feature composition root.
+      - id: repository-method
+        text: Inside every repository operation.
+      - id: domain-locator
+        text: In a global resolver passed through Domain.
+      - id: composable-body
+        text: Rebuild the entire application graph during every recomposition.
+    correct_option_id: composition-boundary
+
+  - id: define-scope-owner
+    type: multiple-choice
+    prompt: >
+      Which two facts are required to define a meaningful DI scope?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      Scope is reuse inside one owner lifetime. Its creation/reuse and
+      destruction boundaries must be known; an annotation name alone is
+      insufficient.
+    options:
+      - id: owner-lifetime
+        text: The concrete owner and its lifetime.
+      - id: creation-destruction
+        text: Creation/reuse and destruction boundaries.
+      - id: annotation-color
+        text: The IDE color used for the annotation.
+      - id: longest-wins
+        text: A rule that every object uses the longest available lifetime.
+    correct_option_ids:
+      - owner-lifetime
+      - creation-destruction
+
+  - id: compare-application-activity
+    type: single-choice
+    prompt: >
+      An object retains Activity Context but is bound in Hilt
+      SingletonComponent. What is the core defect?
+    difficulty: junior
+    points: 1
+    explanation: >
+      The process-owned object can outlive the Activity instance and leak it.
+      Activity/themed Context belongs to an Activity/UI owner; process adapters
+      should use Application Context when appropriate.
+    options:
+      - id: lifetime-leak
+        text: A longer-lived process object retains a shorter-lived Activity owner.
+      - id: singleton-persists
+        text: SingletonComponent will serialize the Activity across process death.
+      - id: context-equal
+        text: There is no defect because all Context instances have one lifetime.
+      - id: qualifier-scope
+        text: Adding any qualifier automatically shortens the singleton lifetime.
+    correct_option_id: lifetime-leak
+
+  - id: choose-navigation-viewmodel-owner
+    type: single-choice
+    prompt: >
+      Three checkout destinations share presentation state that must clear when
+      the checkout graph is popped. Which owner best matches?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Scope the shared ViewModel to the checkout NavBackStackEntry. The entry is
+      its ViewModelStoreOwner, so the workflow state clears when the graph entry
+      is removed without becoming Activity-global.
+    options:
+      - id: graph-entry
+        text: A ViewModel owned by the checkout navigation graph entry.
+      - id: process-singleton
+        text: A mutable process singleton shared by every checkout.
+      - id: each-view
+        text: A separate copy stored in each Fragment View binding.
+      - id: repository-ui-state
+        text: Put every temporary field into the durable repository.
+    correct_option_id: graph-entry
+
+  - id: select-qualified-binding
+    type: single-choice
+    prompt: >
+      Two OkHttpClient bindings represent public and authenticated traffic.
+      How should consumers select safely?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Typed semantic qualifiers distinguish same-type bindings at providers and
+      injection sites. Qualifiers select meaning but do not define lifetime.
+    options:
+      - id: typed-qualifiers
+        text: Use distinct typed qualifiers on both bindings and consumers.
+      - id: string-locator
+        text: Query a global map with “client1” and “client2”.
+      - id: declaration-order
+        text: Depend on whichever module is processed last.
+      - id: singleton-both
+        text: Mark both singleton so the container guesses correctly.
+    correct_option_id: typed-qualifiers
+
+  - id: choose-assisted-input
+    type: single-choice
+    prompt: >
+      ExportSession needs injected ReportExporter and a destination URI chosen
+      at runtime. Which contract is appropriate?
+    difficulty: junior
+    points: 1
+    explanation: >
+      An assisted factory combines graph dependencies with explicit runtime
+      input. It does not make the URI persistent or permit passing a
+      shorter-lived UI owner.
+    options:
+      - id: assisted-factory
+        text: Factory.create(destination) while ReportExporter comes from the graph.
+      - id: mutable-singleton
+        text: Store the latest destination in a mutable singleton.
+      - id: activity-in-domain
+        text: Pass Activity through Domain so it can ask for the URI.
+      - id: hidden-locator
+        text: Resolve the destination from a global container.
+    correct_option_id: assisted-factory
+
+  - id: prevent-context-leak
+    type: single-choice
+    prompt: >
+      A process-scoped preferences adapter needs Context only to open its
+      storage. Which dependency is safest?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A process-owned adapter can use qualified Application Context. Activity
+      or themed Context has a shorter UI lifetime and must not be retained.
+    options:
+      - id: application-context
+        text: Qualified Application Context.
+      - id: activity-context
+        text: The currently visible Activity Context.
+      - id: fragment
+        text: A Fragment retained by the adapter.
+      - id: view-context
+        text: The most recently inflated View Context.
+    correct_option_id: application-context
+
+  - id: isolate-test-graphs
+    type: multiple-choice
+    prompt: >
+      Which two practices prevent dependency state from leaking between tests?
+    difficulty: junior
+    points: 1
+    explanation: >
+      Constructor-injected units get fresh fakes directly. Integration tests
+      replace bindings in a fresh test graph and destroy/reset that graph.
+      Mutating production singletons makes order and parallelism observable.
+    options:
+      - id: fresh-unit-fakes
+        text: Construct each unit under test with fresh fake dependencies.
+      - id: fresh-test-component
+        text: Use a fresh integration test component with explicit replacement.
+      - id: mutate-production
+        text: Replace fields on the production singleton and restore them only after success.
+      - id: shared-fake
+        text: Share one mutable fake across all parallel tests.
+    correct_option_ids:
+      - fresh-unit-fakes
+      - fresh-test-component
