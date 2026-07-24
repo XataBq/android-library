@@ -1,0 +1,234 @@
+topic_id: android-domain-layer-and-use-cases
+content_version: 1
+passing_score_percent: 70
+questions:
+  - id: decide-domain-layer
+    type: single-choice
+    prompt: >
+      One screen calls one repository method and maps the returned value into
+      UI state. No rule is reused and the operation has no additional policy.
+      What is the best initial design?
+    difficulty: foundation
+    points: 1
+    explanation: >
+      A direct ViewModel-to-repository call keeps the design clear. Add a
+      Domain boundary when meaningful complexity, reuse, coordination, or a
+      distinct operation contract appears.
+    options:
+      - id: direct-repository
+        text: Let the ViewModel call the repository and keep presentation mapping in UI ownership.
+      - id: mandatory-use-case
+        text: Add a pass-through use case because every repository method needs one.
+      - id: move-to-activity
+        text: Move the operation into the Activity to avoid layers.
+      - id: domain-module
+        text: Create a dedicated Domain Gradle module before implementing the screen.
+    correct_option_id: direct-repository
+
+  - id: classify-responsibilities
+    type: multiple-choice
+    prompt: Which responsibility placements are appropriate?
+    difficulty: foundation
+    points: 2
+    explanation: >
+      Screen formatting belongs to UI ownership, a stable cross-repository
+      eligibility operation can belong to Domain, and source selection remains
+      a repository/Data responsibility.
+    options:
+      - id: formatting-ui
+        text: Localized price formatting for one screen belongs in UI-oriented code.
+      - id: eligibility-domain
+        text: A reused eligibility rule coordinating account and cart repositories can belong in a use case.
+      - id: source-domain
+        text: A use case should decide whether Room or Retrofit supplies data.
+      - id: loading-domain
+        text: A use case should own the screen's loading indicator.
+    correct_option_ids:
+      - formatting-ui
+      - eligibility-domain
+
+  - id: pass-through-smell
+    type: true-false
+    prompt: >
+      A use case that only forwards identical inputs and output to one
+      repository always improves separation of concerns.
+    difficulty: foundation
+    points: 1
+    explanation: >
+      False. Without policy, reuse, coordination, or a distinct contract, the
+      wrapper adds indirection but no meaningful responsibility boundary.
+    correct_answer: false
+
+  - id: repository-versus-use-case
+    type: single-choice
+    prompt: >
+      Checkout combines account eligibility, cart contents, and order
+      submission. Repositories already own each data set and its source policy.
+      Where should the coherent checkout operation most plausibly live?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A focused use case can coordinate the repository contracts while each
+      repository retains its data ownership and source behavior.
+    options:
+      - id: checkout-use-case
+        text: A focused checkout use case depending on the three repositories.
+      - id: account-repository
+        text: AccountRepository, which should also own cart and order sources.
+      - id: compose-screen
+        text: The composable, because it receives the click.
+      - id: retrofit-service
+        text: The order Retrofit service, because submission is remote.
+    correct_option_id: checkout-use-case
+
+  - id: multi-repository-design
+    type: free-text
+    prompt: >
+      Design the responsibility boundary for an ObserveDashboard operation that
+      combines profile and unread-message data used by two screens.
+    difficulty: junior
+    points: 4
+    explanation: >
+      A strong design gives one focused use case two repository abstractions,
+      returns an observable application model, and leaves source and lifecycle
+      ownership in Data and UI respectively.
+    rubric:
+      - criterion: Identifies a focused reusable use case that depends on profile and message repository abstractions.
+        points: 1
+      - criterion: Uses Flow or another observable contract appropriate for changing dashboard data.
+        points: 1
+      - criterion: Leaves source selection, persistence, and synchronization in repositories.
+        points: 1
+      - criterion: Leaves collection scope and screen UI state in the caller.
+        points: 1
+    sample_answer: >
+      ObserveDashboard depends on ProfileRepository and MessageRepository,
+      combines their flows into Dashboard, and returns Flow<Dashboard>.
+      Repositories own sources; each ViewModel collects in its own scope and
+      maps Dashboard into screen state.
+
+  - id: flow-and-suspend
+    type: multiple-choice
+    prompt: Which coroutine boundary statements are sound?
+    difficulty: junior
+    points: 2
+    explanation: >
+      One-shot operations fit suspending functions, observable data can use
+      Flow, and the UI caller owns lifecycle collection. A hidden scope breaks
+      structured ownership.
+    options:
+      - id: suspend-action
+        text: A finite submit operation can be a suspending function.
+      - id: flow-observation
+        text: Changing application data can be exposed as Flow.
+      - id: hidden-scope
+        text: Every use case should create a private CoroutineScope so work outlives callers.
+      - id: domain-lifecycle
+        text: The use case should stop collection from an Activity lifecycle callback.
+    correct_option_ids:
+      - suspend-action
+      - flow-observation
+
+  - id: framework-leak
+    type: code-analysis
+    prompt: Identify the boundary problems and propose a responsibility-level correction.
+    difficulty: junior
+    points: 4
+    explanation: >
+      Domain code should not reach Android resources or Retrofit directly, and
+      hidden scopes escape caller cancellation. UI can format text, a
+      repository can hide transport, and the caller should own the scope.
+    language: kotlin
+    code: |
+      class LoadGreeting(
+          private val context: Context,
+          private val api: GreetingApi,
+      ) {
+          private val scope = CoroutineScope(Dispatchers.IO)
+
+          fun run() = scope.async {
+              context.getString(R.string.greeting, api.load().name)
+          }
+      }
+    rubric:
+      - criterion: Identifies Context/resource formatting as UI or boundary leakage.
+        points: 1
+      - criterion: Identifies direct Retrofit-style API access instead of a repository contract.
+        points: 1
+      - criterion: Identifies the hidden unmanaged scope and requires caller-owned cancellation.
+        points: 1
+      - criterion: Proposes a plain application value or outcome returned through a suspending use case.
+        points: 1
+    sample_answer: >
+      Inject a GreetingRepository, expose a suspending operation returning a
+      plain Greeting, invoke it from a caller-owned scope, and format the
+      localized string in UI code.
+
+  - id: model-trade-off
+    type: single-choice
+    prompt: When is a separate Domain model most justified?
+    difficulty: junior
+    points: 1
+    explanation: >
+      A separate model earns its mapping cost when it expresses a materially
+      different application contract or protects it from infrastructure and
+      presentation changes.
+    options:
+      - id: distinct-contract
+        text: When Domain rules need a stable model with constraints different from DTO, entity, or UI models.
+      - id: every-layer
+        text: Whenever the project has more than one package.
+      - id: naming-rule
+        text: Whenever a class name can end with DomainModel.
+      - id: clean-template
+        text: Whenever a Clean Architecture diagram shows separate circles.
+    correct_option_id: distinct-contract
+
+  - id: testing-strategy
+    type: multiple-choice
+    prompt: What should a focused use-case test normally verify?
+    difficulty: junior
+    points: 2
+    explanation: >
+      Useful tests exercise rules, outcomes, coordination, failure, and
+      cancellation with controllable fakes. Android framework setup and pure
+      forwarding verification do not establish application behavior.
+    options:
+      - id: rule-outcomes
+        text: Expected rule outcomes and rejected inputs.
+      - id: fake-coordination
+        text: Multi-repository behavior using controllable fakes.
+      - id: android-runner
+        text: Activity launch for every Domain rule.
+      - id: forwarding-only
+        text: Only that one repository method was invoked once.
+    correct_option_ids:
+      - rule-outcomes
+      - fake-coordination
+
+  - id: placement-scenario
+    type: free-text
+    prompt: >
+      A ViewModel contains a tax calculation reused by three screens, loading
+      state, localized currency formatting, and a repository refresh call.
+      Place each responsibility and justify whether to add a use case.
+    difficulty: junior
+    points: 4
+    explanation: >
+      Reused tax policy is a strong use-case candidate; screen loading and
+      formatting remain UI concerns; refresh/source behavior remains with the
+      repository and its caller contract.
+    rubric:
+      - criterion: Moves the reused tax rule to a focused application operation or policy with clear justification.
+        points: 1
+      - criterion: Keeps loading state and localized formatting in UI ownership.
+        points: 1
+      - criterion: Keeps data refresh and source policy behind the repository boundary.
+        points: 1
+      - criterion: Avoids mandatory modules, framework coupling, and pass-through wrappers.
+        points: 1
+    sample_answer: >
+      Extract CalculateTax because the stable rule is reused. Each ViewModel
+      owns loading and localized display. It calls the repository's refresh
+      contract directly or through a broader operation only if additional
+      application coordination appears.

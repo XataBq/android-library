@@ -1,0 +1,63 @@
+id: android-domain-layer-and-use-cases
+title: Android Domain Layer and Use Cases
+track: android
+section: app-architecture
+difficulty: foundation
+status: review
+estimated_minutes: 120
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-ui-layer-and-unidirectional-data-flow
+  - android-data-layer-repositories-and-synchronization
+learning_outcomes:
+  - Explain the purpose and boundaries of an optional Domain layer.
+  - Decide when a Domain layer is justified and when it adds unnecessary indirection.
+  - Distinguish UI logic, application logic, and Data-layer responsibilities.
+  - Design focused use cases around coherent application operations.
+  - Coordinate multiple repositories without exposing data-source details.
+  - Keep Domain code independent from Android framework and UI lifecycle types.
+  - Select suspend functions or Flow according to operation semantics and caller ownership.
+  - Model inputs, outputs, and failures at an appropriate application boundary.
+  - Decide whether logic belongs in a ViewModel, repository, or use case.
+  - Evaluate when layer-specific models improve a complex application.
+  - Test Domain rules and repository coordination with fakes.
+  - Recognize pass-through, oversized, duplicated, and infrastructure-leaking use cases.
+tags:
+  - app-architecture
+  - domain-layer
+  - use-cases
+  - responsibility-boundaries
+  - coroutines
+references:
+  - title: Guide to app architecture
+    url: https://developer.android.com/topic/architecture?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Domain layer
+    url: https://developer.android.com/topic/architecture/domain-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Recommendations for Android architecture
+    url: https://developer.android.com/topic/architecture/recommendations?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: Data layer
+    url: https://developer.android.com/topic/architecture/data-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+  - title: UI layer
+    url: https://developer.android.com/topic/architecture/ui-layer?hl=en
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-23'
+summary: A responsibility-first guide to deciding when an optional Domain layer and focused use cases improve an Android application.
+android_connections:
+  - Domain code can isolate reusable application rules from Android UI lifecycle concerns.
+  - ViewModels may call use cases while continuing to own screen UI state and UI actions.
+  - Use cases may coordinate repositories without accessing Room, Retrofit, or platform APIs directly.
+  - Coroutines and Flow can cross the boundary while lifecycle collection remains in UI-owned scopes.

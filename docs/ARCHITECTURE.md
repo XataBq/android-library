@@ -5,7 +5,7 @@
 The active product phase is **Phase 3 — Learning Content MVP**. Phase 2 —
 Canonical Knowledge Foundation is completed. The repository foundation,
 educational topic contracts, competency foundations, learning-sequence
-infrastructure, competency-to-topic mapping infrastructure, and first three
+infrastructure, competency-to-topic mapping infrastructure, and first four
 production educational topics are implemented. The first learning sequence
 version 1 has machine status `approved` and conceptual state `accepted`; source
 packages, the canonical competency package, and topics remain in `review`. No
