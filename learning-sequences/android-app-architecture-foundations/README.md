@@ -16,5 +16,5 @@ mandatory dependency or a canonical relation between competencies.
 Competencies within the same stage are grouped as a coherent instructional unit
 and have no semantic order.
 
-The sequence is version `1` and remains in `review`; it is not approved or
-published.
+The sequence is version `1`, has machine status `approved`, and is conceptually
+`accepted`; it is not published.

@@ -4,11 +4,10 @@
 
 **Current phase: Phase 3 — Learning Content MVP**
 
-Phase 2 — Canonical Knowledge Foundation is near completion. It still requires
-editorial review and disposition of the first learning sequence, followed by
-formal phase closure. Repository-wide package promotion criteria are defined.
-Moving the active product focus to Phase 3 does not approve any review-stage
-package.
+Phase 2 — Canonical Knowledge Foundation is completed. Repository-wide package
+promotion criteria are defined, and the first learning sequence version 1 has
+passed editorial review. Phase 3 remains the active product phase. Phase 2
+closure does not approve any other review-stage package.
 
 ## Completed capabilities
 
@@ -31,7 +30,8 @@ The repository currently provides:
   `review`;
 - a minimal learning-sequence model, validation, fixtures, tests, and authoring
   documentation;
-- the first Android app architecture learning sequence in `review`;
+- the first Android app architecture learning sequence version 1 with machine
+  status `approved`, conceptual state `accepted`, and no publication;
 - separate version 1 competency-to-topic mapping infrastructure, with no
   production mapping packages;
 - a repository-wide editorial package lifecycle with exact-version promotion
@@ -85,6 +85,9 @@ The repository currently provides:
   automation, distribution, product validation, and deferred expansion.
 - **Task 014 — DONE:** Defined the repository-wide editorial package lifecycle
   and exact-version promotion criteria without promoting any package.
+- **Task 015 — DONE:** Editorially reviewed and accepted the first learning
+  sequence version 1, applied machine status `approved`, and formally closed
+  Phase 2 without promoting its canonical dependency.
 
 ## Current focus
 
@@ -95,27 +98,28 @@ remain in `review`.
 
 The canonical competency model is `ACCEPTED` repository architecture, while
 both source packages and the version 2 canonical competency package remain in
-`review`. The first learning sequence also remains in `review`. Canonical
-competency relations are deferred. Competency-to-topic mapping infrastructure
-is implemented, but no production mapping package exists.
+`review`. The first learning sequence version 1 is `approved`/conceptually
+`accepted` under a documented exact-version dependency exception and is not
+published. Canonical competency relations are deferred. Competency-to-topic
+mapping infrastructure is implemented, but no production mapping package
+exists.
 
-Phase 2 remains open for editorial review of the first learning sequence,
-its explicit disposition, and formal closure.
+Phase 2 is formally closed. This closure does not promote source packages, the
+canonical competency package, topics, or mappings.
 
 ## Next planned work
 
 The next work is planned, not yet approved as numbered implementation tasks:
 
-1. Complete editorial review and disposition of the first learning sequence,
-   then formally close Phase 2.
-2. Review and expand the three-topic Android app architecture foundation toward
+1. Review and expand the three-topic Android app architecture foundation toward
    a coherent 10–15-topic Learning Content MVP.
-3. Create one reviewed learning path and production competency-to-topic
-   mappings against exact reviewed package versions.
-4. Add usable Markdown navigation, link and source/reference audits, freshness
-   metadata, editorial release rules, and CI validation.
-5. After real content justifies it, generate the first catalog and proceed
-   toward a stable content compiler and versioned publication bundle.
+2. Create production competency-to-topic mappings against exact reviewed
+   package versions.
+3. Extend usable Markdown navigation and prepare the first generated catalog
+   when real content justifies it.
+4. Add link and source/reference audits, freshness metadata, editorial release
+   rules, and CI validation.
+5. Proceed toward a stable content compiler and versioned publication bundle.
 
 Candidate future topics include Domain Layer and Use Cases, ViewModel and UI
 State, Android Lifecycle and State Restoration, Kotlin Coroutines Foundations,
@@ -127,8 +131,9 @@ assigned task numbers.
 
 The repository does not yet provide:
 
-- accepted or published source, canonical competency, learning-sequence, or
-  educational-topic packages;
+- accepted or published source, canonical competency, or educational-topic
+  packages;
+- a published learning-sequence package;
 - canonical competency relations;
 - production competency-to-topic mapping packages;
 - a generated catalog, content compiler, or versioned publication bundle;

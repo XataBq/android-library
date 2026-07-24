@@ -3,13 +3,13 @@
 ## Current architectural stage
 
 The active product phase is **Phase 3 — Learning Content MVP**. Phase 2 —
-Canonical Knowledge Foundation remains near completion pending editorial review
-and disposition of the first learning sequence and formal phase closure. The
-repository foundation, educational topic contracts, competency foundations,
-learning-sequence infrastructure, competency-to-topic mapping infrastructure,
-and first three production educational topics are implemented. All existing
-editorial packages remain in `review`, and no production mapping package
-exists.
+Canonical Knowledge Foundation is completed. The repository foundation,
+educational topic contracts, competency foundations, learning-sequence
+infrastructure, competency-to-topic mapping infrastructure, and first three
+production educational topics are implemented. The first learning sequence
+version 1 has machine status `approved` and conceptual state `accepted`; source
+packages, the canonical competency package, and topics remain in `review`. No
+production mapping package exists.
 
 No production client architecture is considered final yet.
 
@@ -206,8 +206,9 @@ their prerequisite graph remain separate from canonical competency data.
 `docs/architecture/CANONICAL_COMPETENCY_MODEL.md` is `ACCEPTED` as the
 repository architecture for stable, source-independent, evidence-backed
 competencies. Both source packages and the canonical competency set remain in
-`review`, as does learning sequence version 1. Architecture acceptance does not
-approve those editorial packages. Canonical relations and competency-to-topic
+`review`. Learning sequence version 1 has machine status `approved`, conceptual
+state `accepted`, and is not published. Architecture acceptance does not
+approve editorial packages. Canonical relations and competency-to-topic
 production mappings remain deferred; only the separate mapping infrastructure
 is implemented.
 

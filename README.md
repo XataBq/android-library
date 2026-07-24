@@ -6,14 +6,15 @@ software engineering.
 ## Current status
 
 The active product phase is **Phase 3 — Learning Content MVP**. Phase 2 —
-Canonical Knowledge Foundation is near completion; it still requires editorial
-review and disposition of the first learning sequence, followed by formal phase
-closure. Repository-wide package promotion criteria are now defined.
+Canonical Knowledge Foundation is completed. Repository-wide package promotion
+criteria are defined, and the first learning sequence version 1 has been
+editorially accepted.
 
 The canonical competency model is the repository's `ACCEPTED` architecture.
 Architecture acceptance does not approve editorial packages: the two Android
 Developers source packages, version 2 canonical Android app architecture
-competency set, and first learning sequence all remain in `review`.
+competency set remain in `review`. The first learning sequence has machine
+status `approved`, is conceptually `accepted`, and is not published.
 
 Tasks 012.1–012.3 form the current three-topic Android app architecture
 foundation:

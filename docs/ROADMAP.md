@@ -29,7 +29,7 @@ Implemented:
 
 ## Phase 2 — Canonical Knowledge Foundation
 
-**Status: Near completion.**
+**Status: Completed.**
 
 Purpose: create a provenance-preserving and source-independent knowledge
 foundation.
@@ -43,7 +43,9 @@ Implemented:
 - evidence references and a normalization workflow;
 - canonical relation research, with production relations deferred;
 - a minimal learning-sequence model;
-- the first learning sequence in `review`;
+- the first learning sequence version 1 editorially accepted with machine
+  status `approved`, but not published, under a documented dependency
+  exception;
 - competency-to-topic mapping infrastructure, with no production mapping
   packages;
 - repository-wide exact-version package lifecycle and promotion criteria.
@@ -51,13 +53,10 @@ Implemented:
 Architecture acceptance does not approve source, canonical competency, or
 learning-sequence packages.
 
-Remaining:
-
-- complete editorial review of the first learning sequence;
-- record its explicit disposition;
-- formally close Phase 2;
-- keep canonical competency relations deferred unless a real use case requires
-  them.
+Phase 2 closed after the first learning sequence received an `APPROVE`
+disposition. Both source packages and the canonical competency package remain
+in `review`; canonical competency relations remain deferred unless a real use
+case requires them.
 
 ## Phase 3 — Learning Content MVP
 
@@ -268,5 +267,5 @@ A custom backend is not a goal by itself.
 
 **Phase 3 — Learning Content MVP**
 
-Phase 2 is near completion and remains open for editorial review of the first
-learning sequence, its explicit disposition, and formal phase closure.
+Phase 2 is completed. Its closure did not approve source packages, the
+canonical competency package, topics, mappings, or canonical relations.

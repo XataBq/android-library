@@ -6,7 +6,7 @@ description: >
   A foundational learning path through the canonical Android app architecture
   competency set.
 language: en
-status: review
+status: approved
 competency_set:
   id: android-app-architecture
   version: 2
