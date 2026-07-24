@@ -1,0 +1,147 @@
+id: android-testing-foundations
+title: Android Testing Foundations
+track: android
+section: testing
+difficulty: foundation
+status: review
+estimated_minutes: 240
+content_version: 1
+prerequisites:
+  - android-app-architecture-foundations
+  - android-ui-layer-and-unidirectional-data-flow
+  - android-data-layer-repositories-and-synchronization
+  - android-domain-layer-and-use-cases
+  - android-viewmodel-and-ui-state
+  - android-lifecycle-and-state-restoration
+  - kotlin-coroutines-foundations
+  - kotlin-structured-concurrency-and-supervision
+  - kotlin-flow-and-reactive-streams
+  - android-navigation-architecture
+  - android-networking-architecture
+  - android-dependency-injection-and-scoping
+learning_outcomes:
+  - Explain which regression risk, contract, or user-observable behavior a test protects.
+  - Distinguish unit, integration, component, UI, instrumentation, and end-to-end boundaries.
+  - Choose the smallest reliable test that can expose the target failure.
+  - Balance speed, realism, diagnostic value, and maintenance in a test portfolio.
+  - Structure focused tests with Arrange, Act, and Assert when that improves clarity.
+  - Distinguish state verification, interaction verification, and observable-behavior assertions.
+  - Select dummies, stubs, fakes, spies, and mocks according to the controlled dependency.
+  - Prefer behavior-rich fakes over brittle call verification when stateful behavior matters.
+  - Improve testability with explicit dependencies, clocks, dispatchers, boundaries, and owners.
+  - Test pure rules, mappers, reducers, use cases, and state machines without Android.
+  - Test ViewModel initial state, actions, transitions, cancellation, and saved inputs.
+  - Control coroutine scheduling and virtual time with one shared test scheduler.
+  - Test finite cold Flow and infinite StateFlow or SharedFlow contracts without hanging.
+  - Test repository coordination with deterministic remote and local fakes.
+  - Verify serialization, mapping, status, timeout, retry, and cancellation at the network boundary.
+  - Verify DAO queries, transactions, cleanup, and migrations at the database boundary.
+  - Test navigation callbacks separately and graph behavior through a test controller.
+  - Assert Compose and View UI through stable user-facing semantics and synchronization.
+  - Test lifecycle recreation without confusing it with process death.
+  - Prevent flakiness caused by real time, shared state, races, unstable selectors, and leaked resources.
+  - Explain the strengths and limits of snapshot or golden tests.
+  - Design a risk-based, isolated, and maintainable Android test portfolio.
+tags:
+  - android
+  - testing
+  - unit-testing
+  - integration-testing
+  - ui-testing
+  - coroutines
+  - flow
+  - test-doubles
+  - testability
+references:
+  - title: JUnit 4 documentation
+    url: https://junit.org/junit4/
+    type: official-docs
+    author: JUnit
+    accessed_on: '2026-07-24'
+  - title: Fundamentals of testing Android apps
+    url: https://developer.android.com/training/testing/fundamentals
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: What to test in Android
+    url: https://developer.android.com/training/testing/fundamentals/what-to-test
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Testing strategies
+    url: https://developer.android.com/training/testing/fundamentals/strategies
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Use test doubles in Android
+    url: https://developer.android.com/training/testing/fundamentals/test-doubles
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Build local tests
+    url: https://developer.android.com/training/testing/local-tests
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Build instrumented tests
+    url: https://developer.android.com/training/testing/instrumented-tests
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Testing Kotlin coroutines on Android
+    url: https://developer.android.com/kotlin/coroutines/test
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Testing Kotlin flows on Android
+    url: https://developer.android.com/kotlin/flow/test
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test your Compose layout
+    url: https://developer.android.com/develop/ui/compose/testing
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Semantics in Compose testing
+    url: https://developer.android.com/develop/ui/compose/testing/semantics
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Espresso
+    url: https://developer.android.com/training/testing/espresso
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Espresso idling resources
+    url: https://developer.android.com/training/testing/espresso/idling-resource
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test Compose navigation
+    url: https://developer.android.com/guide/navigation/testing/compose
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Test and debug your Room database
+    url: https://developer.android.com/training/data-storage/room/testing-db
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: Hilt testing guide
+    url: https://developer.android.com/training/dependency-injection/hilt-testing
+    type: official-docs
+    author: Android Developers
+    accessed_on: '2026-07-24'
+  - title: MockWebServer API
+    url: https://square.github.io/okhttp/5.x/mockwebserver3/mockwebserver3/-mock-web-server/
+    type: official-docs
+    author: Square
+    accessed_on: '2026-07-24'
+summary: A risk-first guide to Android test boundaries, deliberate doubles, deterministic coroutine and Flow tests, observable UI behavior, and isolated test portfolios.
+android_connections:
+  - Android architecture exposes constructor, repository, ViewModel, navigation, and UI seams at different test boundaries.
+  - Local JVM and instrumented device execution are environments, not synonyms for unit and end-to-end scope.
+  - ViewModel, coroutine, and Flow tests control owner lifetime and scheduling rather than waiting on real time.
+  - Compose semantics and Espresso matchers express user-observable UI contracts through framework synchronization.
+  - Room, network, navigation, lifecycle, and Hilt integrations require focused boundary tests without turning every check into end-to-end coverage.

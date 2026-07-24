@@ -1,0 +1,207 @@
+topic_id: android-testing-foundations
+content_version: 1
+passing_score_percent: 75
+questions:
+  - id: choose-smallest-reliable-boundary
+    type: single-choice
+    prompt: A production defect is caused by a Room query that excludes rows whose nullable category is absent. Which test is the smallest reliable test for that defect?
+    difficulty: foundation
+    points: 2
+    explanation: The failure depends on real SQL and Room query behavior, so a focused database boundary test is smaller and more reliable than a full UI test. A fake DAO would reproduce only the behavior programmed into the fake and could repeat the same mistaken assumption.
+    options:
+      - id: mapper-unit
+        text: A pure DTO-to-domain mapper test with the DAO mocked
+      - id: real-dao
+        text: A focused test using the real Room DAO and representative rows
+      - id: full-end-to-end
+        text: A complete device checkout journey against the production backend
+      - id: private-method
+        text: A direct test of the DAO implementation's private helper
+    correct_option_id: real-dao
+
+  - id: select-fake-over-mock
+    type: multiple-choice
+    prompt: Which scenarios are strong reasons to prefer a behavior-rich fake over interaction-heavy mocks?
+    difficulty: foundation
+    points: 3
+    explanation: Fakes are useful when coherent state spans several operations, such as cache mutation or controlled stream emission. Exact interaction verification is more appropriate when the interaction itself is the contract, but verifying every internal call makes refactoring brittle.
+    options:
+      - id: cache-state
+        text: The test needs writes to affect later reads from an in-memory cache.
+      - id: controlled-flow
+        text: The test needs to emit repository values at deliberate times.
+      - id: verify-every-call
+        text: The team wants every internal call order frozen during refactoring.
+      - id: audit-contract
+        text: The only risk is that a legally required audit record is emitted exactly once.
+    correct_option_ids:
+      - cache-state
+      - controlled-flow
+
+  - id: viewmodel-state-contract
+    type: free-text
+    prompt: Design the smallest focused test for a ViewModel that loads an ID from SavedStateHandle and publishes Idle, Loading, then Content through StateFlow.
+    difficulty: junior
+    points: 5
+    explanation: A focused ViewModel test constructs the ViewModel with a fake dependency and SavedStateHandle, controls Main and the coroutine scheduler, invokes the public action, and observes public state. It does not require an Activity and does not claim to prove process death.
+    rubric:
+      - criterion: Constructs the ViewModel with a deterministic fake and the required SavedStateHandle ID.
+        points: 1
+      - criterion: Replaces or controls Main and uses one shared coroutine test scheduler.
+        points: 1
+      - criterion: Asserts initial state and action-driven observable state rather than private calls.
+        points: 1
+      - criterion: Advances or joins owned coroutine work without real sleeps.
+        points: 1
+      - criterion: States that constructing SavedStateHandle alone is not a process-death test.
+        points: 1
+    sample_answer: Construct the ViewModel directly with a fake repository and SavedStateHandle containing the ID. Install a TestDispatcher as Main, call load inside runTest, assert Idle first, run scheduled work, then assert Content and the selected ID. Add a separate controlled-suspension test if Loading must be observed. Reset Main in cleanup. This verifies the ViewModel contract, not operating-system process recreation.
+
+  - id: analyze-virtual-time
+    type: code-analysis
+    prompt: Why can this test fail, and how should it be corrected without a real sleep?
+    difficulty: junior
+    points: 4
+    explanation: StandardTestDispatcher queues newly launched work. The test must yield or advance the shared scheduler, and the subject's dispatcher must use that scheduler. A real sleep neither advances virtual time nor proves completion.
+    language: kotlin
+    code: |-
+      @Test
+      fun refreshes() = runTest {
+          val repository = Repository(StandardTestDispatcher())
+          repository.refreshLater() // launches work containing delay(1_000)
+          assertEquals(Data.Ready, repository.state.value)
+      }
+    rubric:
+      - criterion: Identifies that the separately created StandardTestDispatcher has its own scheduler.
+        points: 1
+      - criterion: Requires the subject dispatcher to use testScheduler.
+        points: 1
+      - criterion: Uses runCurrent, advanceTimeBy, advanceUntilIdle, join, or await according to the completion contract.
+        points: 1
+      - criterion: Rejects Thread.sleep and distinguishes virtual delay from blocking work.
+        points: 1
+    sample_answer: Inject StandardTestDispatcher(testScheduler), make refreshLater return an observable Job/Deferred or otherwise expose state, then advance virtual time and run queued tasks before asserting. All test dispatchers must share testScheduler. Thread.sleep would not advance this scheduler and would make the test slower and flaky.
+
+  - id: test-hot-flow-contract
+    type: multiple-choice
+    prompt: A ViewModel exposes stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Initial). Which steps are required for a deterministic StateFlow test?
+    difficulty: junior
+    points: 3
+    explanation: WhileSubscribed starts upstream only while subscribed, so the test needs a collector even when asserting value. Infinite collection must be owned by backgroundScope or explicitly cancelled. StateFlow is conflated, so current value is often a more stable assertion than every intermediate emission.
+    options:
+      - id: start-collector
+        text: Start an active collector before expecting upstream values.
+      - id: own-collector
+        text: Put never-ending collection in backgroundScope or cancel its Job.
+      - id: assert-every-state
+        text: Assume every rapid intermediate StateFlow value must be observed.
+      - id: real-delay
+        text: Sleep long enough for the collector to subscribe.
+    correct_option_ids:
+      - start-collector
+      - own-collector
+
+  - id: repository-boundary-plan
+    type: free-text
+    prompt: A repository coordinates a remote DTO service, local source of truth, freshness clock, mapping, and cancellation. Split its test strategy into focused boundaries.
+    difficulty: junior
+    points: 5
+    explanation: Repository policy, mapping, HTTP behavior, and database behavior own different risks. Deterministic fakes make policy tests fast, while real adapter tests verify transport or SQL semantics. Cancellation must remain owner cancellation rather than being mapped to ordinary failure.
+    rubric:
+      - criterion: Uses fake remote/local sources and a fixed clock for repository cache and refresh policy.
+        points: 1
+      - criterion: Tests DTO mapping failures separately as pure logic.
+        points: 1
+      - criterion: Uses a mock server for real HTTP request, status, and serialization behavior.
+        points: 1
+      - criterion: Uses real Room/SQLite only for query, transaction, invalidation, or migration risks.
+        points: 1
+      - criterion: Includes cancellation propagation and cleanup without broad exception swallowing.
+        points: 1
+    sample_answer: Test cache-hit, stale refresh, persistence, error mapping, and cancellation on the repository with deterministic fake sources and a fixed clock. Test mapper invariants locally. Test the real HTTP adapter against a mock server and the real DAO or migrations against Room/SQLite. Close server and database per test, and rethrow CancellationException at any broad error boundary.
+
+  - id: choose-navigation-test
+    type: single-choice
+    prompt: A defect pops two destinations instead of one after receipt confirmation. Which test most directly owns the risk?
+    difficulty: junior
+    points: 2
+    explanation: The failure is back-stack mechanics, so use the real navigation graph with a test controller or rendered host. A callback unit test can prove navigation intent but cannot prove actual pop behavior.
+    options:
+      - id: viewmodel-private
+        text: Test a private ViewModel method that builds a route string.
+      - id: recording-callback
+        text: Verify only that the destination callback receives the receipt ID.
+      - id: graph-controller
+        text: Drive the real test navigation graph and assert the resulting back stack.
+      - id: screenshot
+        text: Compare a screenshot of the confirmation screen.
+    correct_option_id: graph-controller
+
+  - id: ui-semantic-observation
+    type: multiple-choice
+    prompt: Which practices produce stable Compose or Espresso UI tests?
+    difficulty: foundation
+    points: 3
+    explanation: User-facing semantics and framework synchronization describe behavior and completion. Positional implementation selectors and fixed sleeps are unstable and do not model actual readiness.
+    options:
+      - id: semantic-selector
+        text: Select by meaningful text, role, state, label, content description, or a justified stable tag/ID.
+      - id: framework-sync
+        text: Use Compose/Espresso synchronization and explicit idling boundaries for unknown async work.
+      - id: positional-selector
+        text: Select the third child because the current layout happens to place the button there.
+      - id: fixed-sleep
+        text: Wait a fixed number of seconds before every assertion.
+    correct_option_ids:
+      - semantic-selector
+      - framework-sync
+
+  - id: diagnose-flaky-test
+    type: code-analysis
+    prompt: Identify the isolation and synchronization problems in this test and propose a repair.
+    difficulty: junior
+    points: 5
+    explanation: The test relies on shared process state, arbitrary time, and a positional selector, and it does not expose cleanup. A fresh graph, deterministic fake completion, stable semantics, and unconditional resource release make the scenario independent and diagnosable.
+    language: kotlin
+    code: |-
+      @Test
+      fun checkout() {
+          GlobalCart.items += Item("book")
+          launchCheckoutActivity()
+          Thread.sleep(3_000)
+          composeRule.onAllNodesWithText("Continue")[2].performClick()
+          composeRule.onNodeWithText("Done").assertExists()
+      }
+    rubric:
+      - criterion: Replaces GlobalCart with fresh per-test graph or fake state.
+        points: 1
+      - criterion: Replaces Thread.sleep with deterministic dependency completion or framework synchronization.
+        points: 1
+      - criterion: Replaces the positional selector with stable user-facing semantics.
+        points: 1
+      - criterion: Defines cleanup for scenario, graph, collectors, server, database, or idling resources as applicable.
+        points: 1
+      - criterion: Preserves and names the specific user-observable checkout risk.
+        points: 1
+    sample_answer: Build a fresh cart repository in the test graph, make checkout completion controllable, launch the scenario under that graph, select the intended button by a unique semantic label or justified tag, and let Compose synchronize with observable state. Close the scenario and reset graph resources in cleanup. Keep the assertion focused on the confirmed checkout behavior.
+
+  - id: balanced-test-portfolio
+    type: free-text
+    prompt: Propose a balanced test portfolio for a checkout feature with pricing rules, repository coordination, payment HTTP, receipt persistence, navigation, and Compose UI.
+    difficulty: junior
+    points: 6
+    explanation: A balanced portfolio maps each risk to the smallest reliable test and keeps only critical wiring or journeys at expensive levels. It explicitly controls external dependencies, lifecycle, time, cancellation, isolation, and cleanup.
+    rubric:
+      - criterion: Assigns pure pricing, validation, mapping, and reducers to focused unit tests.
+        points: 1
+      - criterion: Assigns repository coordination to tests with deterministic sources and controlled time/cancellation.
+        points: 1
+      - criterion: Includes focused mock-server and real-database adapter tests.
+        points: 1
+      - criterion: Separates navigation intent tests from graph/back-stack tests.
+        points: 1
+      - criterion: Includes focused semantic UI tests and justifies one critical end-to-end path.
+        points: 1
+      - criterion: States isolation, cleanup, diagnostic, and execution-cost policy.
+        points: 1
+    sample_answer: Test pricing, validation, reducers, and mapping locally. Test repository cache/refresh/payment coordination with deterministic fakes and virtual time, then verify the real payment adapter with a mock server and receipt DAO with Room. Test callbacks separately from one graph/back-stack suite. Add focused Compose semantics tests and one hermetic happy-path end-to-end test with external services replaced. Give every test fresh state and explicit cleanup, and avoid duplicating every edge case at every level.
